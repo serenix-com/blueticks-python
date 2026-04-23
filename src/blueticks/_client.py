@@ -63,11 +63,13 @@ class Blueticks:
         # Lazy-imported to avoid import cycles and to keep core import cheap.
         from blueticks.resources.account import AccountResource
         from blueticks.resources.audiences import AudiencesResource
+        from blueticks.resources.campaigns import CampaignsResource
         from blueticks.resources.messages import MessagesResource
         from blueticks.resources.webhooks import WebhooksResource
 
         self.account = AccountResource(self)
         self.audiences = AudiencesResource(self)
+        self.campaigns = CampaignsResource(self)
         self.messages = MessagesResource(self)
         self.webhooks = WebhooksResource(self)
 
