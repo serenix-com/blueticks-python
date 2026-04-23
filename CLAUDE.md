@@ -15,9 +15,16 @@ produces must follow these rules.
 - `src/blueticks/types/__init__.py`
 - `tests/test_<resource>.py` — one per resource file
 
+### You MAY write (only, with narrow constraints):
+
+- `src/blueticks/_client.py` — **only** to keep the `Blueticks` class's resource attachments and method return types in sync with the resources/types you regenerate. Specifically:
+  - Add or remove `self.<resource> = <ResourceClass>(self)` attachments for resources you created or deleted.
+  - Update the return-type annotation on helper methods (like `ping()`) that delegate to resource classes.
+  - Keep any required `TYPE_CHECKING` forward-reference imports in sync.
+  - Do NOT modify the constructor signature, `_request()`, env-var logic, `close()`, `__enter__`/`__exit__`, or any other method body.
+
 ### You MUST NOT touch:
 
-- `src/blueticks/_client.py`
 - `src/blueticks/_transport.py`
 - `src/blueticks/_errors.py`
 - `src/blueticks/_base_resource.py`
@@ -56,10 +63,12 @@ file defines one `pydantic.BaseModel` subclass.
 | `boolean`                           | `bool`                      |
 | `array, items: <T>`                 | `list[<T>]`                 |
 | `object` (inline)                   | nested `BaseModel`          |
-| `nullable: true`                    | `Optional[T]`               |
+| `nullable: true`                    | `Optional[T] = None` (see Python 3.9 note below) |
 | `enum: [a, b, c]`                   | `Literal["a", "b", "c"]`    |
 
 Every file imports `from __future__ import annotations`.
+
+**Python 3.9 nullable field pattern:** Always write nullable Pydantic fields as `Optional[T] = None  # noqa: UP045`. NEVER use PEP 604 `T | None` syntax for nullable fields. On Python 3.9, Pydantic v2 evaluates field annotations at runtime via `typing.get_type_hints()`, which cannot resolve PEP 604 unions on 3.9 even with `from __future__ import annotations`. The `# noqa: UP045` suppresses ruff's modernization suggestion. This applies ONLY to Pydantic field annotations in `types/*.py`; other type hints (method signatures, variable annotations) can use modern `X | Y` syntax freely.
 
 ### `types/__init__.py`
 
@@ -105,7 +114,7 @@ class AccountResource(BaseResource):
 - Return type: the corresponding `types/*.py` model.
 - Body: every method routes through `self._client._request(...)`. Never call
   `httpx` directly.
-- Docstring: operation `summary` + `\n\n` + operation `description`, verbatim.
+- Docstring: the operation's `summary` + `\n\n` + `description`, verbatim. If `summary` is absent (many operations declare only `description`), use the first sentence of `description` as the summary line and the remainder as the description body. If `description` is also absent, use `"<Method name in Title Case>."` as the summary (e.g., `"Retrieve."`) with no body.
 
 ### Example
 
@@ -118,7 +127,7 @@ from blueticks.types.account import Account
 
 class AccountResource(BaseResource):
     def retrieve(self) -> Account:
-        """Fetch the authenticated account.
+        """Retrieve the authenticated account.
 
         Returns the account associated with the API key used for this request.
         """
@@ -143,9 +152,11 @@ One file per resource, named `tests/test_<resource>.py`.
 
 ### Per method: two tests
 
-**Happy path.** Mock the transport to return the OpenAPI operation's `example`
-response. Assert the method returns the typed model with the expected field
-values.
+**Happy path.** Mock the transport to return a valid response body:
+- If the OpenAPI operation's response schema includes an `example` field, use it verbatim.
+- Otherwise, synthesize a minimal fixture covering every required field with plausible values (strings should be realistic, timestamps in ISO 8601 with `Z` suffix, IDs in the `<prefix>_<short>` convention used by Blueticks). Use at least one non-default value per non-ID field so the test verifies field-level parsing, not just that the object was constructed.
+
+Assert the method returns the typed model with the expected field values.
 
 **Error path.** Mock the transport to return a 401 with the standard envelope.
 Assert `AuthenticationError` is raised with the expected `code`, `message`,
