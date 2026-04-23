@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import os
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import httpx
+
+if TYPE_CHECKING:
+    from blueticks.types.ping import Ping
 
 from blueticks._errors import BluetickError
 from blueticks._transport import Transport
@@ -64,7 +67,7 @@ class Blueticks:
 
     # -- Public API ----------------------------------------------------------
 
-    def ping(self) -> Any:
+    def ping(self) -> Ping:
         from blueticks.resources.ping import PingResource
 
         return PingResource(self).retrieve()
