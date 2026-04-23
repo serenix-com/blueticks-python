@@ -6,7 +6,7 @@ from blueticks._errors import (
     BadRequestError,
     BluetickError,
     NotFoundError,
-    PermissionError,
+    PermissionDeniedError,
     RateLimitError,
 )
 from blueticks._version import __version__
@@ -19,7 +19,7 @@ __all__ = [
     "Blueticks",
     "BluetickError",
     "NotFoundError",
-    "PermissionError",
+    "PermissionDeniedError",
     "RateLimitError",
     "__version__",
 ]

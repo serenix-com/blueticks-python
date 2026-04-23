@@ -42,8 +42,8 @@ def test_explicit_base_url_overrides_env(monkeypatch: pytest.MonkeyPatch) -> Non
 
 def test_context_manager_closes_transport() -> None:
     with Blueticks(api_key="k") as c:
-        assert c._api_key == "k"
-    # No assertion on closed state — just that __exit__ doesn't raise.
+        transport = c._transport
+    assert transport._client.is_closed
 
 
 def test_default_base_url() -> None:

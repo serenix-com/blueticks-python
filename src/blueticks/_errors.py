@@ -38,7 +38,7 @@ class AuthenticationError(BluetickError):
     """401 — missing or invalid API key."""
 
 
-class PermissionError(BluetickError):
+class PermissionDeniedError(BluetickError):
     """403 — the key lacks the required scope or workspace access."""
 
 
@@ -71,7 +71,7 @@ class APIConnectionError(BluetickError):
 _STATUS_TO_CLASS: dict[int, type[BluetickError]] = {
     400: BadRequestError,
     401: AuthenticationError,
-    403: PermissionError,
+    403: PermissionDeniedError,
     404: NotFoundError,
     422: BadRequestError,
     429: RateLimitError,
@@ -79,11 +79,7 @@ _STATUS_TO_CLASS: dict[int, type[BluetickError]] = {
 
 
 def _class_for_status(status: int) -> type[BluetickError]:
-    if status in _STATUS_TO_CLASS:
-        return _STATUS_TO_CLASS[status]
-    if status >= 500:
-        return APIError
-    return APIError
+    return _STATUS_TO_CLASS.get(status, APIError)
 
 
 def from_envelope(

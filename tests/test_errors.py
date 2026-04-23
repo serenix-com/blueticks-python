@@ -9,7 +9,7 @@ from blueticks._errors import (
     BadRequestError,
     BluetickError,
     NotFoundError,
-    PermissionError,
+    PermissionDeniedError,
     RateLimitError,
     from_envelope,
 )
@@ -22,7 +22,7 @@ def test_base_class_is_exception() -> None:
 def test_all_subclasses_inherit_bluetick_error() -> None:
     for cls in [
         AuthenticationError,
-        PermissionError,
+        PermissionDeniedError,
         NotFoundError,
         BadRequestError,
         RateLimitError,
@@ -51,7 +51,7 @@ def test_str_handles_missing_request_id() -> None:
     "status,code,expected_cls",
     [
         (401, "authentication_required", AuthenticationError),
-        (403, "permission_denied", PermissionError),
+        (403, "permission_denied", PermissionDeniedError),
         (404, "not_found", NotFoundError),
         (400, "invalid_request", BadRequestError),
         (422, "invalid_request", BadRequestError),
@@ -86,7 +86,8 @@ def test_from_envelope_falls_back_when_body_has_no_error_key() -> None:
 def test_from_envelope_truncates_long_bodies() -> None:
     big = "x" * 500
     err = from_envelope(status_code=500, body=big, response=None)
-    assert len(err.message) <= 210  # 200 truncated chars + ellipsis marker
+    assert err.message.endswith("...")
+    assert len(err.message) == 203  # 200 chars + 3-char ellipsis
 
 
 def test_rate_limit_error_carries_retry_after() -> None:

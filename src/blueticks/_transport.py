@@ -14,6 +14,8 @@ from blueticks._errors import (
 
 _RETRIABLE_STATUS = {429, 502, 503, 504}
 _IDEMPOTENT_METHODS = {"GET", "HEAD", "OPTIONS", "DELETE", "PATCH", "PUT"}
+# Note: PATCH is not strictly idempotent per RFC 5789 but most REST APIs treat
+# partial updates as idempotent in practice. Matches Stripe/OpenAI convention.
 _BACKOFF_BASE_SECONDS = 0.5
 _BACKOFF_CAP_SECONDS = 8.0
 
