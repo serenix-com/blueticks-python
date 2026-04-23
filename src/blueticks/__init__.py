@@ -1,3 +1,25 @@
+from blueticks._client import Blueticks
+from blueticks._errors import (
+    APIConnectionError,
+    APIError,
+    AuthenticationError,
+    BadRequestError,
+    BluetickError,
+    NotFoundError,
+    PermissionError,
+    RateLimitError,
+)
 from blueticks._version import __version__
 
-__all__ = ["__version__"]
+__all__ = [
+    "APIConnectionError",
+    "APIError",
+    "AuthenticationError",
+    "BadRequestError",
+    "Blueticks",
+    "BluetickError",
+    "NotFoundError",
+    "PermissionError",
+    "RateLimitError",
+    "__version__",
+]
