@@ -73,8 +73,11 @@ def test_account_retrieve_propagates_authentication_error(mock_client) -> None:
         )
 
     with mock_client(handler) as client:
-        with pytest.raises(AuthenticationError):
+        with pytest.raises(AuthenticationError) as info:
             client.account.retrieve()
+    assert info.value.code == "authentication_required"
+    assert info.value.message == "bad key"
+    assert info.value.request_id == "req_a"
 
 
 def test_account_retrieve_missing_required_field_raises_validation_error(mock_client) -> None:

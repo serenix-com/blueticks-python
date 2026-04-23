@@ -53,6 +53,7 @@ def test_ping_propagates_authentication_error(mock_client) -> None:
         with pytest.raises(AuthenticationError) as info:
             client.ping()
     assert info.value.code == "authentication_required"
+    assert info.value.message == "bad key"
     assert info.value.request_id == "req_1"
 
 
