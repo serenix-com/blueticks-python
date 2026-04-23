@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
 
@@ -12,5 +13,5 @@ class Account(BaseModel):
 
     id: str
     name: str
-    timezone: str | None
+    timezone: Optional[str] = None  # noqa: UP045
     created_at: datetime
