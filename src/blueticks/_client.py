@@ -62,8 +62,10 @@ class Blueticks:
 
         # Lazy-imported to avoid import cycles and to keep core import cheap.
         from blueticks.resources.account import AccountResource
+        from blueticks.resources.messages import MessagesResource
 
         self.account = AccountResource(self)
+        self.messages = MessagesResource(self)
 
     # -- Public API ----------------------------------------------------------
 
