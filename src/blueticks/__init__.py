@@ -10,6 +10,7 @@ from blueticks._errors import (
     RateLimitError,
 )
 from blueticks._version import __version__
+from blueticks.webhooks import WebhookVerificationError
 
 __all__ = [
     "APIConnectionError",
@@ -21,5 +22,6 @@ __all__ = [
     "NotFoundError",
     "PermissionDeniedError",
     "RateLimitError",
+    "WebhookVerificationError",
     "__version__",
 ]
