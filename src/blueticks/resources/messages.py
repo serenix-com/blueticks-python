@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional
 
 from blueticks._base_resource import BaseResource
 from blueticks.types.messages import Message
+from blueticks.types.page import Page
 
 
 class MessagesResource(BaseResource):
@@ -43,3 +44,18 @@ class MessagesResource(BaseResource):
         """Retrieve a single message by id."""
         data = self._client._request("GET", f"/v1/messages/{message_id}")
         return Message.model_validate(data)
+
+    def list(
+        self,
+        *,
+        limit: Optional[int] = None,
+        cursor: Optional[str] = None,
+    ) -> Page[Message]:
+        """List messages sent through the API, newest first. Cursor-paginated."""
+        params: Dict[str, Any] = {}
+        if limit is not None:
+            params["limit"] = limit
+        if cursor is not None:
+            params["cursor"] = cursor
+        data = self._client._request("GET", "/v1/messages", params=params or None)
+        return Page[Message].model_validate(data)

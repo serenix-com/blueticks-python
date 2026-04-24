@@ -4,6 +4,7 @@ from typing import Any, Dict, List, Optional
 
 from blueticks._base_resource import BaseResource
 from blueticks.types.audiences import AppendContactsResult, Audience, Contact
+from blueticks.types.page import Page
 
 
 class AudiencesResource(BaseResource):
@@ -19,10 +20,20 @@ class AudiencesResource(BaseResource):
         data = self._client._request("POST", "/v1/audiences", body=body)
         return Audience.model_validate(data)
 
-    def list(self) -> List[Audience]:
-        data = self._client._request("GET", "/v1/audiences")
-        items = data.get("data", data) if isinstance(data, dict) else data
-        return [Audience.model_validate(item) for item in items]
+    def list(
+        self,
+        *,
+        limit: Optional[int] = None,
+        cursor: Optional[str] = None,
+    ) -> Page[Audience]:
+        """List audiences, newest first. Cursor-paginated."""
+        params: Dict[str, Any] = {}
+        if limit is not None:
+            params["limit"] = limit
+        if cursor is not None:
+            params["cursor"] = cursor
+        data = self._client._request("GET", "/v1/audiences", params=params or None)
+        return Page[Audience].model_validate(data)
 
     def get(self, audience_id: str, *, page: Optional[int] = None) -> Audience:
         params: Optional[Dict[str, Any]] = None
