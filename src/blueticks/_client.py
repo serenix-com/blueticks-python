@@ -64,13 +64,23 @@ class Blueticks:
         from blueticks.resources.account import AccountResource
         from blueticks.resources.audiences import AudiencesResource
         from blueticks.resources.campaigns import CampaignsResource
+        from blueticks.resources.chats import ChatsResource
+        from blueticks.resources.contacts import ContactsResource
+        from blueticks.resources.engines import EnginesResource
+        from blueticks.resources.groups import GroupsResource
         from blueticks.resources.messages import MessagesResource
+        from blueticks.resources.utils import UtilsResource
         from blueticks.resources.webhooks import WebhooksResource
 
         self.account = AccountResource(self)
         self.audiences = AudiencesResource(self)
         self.campaigns = CampaignsResource(self)
+        self.chats = ChatsResource(self)
+        self.contacts = ContactsResource(self)
+        self.engines = EnginesResource(self)
+        self.groups = GroupsResource(self)
         self.messages = MessagesResource(self)
+        self.utils = UtilsResource(self)
         self.webhooks = WebhooksResource(self)
 
     # -- Public API ----------------------------------------------------------
