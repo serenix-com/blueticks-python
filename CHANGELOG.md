@@ -3,6 +3,23 @@
 All notable changes to `blueticks` will be documented in this file. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and [Keep a Changelog](https://keepachangelog.com/).
 
+## 3.1.0 — 2026-04-29
+
+### Added
+- `client.chats.list_messages()` now accepts `message_types: list[MessageType]` —
+  filter to specific message kinds (e.g. `["document"]` for PDFs, `["image"]`
+  for photos). System events (`gp2`, `revoked`, `newsletter_notification`) are
+  excluded by default unless explicitly listed.
+- New `MessageType` Literal — string-enum of the 13 WhatsApp message kinds.
+- `ChatMessage.caption` and `ChatMessage.filename` — surfaced for media
+  messages so document listings are self-describing without an extra
+  media-fetch round-trip.
+
+### Fixed
+- Stale list-test mocks (`test_audiences`, `test_campaigns`,
+  `test_webhooks_resource`) now use the cursor-paginated `Page<T>` envelope.
+  Behaviour-only test fix.
+
 ## 1.1.0 — 2026-04-23
 
 ### Added
