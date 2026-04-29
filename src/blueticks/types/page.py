@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Generic, List, Optional, TypeVar
+# ruff: noqa: UP045  # Pydantic field annotations need Optional[T] for Python 3.9 (see CLAUDE.md)
+from typing import Generic, Optional, TypeVar
 
 from pydantic import BaseModel, ConfigDict
 
@@ -18,6 +19,6 @@ class Page(BaseModel, Generic[T]):
 
     model_config = ConfigDict(extra="ignore")
 
-    data: List[T]
+    data: list[T]
     has_more: bool
     next_cursor: Optional[str] = None  # noqa: UP045

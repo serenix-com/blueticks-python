@@ -9,8 +9,14 @@ import pytest
 
 from blueticks.webhooks import WebhookVerificationError, verify
 
-
 SECRET = "whsec_test_secret"
+
+# Shared minimal-event payload used across the negative-path tests below.
+# Extracted to a module constant to keep test bodies under the 100-char
+# line-length budget.
+_EVT_PAYLOAD = (
+    b'{"id":"evt","type":"message.delivered","created_at":"2026-04-23T00:00:00Z","data":{}}'
+)
 
 
 def _sign(payload: bytes, timestamp: int, secret: str = SECRET) -> str:
@@ -46,13 +52,13 @@ def test_verify_accepts_valid_signature():
 
 
 def test_verify_rejects_expired_timestamp():
-    payload = b'{"id":"evt","type":"message.delivered","created_at":"2026-04-23T00:00:00Z","data":{}}'
+    payload = _EVT_PAYLOAD
     with pytest.raises(WebhookVerificationError, match="expired"):
         verify(payload, _headers(payload, ts_offset=-400), secret=SECRET)
 
 
 def test_verify_rejects_tampered_payload():
-    payload = b'{"id":"evt","type":"message.delivered","created_at":"2026-04-23T00:00:00Z","data":{}}'
+    payload = _EVT_PAYLOAD
     headers = _headers(payload)
     tampered = b'{"id":"evt","type":"message.FAILED","created_at":"2026-04-23T00:00:00Z","data":{}}'
     with pytest.raises(WebhookVerificationError, match="invalid_signature"):
@@ -60,19 +66,19 @@ def test_verify_rejects_tampered_payload():
 
 
 def test_verify_rejects_wrong_secret():
-    payload = b'{"id":"evt","type":"message.delivered","created_at":"2026-04-23T00:00:00Z","data":{}}'
+    payload = _EVT_PAYLOAD
     with pytest.raises(WebhookVerificationError, match="invalid_signature"):
         verify(payload, _headers(payload), secret="whsec_wrong")
 
 
 def test_verify_missing_header():
-    payload = b'{"id":"evt","type":"message.delivered","created_at":"2026-04-23T00:00:00Z","data":{}}'
+    payload = _EVT_PAYLOAD
     with pytest.raises(WebhookVerificationError):
         verify(payload, {}, secret=SECRET)
 
 
 def test_verify_case_insensitive_headers():
-    payload = b'{"id":"evt","type":"message.delivered","created_at":"2026-04-23T00:00:00Z","data":{}}'
+    payload = _EVT_PAYLOAD
     h = _headers(payload)
     lowered = {k.lower(): v for k, v in h.items()}
     event = verify(payload, lowered, secret=SECRET)
@@ -80,6 +86,8 @@ def test_verify_case_insensitive_headers():
 
 
 def test_verify_accepts_str_payload():
-    payload = '{"id":"evt","type":"message.delivered","created_at":"2026-04-23T00:00:00Z","data":{}}'
+    payload = (
+        '{"id":"evt","type":"message.delivered","created_at":"2026-04-23T00:00:00Z","data":{}}'
+    )
     event = verify(payload, _headers(payload.encode()), secret=SECRET)
     assert event.id == "evt"

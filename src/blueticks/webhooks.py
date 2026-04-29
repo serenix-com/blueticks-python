@@ -4,11 +4,10 @@ import hashlib
 import hmac
 import json
 import time
-from typing import Mapping, Optional, Union
+from collections.abc import Mapping
 
 from blueticks._errors import BluetickError
 from blueticks.types.webhooks import WebhookEvent
-
 
 __all__ = ["verify", "WebhookVerificationError"]
 
@@ -28,7 +27,7 @@ class WebhookVerificationError(BluetickError):
 _DEFAULT_TOLERANCE_SECONDS = 300
 
 
-def _header(headers: Mapping[str, str], name: str) -> Optional[str]:
+def _header(headers: Mapping[str, str], name: str) -> str | None:
     if name in headers:
         return headers[name]
     lower = name.lower()
@@ -39,7 +38,7 @@ def _header(headers: Mapping[str, str], name: str) -> Optional[str]:
 
 
 def verify(
-    payload: Union[bytes, str],
+    payload: bytes | str,
     headers: Mapping[str, str],
     *,
     secret: str,

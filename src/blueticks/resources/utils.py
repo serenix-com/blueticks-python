@@ -16,7 +16,5 @@ class UtilsResource(BaseResource):
 
     def link_preview(self, *, url: str) -> LinkPreview:
         """Fetch OpenGraph-style metadata for a URL (uses the engine's renderer)."""
-        data = self._client._request(
-            "GET", "/v1/utils/link_preview", params={"url": url}
-        )
+        data = self._client._request("GET", "/v1/utils/link_preview", params={"url": url})
         return LinkPreview.model_validate(data)

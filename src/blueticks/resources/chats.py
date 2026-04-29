@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 from blueticks._base_resource import BaseResource
 from blueticks.types.chats import Chat, ChatMedia, ChatMessage, MessageType, Participant
@@ -11,12 +11,12 @@ class ChatsResource(BaseResource):
     def list(
         self,
         *,
-        query: Optional[str] = None,
-        limit: Optional[int] = None,
-        cursor: Optional[str] = None,
+        query: str | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
     ) -> Page[Chat]:
         """List/search chats, newest first. Cursor-paginated."""
-        params: Dict[str, Any] = {}
+        params: dict[str, Any] = {}
         if query is not None:
             params["query"] = query
         if limit is not None:
@@ -35,11 +35,11 @@ class ChatsResource(BaseResource):
         self,
         chat_id: str,
         *,
-        limit: Optional[int] = None,
-        cursor: Optional[str] = None,
+        limit: int | None = None,
+        cursor: str | None = None,
     ) -> Page[Participant]:
         """List participants in a group chat. Cursor-paginated."""
-        params: Dict[str, Any] = {}
+        params: dict[str, Any] = {}
         if limit is not None:
             params["limit"] = limit
         if cursor is not None:
@@ -49,25 +49,25 @@ class ChatsResource(BaseResource):
         )
         return Page[Participant].model_validate(data)
 
-    def mark_read(self, chat_id: str) -> Dict[str, Any]:
+    def mark_read(self, chat_id: str) -> dict[str, Any]:
         """Mark a chat as read (sends read receipts if enabled)."""
-        return self._client._request("POST", f"/v1/chats/{chat_id}/mark_read")
+        return self._client._request("POST", f"/v1/chats/{chat_id}/mark_read")  # type: ignore[no-any-return]
 
-    def open(self, chat_id: str) -> Dict[str, Any]:
+    def open(self, chat_id: str) -> dict[str, Any]:
         """Open a chat on the engine (useful for UI-assisted workflows)."""
-        return self._client._request("POST", f"/v1/chats/{chat_id}/open")
+        return self._client._request("POST", f"/v1/chats/{chat_id}/open")  # type: ignore[no-any-return]
 
     def list_messages(
         self,
         chat_id: str,
         *,
         mode: str = "latest",
-        query: Optional[str] = None,
-        since: Optional[str] = None,
-        until: Optional[str] = None,
-        message_types: Optional[list[MessageType]] = None,
-        limit: Optional[int] = None,
-        cursor: Optional[str] = None,
+        query: str | None = None,
+        since: str | None = None,
+        until: str | None = None,
+        message_types: list[MessageType] | None = None,  # type: ignore[valid-type]
+        limit: int | None = None,
+        cursor: str | None = None,
     ) -> Page[ChatMessage]:
         """List messages in a chat. `mode` is 'latest' or 'history'.
 
@@ -76,7 +76,7 @@ class ChatsResource(BaseResource):
         newsletter_notification) are excluded by default unless
         explicitly listed.
         """
-        params: Dict[str, Any] = {"mode": mode}
+        params: dict[str, Any] = {"mode": mode}
         if query is not None:
             params["query"] = query
         if since is not None:
@@ -99,34 +99,34 @@ class ChatsResource(BaseResource):
         data = self._client._request("GET", f"/v1/chats/{chat_id}/messages/{key}")
         return ChatMessage.model_validate(data)
 
-    def get_message_ack(self, chat_id: str, key: str) -> Dict[str, Any]:
+    def get_message_ack(self, chat_id: str, key: str) -> dict[str, Any]:
         """Fetch ACK state for a single message."""
-        return self._client._request("GET", f"/v1/chats/{chat_id}/messages/{key}/ack")
+        return self._client._request("GET", f"/v1/chats/{chat_id}/messages/{key}/ack")  # type: ignore[no-any-return]
 
-    def react(self, chat_id: str, key: str, *, emoji: str) -> Dict[str, Any]:
+    def react(self, chat_id: str, key: str, *, emoji: str) -> dict[str, Any]:
         """Add or clear an emoji reaction on a message."""
-        return self._client._request(
+        return self._client._request(  # type: ignore[no-any-return]
             "POST",
             f"/v1/chats/{chat_id}/messages/{key}/reactions",
             body={"emoji": emoji},
         )
 
-    def load_older_messages(self, chat_id: str) -> Dict[str, Any]:
+    def load_older_messages(self, chat_id: str) -> dict[str, Any]:
         """Pull older messages from the phone into the engine's local store."""
-        return self._client._request("POST", f"/v1/chats/{chat_id}/messages/load_older")
+        return self._client._request("POST", f"/v1/chats/{chat_id}/messages/load_older")  # type: ignore[no-any-return]
 
     def get_media(self, chat_id: str, key: str) -> ChatMedia:
         """Download message media (may be returned as base64)."""
         data = self._client._request("GET", f"/v1/chats/{chat_id}/messages/{key}/media")
         return ChatMedia.model_validate(data)
 
-    def get_media_url(self, chat_id: str, key: str) -> Dict[str, Any]:
+    def get_media_url(self, chat_id: str, key: str) -> dict[str, Any]:
         """Get a short-lived URL for message media, if available."""
-        return self._client._request("GET", f"/v1/chats/{chat_id}/messages/{key}/media_url")
+        return self._client._request("GET", f"/v1/chats/{chat_id}/messages/{key}/media_url")  # type: ignore[no-any-return]
 
-    def batch_message_acks(self, *, message_keys: list[str]) -> Dict[str, Any]:
+    def batch_message_acks(self, *, message_keys: list[str]) -> dict[str, Any]:  # type: ignore[valid-type]
         """Batch-fetch ACK data for up to 200 message keys at once."""
-        return self._client._request(
+        return self._client._request(  # type: ignore[no-any-return]
             "POST",
             "/v1/chats/message_acks",
             body={"message_keys": message_keys},

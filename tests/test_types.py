@@ -1,7 +1,7 @@
+from blueticks.types.audiences import AppendContactsResult, Audience, Contact
+from blueticks.types.campaigns import Campaign
 from blueticks.types.messages import Message
 from blueticks.types.webhooks import Webhook, WebhookCreateResult, WebhookEvent
-from blueticks.types.audiences import Audience, Contact, AppendContactsResult
-from blueticks.types.campaigns import Campaign
 
 
 def test_message_round_trip():
@@ -65,13 +65,23 @@ def test_webhook_event_parses():
 
 
 def test_audience_and_contact():
-    aud = Audience.model_validate({
-        "id": "aud_1", "name": "a", "contact_count": 2, "created_at": "2026-04-23T00:00:00Z",
-    })
+    aud = Audience.model_validate(
+        {
+            "id": "aud_1",
+            "name": "a",
+            "contact_count": 2,
+            "created_at": "2026-04-23T00:00:00Z",
+        }
+    )
     assert aud.contact_count == 2
-    c = Contact.model_validate({
-        "id": "ctc_1", "to": "+1", "variables": {"name": "A"}, "added_at": "2026-04-23T00:00:00Z",
-    })
+    c = Contact.model_validate(
+        {
+            "id": "ctc_1",
+            "to": "+1",
+            "variables": {"name": "A"},
+            "added_at": "2026-04-23T00:00:00Z",
+        }
+    )
     assert c.variables == {"name": "A"}
 
 
@@ -81,21 +91,23 @@ def test_append_contacts_result():
 
 
 def test_campaign_status_counters():
-    c = Campaign.model_validate({
-        "id": "cmp_1",
-        "name": "n",
-        "audience_id": "aud_1",
-        "status": "running",
-        "total_count": 10,
-        "sent_count": 5,
-        "delivered_count": 3,
-        "read_count": 1,
-        "failed_count": 0,
-        "from": None,
-        "created_at": "2026-04-23T00:00:00Z",
-        "started_at": "2026-04-23T00:00:00Z",
-        "completed_at": None,
-        "aborted_at": None,
-    })
+    c = Campaign.model_validate(
+        {
+            "id": "cmp_1",
+            "name": "n",
+            "audience_id": "aud_1",
+            "status": "running",
+            "total_count": 10,
+            "sent_count": 5,
+            "delivered_count": 3,
+            "read_count": 1,
+            "failed_count": 0,
+            "from": None,
+            "created_at": "2026-04-23T00:00:00Z",
+            "started_at": "2026-04-23T00:00:00Z",
+            "completed_at": None,
+            "aborted_at": None,
+        }
+    )
     assert c.status == "running"
     assert c.sent_count == 5

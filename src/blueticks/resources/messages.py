@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 from blueticks._base_resource import BaseResource
 from blueticks.types.messages import Message
@@ -12,15 +12,15 @@ class MessagesResource(BaseResource):
         self,
         *,
         to: str,
-        text: Optional[str] = None,
-        media_url: Optional[str] = None,
-        media_caption: Optional[str] = None,
-        send_at: Optional[str] = None,
-        from_: Optional[str] = None,
-        idempotency_key: Optional[str] = None,
+        text: str | None = None,
+        media_url: str | None = None,
+        media_caption: str | None = None,
+        send_at: str | None = None,
+        from_: str | None = None,
+        idempotency_key: str | None = None,
     ) -> Message:
         """Send a message immediately, or schedule one for later with ``send_at``."""
-        body: Dict[str, Any] = {"to": to}
+        body: dict[str, Any] = {"to": to}
         if text is not None:
             body["text"] = text
         if media_url is not None:
@@ -48,11 +48,11 @@ class MessagesResource(BaseResource):
     def list(
         self,
         *,
-        limit: Optional[int] = None,
-        cursor: Optional[str] = None,
+        limit: int | None = None,
+        cursor: str | None = None,
     ) -> Page[Message]:
         """List messages sent through the API, newest first. Cursor-paginated."""
-        params: Dict[str, Any] = {}
+        params: dict[str, Any] = {}
         if limit is not None:
             params["limit"] = limit
         if cursor is not None:

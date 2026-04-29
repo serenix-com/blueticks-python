@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+# ruff: noqa: UP045  # Pydantic field annotations need Optional[T] for Python 3.9 (see CLAUDE.md)
 from typing import Optional  # noqa: UP045
 
 from pydantic import BaseModel, ConfigDict

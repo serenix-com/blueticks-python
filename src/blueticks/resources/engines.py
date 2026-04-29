@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from blueticks._base_resource import BaseResource
 from blueticks.types.engines import EngineStatus, WhatsAppMe
@@ -17,10 +17,10 @@ class EnginesResource(BaseResource):
         data = self._client._request("GET", "/v1/engines/me")
         return WhatsAppMe.model_validate(data)
 
-    def logout(self) -> Dict[str, Any]:
+    def logout(self) -> dict[str, Any]:
         """Force the engine to log out of WhatsApp Web."""
-        return self._client._request("POST", "/v1/engines/logout")
+        return self._client._request("POST", "/v1/engines/logout")  # type: ignore[no-any-return]
 
-    def reload(self) -> Dict[str, Any]:
+    def reload(self) -> dict[str, Any]:
         """Force the engine's WhatsApp Web tab to reload."""
-        return self._client._request("POST", "/v1/engines/reload")
+        return self._client._request("POST", "/v1/engines/reload")  # type: ignore[no-any-return]

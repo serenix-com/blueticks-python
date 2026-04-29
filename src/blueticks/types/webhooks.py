@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Literal, Optional
+# ruff: noqa: UP045  # Pydantic field annotations need Optional[T] for Python 3.9 (see CLAUDE.md)
+from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict
-
 
 WebhookStatus = Literal["enabled", "disabled"]
 
@@ -28,7 +28,7 @@ class Webhook(BaseModel):
 
     id: str
     url: str
-    events: List[str]
+    events: list[str]
     description: Optional[str] = None
     status: WebhookStatus
     created_at: str
@@ -44,4 +44,4 @@ class WebhookEvent(BaseModel):
     id: str
     type: str
     created_at: str
-    data: Dict[str, Any]
+    data: dict[str, Any]

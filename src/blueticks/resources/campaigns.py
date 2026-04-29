@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 from blueticks._base_resource import BaseResource
 from blueticks.types.campaigns import Campaign
@@ -13,13 +13,13 @@ class CampaignsResource(BaseResource):
         *,
         name: str,
         audience_id: str,
-        text: Optional[str] = None,
-        media_url: Optional[str] = None,
-        media_caption: Optional[str] = None,
-        from_: Optional[str] = None,
-        on_missing_variable: Optional[str] = None,
+        text: str | None = None,
+        media_url: str | None = None,
+        media_caption: str | None = None,
+        from_: str | None = None,
+        on_missing_variable: str | None = None,
     ) -> Campaign:
-        body: Dict[str, Any] = {"name": name, "audience_id": audience_id}
+        body: dict[str, Any] = {"name": name, "audience_id": audience_id}
         if text is not None:
             body["text"] = text
         if media_url is not None:
@@ -36,11 +36,11 @@ class CampaignsResource(BaseResource):
     def list(
         self,
         *,
-        limit: Optional[int] = None,
-        cursor: Optional[str] = None,
+        limit: int | None = None,
+        cursor: str | None = None,
     ) -> Page[Campaign]:
         """List campaigns, newest first. Cursor-paginated."""
-        params: Dict[str, Any] = {}
+        params: dict[str, Any] = {}
         if limit is not None:
             params["limit"] = limit
         if cursor is not None:

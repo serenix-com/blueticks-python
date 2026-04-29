@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+import builtins
+from typing import Any
 
 from blueticks._base_resource import BaseResource
 from blueticks.types.page import Page
@@ -12,10 +13,10 @@ class WebhooksResource(BaseResource):
         self,
         *,
         url: str,
-        events: List[str],
-        description: Optional[str] = None,
+        events: builtins.list[str],
+        description: str | None = None,
     ) -> WebhookCreateResult:
-        body: Dict[str, Any] = {"url": url, "events": events}
+        body: dict[str, Any] = {"url": url, "events": events}
         if description is not None:
             body["description"] = description
         data = self._client._request("POST", "/v1/webhooks", body=body)
@@ -24,15 +25,15 @@ class WebhooksResource(BaseResource):
     def list(
         self,
         *,
-        limit: Optional[int] = None,
-        cursor: Optional[str] = None,
+        limit: int | None = None,
+        cursor: str | None = None,
     ) -> Page[Webhook]:
         """List webhooks, newest first. Cursor-paginated.
 
         :param limit: Page size, 1-200 (default 50 server-side).
         :param cursor: Opaque cursor from a previous ``Page.next_cursor``.
         """
-        params: Dict[str, Any] = {}
+        params: dict[str, Any] = {}
         if limit is not None:
             params["limit"] = limit
         if cursor is not None:
@@ -48,12 +49,12 @@ class WebhooksResource(BaseResource):
         self,
         webhook_id: str,
         *,
-        url: Optional[str] = None,
-        events: Optional[List[str]] = None,
-        description: Optional[str] = None,
-        status: Optional[str] = None,
+        url: str | None = None,
+        events: builtins.list[str] | None = None,
+        description: str | None = None,
+        status: str | None = None,
     ) -> Webhook:
-        body: Dict[str, Any] = {}
+        body: dict[str, Any] = {}
         if url is not None:
             body["url"] = url
         if events is not None:
@@ -70,7 +71,5 @@ class WebhooksResource(BaseResource):
         return None
 
     def rotate_secret(self, webhook_id: str) -> WebhookCreateResult:
-        data = self._client._request(
-            "POST", f"/v1/webhooks/{webhook_id}/rotate-secret"
-        )
+        data = self._client._request("POST", f"/v1/webhooks/{webhook_id}/rotate-secret")
         return WebhookCreateResult.model_validate(data)

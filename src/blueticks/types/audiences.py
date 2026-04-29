@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Dict, List, Optional
+# ruff: noqa: UP045  # Pydantic field annotations need Optional[T] for Python 3.9 (see CLAUDE.md)
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
 
@@ -12,7 +13,7 @@ class Audience(BaseModel):
     name: str
     contact_count: int
     created_at: str
-    contacts: Optional[List["Contact"]] = None
+    contacts: Optional[list[Contact]] = None
     page: Optional[int] = None
     has_more: Optional[bool] = None
 
@@ -22,7 +23,7 @@ class Contact(BaseModel):
 
     id: str
     to: str
-    variables: Dict[str, str]
+    variables: dict[str, str]
     added_at: str
 
 
