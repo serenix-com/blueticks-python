@@ -1,8 +1,27 @@
 from __future__ import annotations
 
-from typing import Optional  # noqa: UP045
+from typing import Literal, Optional  # noqa: UP045
 
 from pydantic import BaseModel, ConfigDict, Field
+
+# Single source of truth for the WhatsApp message-`type` enum. Mirrors
+# MESSAGE_TYPE_VALUES on the backend (src/services/api/v1/lib/message-types.ts).
+# Used by ChatMessage.type (response) and message_types filter (request).
+MessageType = Literal[
+    "chat",
+    "image",
+    "video",
+    "document",
+    "audio",
+    "ptt",
+    "sticker",
+    "gif",
+    "ptv",
+    "poll_creation",
+    "location",
+    "vcard",
+    "revoked",
+]
 
 
 class Chat(BaseModel):
@@ -39,6 +58,12 @@ class ChatMessage(BaseModel):
     from_me: bool
     ack: Optional[int] = None  # noqa: UP045
     media_url: Optional[str] = None  # noqa: UP045
+    # Caption + filename for media messages. For documents, `filename` is
+    # the only discriminator (text is empty). For images/videos, `caption`
+    # carries the user-visible text. Both are None for plain chat msgs and
+    # for media without a caption.
+    caption: Optional[str] = None  # noqa: UP045
+    filename: Optional[str] = None  # noqa: UP045
 
 
 class ChatMedia(BaseModel):

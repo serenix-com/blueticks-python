@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any, Dict, Optional
 
 from blueticks._base_resource import BaseResource
-from blueticks.types.chats import Chat, ChatMedia, ChatMessage, Participant
+from blueticks.types.chats import Chat, ChatMedia, ChatMessage, MessageType, Participant
 from blueticks.types.page import Page
 
 
@@ -65,10 +65,17 @@ class ChatsResource(BaseResource):
         query: Optional[str] = None,
         since: Optional[str] = None,
         until: Optional[str] = None,
+        message_types: Optional[list[MessageType]] = None,
         limit: Optional[int] = None,
         cursor: Optional[str] = None,
     ) -> Page[ChatMessage]:
-        """List messages in a chat. `mode` is 'latest' or 'history'."""
+        """List messages in a chat. `mode` is 'latest' or 'history'.
+
+        `message_types` filters to specific message kinds (e.g. only
+        `["document"]` to find PDFs). System events (gp2/revoked/
+        newsletter_notification) are excluded by default unless
+        explicitly listed.
+        """
         params: Dict[str, Any] = {"mode": mode}
         if query is not None:
             params["query"] = query
@@ -76,27 +83,25 @@ class ChatsResource(BaseResource):
             params["since"] = since
         if until is not None:
             params["until"] = until
+        if message_types:
+            # Server accepts comma-separated form for OpenAPI
+            # `style: form, explode: false` parameter style.
+            params["message_types"] = ",".join(message_types)
         if limit is not None:
             params["limit"] = limit
         if cursor is not None:
             params["cursor"] = cursor
-        data = self._client._request(
-            "GET", f"/v1/chats/{chat_id}/messages", params=params
-        )
+        data = self._client._request("GET", f"/v1/chats/{chat_id}/messages", params=params)
         return Page[ChatMessage].model_validate(data)
 
     def get_message(self, chat_id: str, key: str) -> ChatMessage:
         """Retrieve a single message by WhatsApp message key."""
-        data = self._client._request(
-            "GET", f"/v1/chats/{chat_id}/messages/{key}"
-        )
+        data = self._client._request("GET", f"/v1/chats/{chat_id}/messages/{key}")
         return ChatMessage.model_validate(data)
 
     def get_message_ack(self, chat_id: str, key: str) -> Dict[str, Any]:
         """Fetch ACK state for a single message."""
-        return self._client._request(
-            "GET", f"/v1/chats/{chat_id}/messages/{key}/ack"
-        )
+        return self._client._request("GET", f"/v1/chats/{chat_id}/messages/{key}/ack")
 
     def react(self, chat_id: str, key: str, *, emoji: str) -> Dict[str, Any]:
         """Add or clear an emoji reaction on a message."""
@@ -108,22 +113,16 @@ class ChatsResource(BaseResource):
 
     def load_older_messages(self, chat_id: str) -> Dict[str, Any]:
         """Pull older messages from the phone into the engine's local store."""
-        return self._client._request(
-            "POST", f"/v1/chats/{chat_id}/messages/load_older"
-        )
+        return self._client._request("POST", f"/v1/chats/{chat_id}/messages/load_older")
 
     def get_media(self, chat_id: str, key: str) -> ChatMedia:
         """Download message media (may be returned as base64)."""
-        data = self._client._request(
-            "GET", f"/v1/chats/{chat_id}/messages/{key}/media"
-        )
+        data = self._client._request("GET", f"/v1/chats/{chat_id}/messages/{key}/media")
         return ChatMedia.model_validate(data)
 
     def get_media_url(self, chat_id: str, key: str) -> Dict[str, Any]:
         """Get a short-lived URL for message media, if available."""
-        return self._client._request(
-            "GET", f"/v1/chats/{chat_id}/messages/{key}/media_url"
-        )
+        return self._client._request("GET", f"/v1/chats/{chat_id}/messages/{key}/media_url")
 
     def batch_message_acks(self, *, message_keys: list[str]) -> Dict[str, Any]:
         """Batch-fetch ACK data for up to 200 message keys at once."""

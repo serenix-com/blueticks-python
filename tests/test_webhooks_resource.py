@@ -48,12 +48,20 @@ def test_list_webhooks():
     def handler(req: httpx.Request) -> httpx.Response:
         assert req.method == "GET"
         assert req.url.path == "/v1/webhooks"
-        return httpx.Response(200, json={"data": [_webhook_payload("wh_1"), _webhook_payload("wh_2")]})
+        return httpx.Response(
+            200,
+            json={
+                "data": [_webhook_payload("wh_1"), _webhook_payload("wh_2")],
+                "has_more": False,
+                "next_cursor": None,
+            },
+        )
 
     client = Blueticks(api_key="bt_live_test", _http_transport=httpx.MockTransport(handler))
-    items = client.webhooks.list()
-    assert len(items) == 2
-    assert items[0].id == "wh_1"
+    page = client.webhooks.list()
+    assert len(page.data) == 2
+    assert page.data[0].id == "wh_1"
+    assert page.has_more is False
 
 
 def test_get_webhook():

@@ -56,11 +56,19 @@ def test_list_campaigns():
     def handler(req: httpx.Request) -> httpx.Response:
         assert req.method == "GET"
         assert req.url.path == "/v1/campaigns"
-        return httpx.Response(200, json={"data": [_campaign("cmp_1"), _campaign("cmp_2")]})
+        return httpx.Response(
+            200,
+            json={
+                "data": [_campaign("cmp_1"), _campaign("cmp_2")],
+                "has_more": False,
+                "next_cursor": None,
+            },
+        )
 
     client = Blueticks(api_key="bt_live_test", _http_transport=httpx.MockTransport(handler))
-    items = client.campaigns.list()
-    assert len(items) == 2
+    page = client.campaigns.list()
+    assert len(page.data) == 2
+    assert page.has_more is False
 
 
 def test_get_campaign():

@@ -52,11 +52,20 @@ def test_list_audiences():
     def handler(req: httpx.Request) -> httpx.Response:
         assert req.method == "GET"
         assert req.url.path == "/v1/audiences"
-        return httpx.Response(200, json={"data": [_audience("aud_1"), _audience("aud_2")]})
+        return httpx.Response(
+            200,
+            json={
+                "data": [_audience("aud_1"), _audience("aud_2")],
+                "has_more": False,
+                "next_cursor": None,
+            },
+        )
 
     client = Blueticks(api_key="bt_live_test", _http_transport=httpx.MockTransport(handler))
-    items = client.audiences.list()
-    assert len(items) == 2
+    page = client.audiences.list()
+    assert len(page.data) == 2
+    assert page.has_more is False
+    assert page.next_cursor is None
 
 
 def test_get_audience_with_page():
