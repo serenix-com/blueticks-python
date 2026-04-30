@@ -67,6 +67,14 @@ class ChatMessage(BaseModel):
     filename: Optional[str] = None  # noqa: UP045
 
 
+MediaUnavailableReason = Literal[
+    "expired",
+    "fetching",
+    "error",
+    "no_media",
+]
+
+
 class ChatMedia(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
@@ -74,3 +82,9 @@ class ChatMedia(BaseModel):
     mimetype: Optional[str] = None  # noqa: UP045
     filename: Optional[str] = None  # noqa: UP045
     data_base64: Optional[str] = None  # noqa: UP045
+    # false when WA returned a preview JPEG instead of the original (#113 —
+    # own-sent newsletter media only). None/absent when bytes are the
+    # genuine original from the sender.
+    original_quality: Optional[bool] = None  # noqa: UP045
+    # Reason the bytes couldn't be retrieved. None/absent on success.
+    media_unavailable: Optional[MediaUnavailableReason] = None  # noqa: UP045

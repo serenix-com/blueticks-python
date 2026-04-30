@@ -3,6 +3,23 @@
 All notable changes to `blueticks` will be documented in this file. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and [Keep a Changelog](https://keepachangelog.com/).
 
+## 3.2.0 — 2026-04-30
+
+### Added
+- `ChatMedia.original_quality: Optional[bool]` — False when WA returned
+  a preview JPEG instead of the original sender uploaded (#113 — only
+  affects own-sent newsletter media). None/absent on the genuine
+  original from the sender.
+- `ChatMedia.media_unavailable: Optional[MediaUnavailableReason]` —
+  reason the bytes couldn't be retrieved (`"expired"`, `"fetching"`,
+  `"error"`, `"no_media"`). None/absent on success.
+- New `MediaUnavailableReason` Literal type — string-enum of the 4
+  reasons.
+
+The `client.chats.get_media()` method already existed; this release
+fleshes out its response shape so consumers can detect preview-fidelity
+fallback and unavailable-bytes states without a separate retry.
+
 ## 3.1.0 — 2026-04-29
 
 ### Added
