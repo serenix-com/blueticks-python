@@ -1,9 +1,22 @@
 from __future__ import annotations
 
+from collections.abc import Sequence  # avoids shadowing by `ChatsResource.list`
 from typing import Any
 
 from blueticks._base_resource import BaseResource
-from blueticks.types.chats import Chat, ChatMedia, ChatMessage, MessageType, Participant
+from blueticks.types.chats import (
+    BatchMessageAcksResponse,
+    Chat,
+    ChatMedia,
+    ChatMessage,
+    ChatRef,
+    LoadOlderMessagesResponse,
+    MediaUrlResponse,
+    MessageAck,
+    MessageType,
+    OkResponse,
+    Participant,
+)
 from blueticks.types.page import Page
 
 
@@ -49,13 +62,15 @@ class ChatsResource(BaseResource):
         )
         return Page[Participant].model_validate(data)
 
-    def mark_read(self, chat_id: str) -> dict[str, Any]:
+    def mark_read(self, chat_id: str) -> OkResponse:
         """Mark a chat as read (sends read receipts if enabled)."""
-        return self._client._request("POST", f"/v1/chats/{chat_id}/mark_read")  # type: ignore[no-any-return]
+        data = self._client._request("POST", f"/v1/chats/{chat_id}/mark_read")
+        return OkResponse.model_validate(data)
 
-    def open(self, chat_id: str) -> dict[str, Any]:
+    def open(self, chat_id: str) -> ChatRef:
         """Open a chat on the engine (useful for UI-assisted workflows)."""
-        return self._client._request("POST", f"/v1/chats/{chat_id}/open")  # type: ignore[no-any-return]
+        data = self._client._request("POST", f"/v1/chats/{chat_id}/open")
+        return ChatRef.model_validate(data)
 
     def list_messages(
         self,
@@ -99,35 +114,40 @@ class ChatsResource(BaseResource):
         data = self._client._request("GET", f"/v1/chats/{chat_id}/messages/{key}")
         return ChatMessage.model_validate(data)
 
-    def get_message_ack(self, chat_id: str, key: str) -> dict[str, Any]:
+    def get_message_ack(self, chat_id: str, key: str) -> MessageAck:
         """Fetch ACK state for a single message."""
-        return self._client._request("GET", f"/v1/chats/{chat_id}/messages/{key}/ack")  # type: ignore[no-any-return]
+        data = self._client._request("GET", f"/v1/chats/{chat_id}/messages/{key}/ack")
+        return MessageAck.model_validate(data)
 
-    def react(self, chat_id: str, key: str, *, emoji: str) -> dict[str, Any]:
+    def react(self, chat_id: str, key: str, *, emoji: str) -> OkResponse:
         """Add or clear an emoji reaction on a message."""
-        return self._client._request(  # type: ignore[no-any-return]
+        data = self._client._request(
             "POST",
             f"/v1/chats/{chat_id}/messages/{key}/reactions",
             body={"emoji": emoji},
         )
+        return OkResponse.model_validate(data)
 
-    def load_older_messages(self, chat_id: str) -> dict[str, Any]:
+    def load_older_messages(self, chat_id: str) -> LoadOlderMessagesResponse:
         """Pull older messages from the phone into the engine's local store."""
-        return self._client._request("POST", f"/v1/chats/{chat_id}/messages/load_older")  # type: ignore[no-any-return]
+        data = self._client._request("POST", f"/v1/chats/{chat_id}/messages/load_older")
+        return LoadOlderMessagesResponse.model_validate(data)
 
     def get_media(self, chat_id: str, key: str) -> ChatMedia:
         """Download message media (may be returned as base64)."""
         data = self._client._request("GET", f"/v1/chats/{chat_id}/messages/{key}/media")
         return ChatMedia.model_validate(data)
 
-    def get_media_url(self, chat_id: str, key: str) -> dict[str, Any]:
+    def get_media_url(self, chat_id: str, key: str) -> MediaUrlResponse:
         """Get a short-lived URL for message media, if available."""
-        return self._client._request("GET", f"/v1/chats/{chat_id}/messages/{key}/media_url")  # type: ignore[no-any-return]
+        data = self._client._request("GET", f"/v1/chats/{chat_id}/messages/{key}/media_url")
+        return MediaUrlResponse.model_validate(data)
 
-    def batch_message_acks(self, *, message_keys: list[str]) -> dict[str, Any]:  # type: ignore[valid-type]
+    def batch_message_acks(self, *, message_keys: Sequence[str]) -> BatchMessageAcksResponse:
         """Batch-fetch ACK data for up to 200 message keys at once."""
-        return self._client._request(  # type: ignore[no-any-return]
+        data = self._client._request(
             "POST",
             "/v1/chats/message_acks",
             body={"message_keys": message_keys},
         )
+        return BatchMessageAcksResponse.model_validate(data)

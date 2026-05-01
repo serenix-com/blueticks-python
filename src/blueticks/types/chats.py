@@ -106,3 +106,58 @@ class ChatMedia(BaseModel):
             "/ location / vcard."
         ),
     )
+
+
+class OkResponse(BaseModel):
+    """Generic ok envelope returned by mark_read and react endpoints."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    ok: Literal[True]
+
+
+class ChatRef(BaseModel):
+    """Response from POST /v1/chats/{chat_id}/open."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    chat_id: str
+
+
+class MessageAck(BaseModel):
+    """Response from GET /v1/chats/{chat_id}/messages/{key}/ack.
+
+    `ack` codes: -1=error, 0=pending, 1=server, 2=device, 3=read, 4=played;
+    None when no engine response.
+    """
+
+    model_config = ConfigDict(extra="ignore")
+
+    ack: Optional[int] = None  # noqa: UP045
+
+
+class LoadOlderMessagesResponse(BaseModel):
+    """Response from POST /v1/chats/{chat_id}/messages/load_older."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    total_messages: Optional[int] = None  # noqa: UP045
+    added: Optional[int] = None  # noqa: UP045
+    can_load_more: bool
+
+
+class MediaUrlResponse(BaseModel):
+    """Response from GET /v1/chats/{chat_id}/messages/{key}/media_url."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    url: Optional[str] = None  # noqa: UP045
+
+
+class BatchMessageAcksResponse(BaseModel):
+    """Response from POST /v1/chats/message_acks."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    # Each item is a free-form ack record (additionalProperties: true).
+    data: list[dict[str, object]]
