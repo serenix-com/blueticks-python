@@ -70,6 +70,7 @@ class ChatMessage(BaseModel):
 MediaUnavailableReason = Literal[
     "expired",
     "fetching",
+    "awaiting_sender",
     "error",
     "no_media",
 ]
@@ -87,4 +88,21 @@ class ChatMedia(BaseModel):
     # genuine original from the sender.
     original_quality: Optional[bool] = None  # noqa: UP045
     # Reason the bytes couldn't be retrieved. None/absent on success.
-    media_unavailable: Optional[MediaUnavailableReason] = None  # noqa: UP045
+    # "expired" = WA aged the file out of CDN retention. "fetching" = WA is
+    # mid-download from its CDN — transient, retry in a few seconds.
+    # "awaiting_sender" = WA's CDN doesn't have the file but has asked the
+    # sender's device to reupload it; only completes when the sender's
+    # WhatsApp client is open and online. "error" = unexpected failure.
+    # "no_media" = the message is text-only/revoked/location/vcard.
+    media_unavailable: Optional[MediaUnavailableReason] = Field(  # noqa: UP045
+        default=None,
+        description=(
+            "Set when the bytes could not be downloaded or never existed. "
+            '"expired" = WA aged the file out of CDN retention. '
+            '"fetching" = WA is mid-download from its CDN — transient, retry in a few seconds. '
+            "\"awaiting_sender\" = WA's CDN does not have the file but has asked the sender's "
+            "device to reupload it; only completes when the sender's WhatsApp client is open and "
+            'online. "error" = unexpected failure. "no_media" = the message is text-only / revoked '
+            "/ location / vcard."
+        ),
+    )

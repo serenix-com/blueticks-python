@@ -5,7 +5,7 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
-MessageStatus = Literal["scheduled", "queued", "sending", "delivered", "failed"]
+MessageStatus = Literal["scheduled", "queued", "sending", "delivered", "read", "failed"]
 
 
 class Message(BaseModel):

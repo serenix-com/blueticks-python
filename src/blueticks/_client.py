@@ -69,6 +69,7 @@ class Blueticks:
         from blueticks.resources.engines import EnginesResource
         from blueticks.resources.groups import GroupsResource
         from blueticks.resources.messages import MessagesResource
+        from blueticks.resources.scheduled_messages import ScheduledMessagesResource
         from blueticks.resources.utils import UtilsResource
         from blueticks.resources.webhooks import WebhooksResource
 
@@ -80,6 +81,7 @@ class Blueticks:
         self.engines = EnginesResource(self)
         self.groups = GroupsResource(self)
         self.messages = MessagesResource(self)
+        self.scheduled_messages = ScheduledMessagesResource(self)
         self.utils = UtilsResource(self)
         self.webhooks = WebhooksResource(self)
 
