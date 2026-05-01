@@ -225,13 +225,22 @@ def test_batch_message_acks_returns_typed_model():
         assert req.url.path == "/v1/chats/message_acks"
         return httpx.Response(
             200,
-            json={"data": [{"key": "msg_a", "ack": 3}, {"key": "msg_b", "ack": 1}]},
+            json={
+                "data": [
+                    {"key": "msg_a", "ack": 3},
+                    {"key": "msg_b", "ack": 1},
+                    {"key": "msg_c", "ack": None},
+                ]
+            },
         )
 
-    result = _client(handler).chats.batch_message_acks(message_keys=["msg_a", "msg_b"])
+    result = _client(handler).chats.batch_message_acks(message_keys=["msg_a", "msg_b", "msg_c"])
     assert isinstance(result, BatchMessageAcksResponse)
-    assert body_seen == {"message_keys": ["msg_a", "msg_b"]}
-    assert result.data[0]["ack"] == 3
+    assert body_seen == {"message_keys": ["msg_a", "msg_b", "msg_c"]}
+    assert result.data[0].key == "msg_a"
+    assert result.data[0].ack == 3
+    assert result.data[1].ack == 1
+    assert result.data[2].ack is None
 
 
 def test_chats_get_raises_authentication_error_on_401():

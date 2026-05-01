@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from blueticks._base_resource import BaseResource
+from blueticks.types._deleted_resource import DeletedResource
 from blueticks.types.page import Page
 from blueticks.types.scheduled_messages import ScheduledMessage
 
@@ -61,10 +62,12 @@ class ScheduledMessagesResource(BaseResource):
         )
         return ScheduledMessage.model_validate(data)
 
-    def delete(self, scheduled_message_id: str) -> None:
+    def delete(self, scheduled_message_id: str) -> DeletedResource:
         """Cancel scheduled message.
 
-        Removes the resource with id.
+        Cancel a queued scheduled message before it fires. Soft-deletes the row
+        (still queryable in audit logs). Returns the deleted ref. Requires
+        ``messages:write``.
         """
-        self._client._request("DELETE", f"/v1/scheduled-messages/{scheduled_message_id}")
-        return None
+        data = self._client._request("DELETE", f"/v1/scheduled-messages/{scheduled_message_id}")
+        return DeletedResource.model_validate(data)

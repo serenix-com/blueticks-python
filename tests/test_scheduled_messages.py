@@ -113,14 +113,20 @@ def test_update_scheduled_message(mock_client) -> None:
     assert body_seen == {"text": "updated", "send_at": "2026-07-01T09:00:00Z"}
 
 
-def test_delete_scheduled_message_returns_none(mock_client) -> None:
+def test_delete_scheduled_message_returns_typed_ref(mock_client) -> None:
     def handler(req: httpx.Request) -> httpx.Response:
         assert req.method == "DELETE"
         assert req.url.path == "/v1/scheduled-messages/sched_1"
-        return httpx.Response(204)
+        return httpx.Response(
+            200,
+            content=json.dumps({"id": "sched_1", "deleted": True}).encode(),
+            headers={"content-type": "application/json"},
+        )
 
     with mock_client(handler) as client:
-        assert client.scheduled_messages.delete("sched_1") is None
+        result = client.scheduled_messages.delete("sched_1")
+    assert result.id == "sched_1"
+    assert result.deleted is True
 
 
 def test_scheduled_messages_propagates_authentication_error(mock_client) -> None:

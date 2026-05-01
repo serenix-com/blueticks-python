@@ -4,6 +4,7 @@ import builtins
 from typing import Any
 
 from blueticks._base_resource import BaseResource
+from blueticks.types._deleted_resource import DeletedResource
 from blueticks.types.audiences import AppendContactsResult, Audience, Contact
 from blueticks.types.page import Page
 
@@ -47,9 +48,14 @@ class AudiencesResource(BaseResource):
         data = self._client._request("PATCH", f"/v1/audiences/{audience_id}", body={"name": name})
         return Audience.model_validate(data)
 
-    def delete(self, audience_id: str) -> None:
-        self._client._request("DELETE", f"/v1/audiences/{audience_id}")
-        return None
+    def delete(self, audience_id: str) -> DeletedResource:
+        """Delete audience.
+
+        Soft-delete an audience. 409 if it`s referenced by an active campaign.
+        Returns the deleted ref. Requires ``audiences:write``.
+        """
+        data = self._client._request("DELETE", f"/v1/audiences/{audience_id}")
+        return DeletedResource.model_validate(data)
 
     def append_contacts(
         self,

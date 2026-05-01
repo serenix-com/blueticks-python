@@ -154,10 +154,22 @@ class MediaUrlResponse(BaseModel):
     url: Optional[str] = None  # noqa: UP045
 
 
+class BatchMessageAckEntry(BaseModel):
+    """One entry in :class:`BatchMessageAcksResponse.data`.
+
+    `ack` codes: -1=error, 0=pending, 1=server, 2=device, 3=read, 4=played;
+    `None` when the engine has not yet returned a status for this key.
+    """
+
+    model_config = ConfigDict(extra="ignore")
+
+    key: str
+    ack: Optional[int] = None  # noqa: UP045
+
+
 class BatchMessageAcksResponse(BaseModel):
     """Response from POST /v1/chats/message_acks."""
 
     model_config = ConfigDict(extra="ignore")
 
-    # Each item is a free-form ack record (additionalProperties: true).
-    data: list[dict[str, object]]
+    data: list[BatchMessageAckEntry]

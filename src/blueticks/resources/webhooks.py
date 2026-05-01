@@ -4,6 +4,7 @@ import builtins
 from typing import Any
 
 from blueticks._base_resource import BaseResource
+from blueticks.types._deleted_resource import DeletedResource
 from blueticks.types.page import Page
 from blueticks.types.webhooks import Webhook, WebhookCreateResult
 
@@ -66,9 +67,14 @@ class WebhooksResource(BaseResource):
         data = self._client._request("PATCH", f"/v1/webhooks/{webhook_id}", body=body)
         return Webhook.model_validate(data)
 
-    def delete(self, webhook_id: str) -> None:
-        self._client._request("DELETE", f"/v1/webhooks/{webhook_id}")
-        return None
+    def delete(self, webhook_id: str) -> DeletedResource:
+        """Delete webhook.
+
+        Delete a webhook subscription. Returns the deleted ref. Requires
+        ``webhooks:write``.
+        """
+        data = self._client._request("DELETE", f"/v1/webhooks/{webhook_id}")
+        return DeletedResource.model_validate(data)
 
     def rotate_secret(self, webhook_id: str) -> WebhookCreateResult:
         data = self._client._request("POST", f"/v1/webhooks/{webhook_id}/rotate-secret")

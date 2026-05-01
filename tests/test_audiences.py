@@ -99,10 +99,12 @@ def test_delete_audience():
     def handler(req: httpx.Request) -> httpx.Response:
         assert req.method == "DELETE"
         assert req.url.path == "/v1/audiences/aud_1"
-        return httpx.Response(204)
+        return httpx.Response(200, json={"id": "aud_1", "deleted": True})
 
     client = Blueticks(api_key="bt_live_test", _http_transport=httpx.MockTransport(handler))
-    assert client.audiences.delete("aud_1") is None
+    result = client.audiences.delete("aud_1")
+    assert result.id == "aud_1"
+    assert result.deleted is True
 
 
 def test_append_contacts():

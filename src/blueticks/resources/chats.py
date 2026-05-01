@@ -120,7 +120,10 @@ class ChatsResource(BaseResource):
         return MessageAck.model_validate(data)
 
     def react(self, chat_id: str, key: str, *, emoji: str) -> OkResponse:
-        """Add or clear an emoji reaction on a message."""
+        """Add or clear an emoji reaction on a message.
+
+        Pass an empty string for ``emoji`` to clear an existing reaction.
+        """
         data = self._client._request(
             "POST",
             f"/v1/chats/{chat_id}/messages/{key}/reactions",
