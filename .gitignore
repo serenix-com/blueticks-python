@@ -14,3 +14,8 @@ dist/
 .ruff_cache/
 .coverage
 htmlcov/
+
+# Local lockfiles from contributors using uv. The project ships with
+# setuptools (see pyproject.toml [build-system]); uv.lock is purely a
+# local-developer artefact, not a release input.
+uv.lock
