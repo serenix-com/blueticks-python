@@ -13,7 +13,7 @@ pip install blueticks
 ```python
 from blueticks import Blueticks
 
-client = Blueticks(api_key="bt_live_...")
+client = Blueticks(api_key="BLUETICKS_API_KEY")
 ping = client.ping()
 account = client.account.retrieve()
 print(account.name)
