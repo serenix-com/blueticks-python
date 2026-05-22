@@ -12,25 +12,47 @@ class MessagesResource(BaseResource):
         self,
         *,
         to: str,
+        type: str,
         text: str | None = None,
-        media_url: str | None = None,
-        media_caption: str | None = None,
+        link_preview: bool | dict[str, Any] | None = None,
+        media: dict[str, Any] | None = None,
+        poll: dict[str, Any] | None = None,
         send_at: str | None = None,
         from_: str | None = None,
+        reply_to: str | None = None,
         idempotency_key: str | None = None,
     ) -> Message:
-        """Send a message immediately, or schedule one for later with ``send_at``."""
-        body: dict[str, Any] = {"to": to}
+        """Send message.
+
+        Send a message via WhatsApp. The body is a discriminated union — set the
+        `type` field to one of `text`, `media`, or `poll`.
+
+        **Variants:**
+
+        - `type: "text"` — required `text` (1–4096 chars).
+        - `type: "media"` — required `media` dict with `url` (HTTPS). Optional `kind`,
+          `caption`, `filename`.
+        - `type: "poll"` — required `poll` dict with `question` and `options` (2–12
+          items). Optional `allow_multiple`.
+
+        All variants accept optional `send_at` (ISO 8601), `from_` (E.164 sender),
+        and `reply_to` (wire key of a prior message to quote-reply).
+        """
+        body: dict[str, Any] = {"type": type, "to": to}
         if text is not None:
             body["text"] = text
-        if media_url is not None:
-            body["media_url"] = media_url
-        if media_caption is not None:
-            body["media_caption"] = media_caption
+        if link_preview is not None:
+            body["link_preview"] = link_preview
+        if media is not None:
+            body["media"] = media
+        if poll is not None:
+            body["poll"] = poll
         if send_at is not None:
             body["send_at"] = send_at
         if from_ is not None:
             body["from"] = from_
+        if reply_to is not None:
+            body["reply_to"] = reply_to
 
         data = self._client._request(
             "POST",
@@ -40,8 +62,11 @@ class MessagesResource(BaseResource):
         )
         return Message.model_validate(data)
 
-    def get(self, message_id: str) -> Message:
-        """Retrieve a single message by id."""
+    def retrieve(self, message_id: str) -> Message:
+        """Get message.
+
+        Get the current status of a message by ID.
+        """
         data = self._client._request("GET", f"/v1/messages/{message_id}")
         return Message.model_validate(data)
 
@@ -51,7 +76,7 @@ class MessagesResource(BaseResource):
         limit: int | None = None,
         cursor: str | None = None,
     ) -> Page[Message]:
-        """List messages sent through the API, newest first. Cursor-paginated."""
+        """List messages sent through the API, newest first (cursor-paginated)."""
         params: dict[str, Any] = {}
         if limit is not None:
             params["limit"] = limit

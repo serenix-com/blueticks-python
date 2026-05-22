@@ -4,9 +4,33 @@ from typing import Any
 
 from blueticks._base_resource import BaseResource
 from blueticks.types.groups import Group
+from blueticks.types.page import Page
 
 
 class GroupsResource(BaseResource):
+    def list(
+        self,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        q: str | None = None,
+    ) -> Page[Group]:
+        """List groups.
+
+        List the groups the connected WhatsApp engine sees. Supports cursor pagination
+        (`limit`+`cursor`) and an optional case-insensitive substring search on the
+        group name via `q`.
+        """
+        params: dict[str, Any] = {}
+        if limit is not None:
+            params["limit"] = limit
+        if cursor is not None:
+            params["cursor"] = cursor
+        if q is not None:
+            params["q"] = q
+        data = self._client._request("GET", "/v1/groups", params=params or None)
+        return Page[Group].model_validate(data)
+
     def create(self, *, name: str, participants: list[str]) -> Group:
         """Create a new group with an initial participant list."""
         data = self._client._request(

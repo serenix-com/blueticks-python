@@ -6,6 +6,7 @@ from blueticks.resources.contacts import ContactsResource
 from blueticks.resources.engines import EnginesResource
 from blueticks.resources.groups import GroupsResource
 from blueticks.resources.messages import MessagesResource
+from blueticks.resources.newsletters import NewslettersResource
 from blueticks.resources.ping import PingResource
 from blueticks.resources.scheduled_messages import ScheduledMessagesResource
 from blueticks.resources.utils import UtilsResource
@@ -20,6 +21,7 @@ __all__ = [
     "EnginesResource",
     "GroupsResource",
     "MessagesResource",
+    "NewslettersResource",
     "PingResource",
     "ScheduledMessagesResource",
     "UtilsResource",

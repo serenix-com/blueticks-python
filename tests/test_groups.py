@@ -9,6 +9,7 @@ from pydantic import ValidationError
 from blueticks import Blueticks
 from blueticks._errors import AuthenticationError
 from blueticks.types.groups import Group
+from blueticks.types.page import Page
 
 
 def _client(handler):
@@ -30,6 +31,64 @@ def _group(gid: str = "grp_1", **overrides) -> dict:
     }
     data.update(overrides)
     return data
+
+
+def test_list_groups_returns_page():
+    def handler(req: httpx.Request) -> httpx.Response:
+        assert req.method == "GET"
+        assert req.url.path == "/v1/groups"
+        return httpx.Response(
+            200,
+            json={
+                "data": [_group("grp_1"), _group("grp_2", name="Beta Team")],
+                "has_more": False,
+                "next_cursor": None,
+            },
+        )
+
+    result = _client(handler).groups.list()
+    assert isinstance(result, Page)
+    assert len(result.data) == 2
+    assert result.data[0].id == "grp_1"
+    assert result.data[1].name == "Beta Team"
+
+
+def test_list_groups_with_q_and_limit():
+    params_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        params_seen.update(dict(req.url.params))
+        return httpx.Response(
+            200,
+            json={
+                "data": [_group("grp_1")],
+                "has_more": False,
+                "next_cursor": None,
+            },
+        )
+
+    _client(handler).groups.list(limit=10, q="acme")
+    assert params_seen.get("limit") == "10"
+    assert params_seen.get("q") == "acme"
+
+
+def test_list_groups_raises_authentication_error_on_401():
+    def handler(req: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            401,
+            json={
+                "error": {
+                    "code": "authentication_required",
+                    "message": "bad key",
+                    "request_id": "req_grp_list_1",
+                }
+            },
+        )
+
+    with pytest.raises(AuthenticationError) as exc_info:
+        _client(handler).groups.list()
+    assert exc_info.value.code == "authentication_required"
+    assert exc_info.value.request_id == "req_grp_list_1"
 
 
 def test_create_group_returns_typed_group():

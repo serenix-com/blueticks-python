@@ -3,6 +3,51 @@
 All notable changes to `blueticks` will be documented in this file. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and [Keep a Changelog](https://keepachangelog.com/).
 
+## 3.4.0 — 2026-05-22
+
+OpenAPI parity pass. The SDK now matches `backend/openapi.json`
+operation-for-operation; an engineless drift check
+(`.github/workflows/sdk-spec-drift.yml`) gates future regressions. The
+`/v1/*` surface is pre-release — none of these changes affect production
+callers yet.
+
+### Changed
+
+- `messages.send()` now takes the discriminated body shape that the
+  backend's strict `anyOf` enforces (BE#50). Pass `type="text"|"media"|"poll"`
+  plus the variant fields:
+  ```python
+  client.messages.send(to="+1...", type="text", text="hi")
+  client.messages.send(to="+1...", type="media", media={"url": "...", "kind": "image"})
+  client.messages.send(to="+1...", type="poll",  poll={"question": "...", "options": [...]})
+  ```
+- Single-item GETs now use `.retrieve(id)` instead of `.get(id)` (OpenAPI
+  convention): `audiences`, `campaigns`, `chats`, `groups`, `webhooks`,
+  `messages`, `scheduled_messages`. Also `engines.status()` →
+  `engines.retrieve()`.
+- `newsletters.create()` returns the typed 8-field `Newsletter` (was a
+  3-field stub): `id`, `name`, `description?`, `owner?`, `created_at?`,
+  `subscribers?`, `invite?`, `verification?` (`VERIFIED`/`UNVERIFIED`).
+
+### Added
+
+- `newsletters.list(*, limit, cursor) -> Page[Newsletter]` — `GET /v1/newsletters`
+- `newsletters.retrieve(id) -> Newsletter` — `GET /v1/newsletters/{id}`
+- `ping.retrieve() -> Ping` — typed response (`account_id`, `key_prefix`, `scopes`).
+- `Message` now exposes `key`, `type`, `media_kind`, `poll_question`,
+  `link_preview` (was reachable only via raw transport).
+
+### Removed
+
+- `engines.me`, `engines.logout`, `engines.reload` — no `/v1/*` endpoint in spec.
+- `contacts.get_profile_picture` — no spec backing.
+- `utils.validate_phone`, `utils.link_preview` — no spec backing.
+
+### Fixed
+
+- `groups.list()` was documented at `dev.blueticks.co` but absent from the
+  SDK for ~9 days — now present.
+
 ## 3.2.0 — 2026-04-30
 
 ### Added
