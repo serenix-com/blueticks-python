@@ -9,6 +9,7 @@ def test_message_round_trip():
         "id": "msg_1",
         "to": "+1",
         "from": None,
+        "type": "text",
         "text": "hi",
         "media_url": None,
         "status": "queued",
@@ -23,6 +24,7 @@ def test_message_round_trip():
     m = Message.model_validate(data)
     assert m.id == "msg_1"
     assert m.status == "queued"
+    assert m.type == "text"
 
 
 def test_webhook_create_result_has_secret():

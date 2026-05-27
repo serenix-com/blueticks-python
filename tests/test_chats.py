@@ -31,8 +31,10 @@ def _chat(cid: str = "chat_1", **overrides) -> dict:
         "id": cid,
         "name": "Acme",
         "is_group": False,
+        "is_newsletter": False,
         "last_message_at": "2026-04-23T00:00:00Z",
         "unread_count": 3,
+        "marked_unread": False,
     }
     data.update(overrides)
     return data

@@ -84,3 +84,31 @@ class MessagesResource(BaseResource):
             params["cursor"] = cursor
         data = self._client._request("GET", "/v1/messages", params=params or None)
         return Page[Message].model_validate(data)
+
+    def update(
+        self,
+        message_id: str,
+        *,
+        text: str | None = None,
+        media_url: str | None = None,
+        media_caption: str | None = None,
+        send_at: str | None = None,
+    ) -> Message:
+        """Update message.
+
+        Edit a previously-queued message that has not dispatched yet. Accepts a
+        subset of ``text``, ``media_url``, ``media_caption``, ``send_at`` — at
+        least one is required. Returns 400 once the message has advanced past the
+        editable window (status not in ``pending``/``sending``).
+        """
+        body: dict[str, Any] = {}
+        if text is not None:
+            body["text"] = text
+        if media_url is not None:
+            body["media_url"] = media_url
+        if media_caption is not None:
+            body["media_caption"] = media_caption
+        if send_at is not None:
+            body["send_at"] = send_at
+        data = self._client._request("PATCH", f"/v1/messages/{message_id}", body=body)
+        return Message.model_validate(data)

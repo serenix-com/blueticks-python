@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 MessageStatus = Literal["scheduled", "queued", "sending", "delivered", "read", "failed"]
 MessageType = Literal["text", "media", "poll"]
-MediaKind = Literal["image", "video", "audio", "document", "sticker", "voice"]
+MediaKind = Literal["image", "video", "audio", "document", "sticker", "voice", "gif"]
 
 
 class LinkPreview(BaseModel):

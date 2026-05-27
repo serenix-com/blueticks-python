@@ -168,7 +168,9 @@ def test_create_newsletter_returns_typed_model():
         assert req.url.path == "/v1/newsletters"
         return httpx.Response(201, json=_newsletter())
 
-    result = _client(handler).newsletters.create(name="Acme Updates", description="Weekly product news")
+    result = _client(handler).newsletters.create(
+        name="Acme Updates", description="Weekly product news"
+    )
     assert isinstance(result, Newsletter)
     assert result.id == "120363201733549020@newsletter"
     assert result.name == "Acme Updates"

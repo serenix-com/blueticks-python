@@ -31,8 +31,10 @@ class Chat(BaseModel):
     id: str
     name: Optional[str] = None  # noqa: UP045
     is_group: bool
+    is_newsletter: bool
     last_message_at: Optional[str] = None  # noqa: UP045
     unread_count: Optional[int] = None  # noqa: UP045
+    marked_unread: bool
 
 
 class Participant(BaseModel):

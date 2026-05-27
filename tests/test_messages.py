@@ -115,7 +115,11 @@ def test_send_media_includes_media_dict():
     m = _client(handler).messages.send(
         to="+15551234567",
         type="media",
-        media={"url": "https://cdn.example.com/receipt.pdf", "kind": "document", "filename": "receipt.pdf"},
+        media={
+            "url": "https://cdn.example.com/receipt.pdf",
+            "kind": "document",
+            "filename": "receipt.pdf",
+        },
     )
     assert isinstance(m, Message)
     assert m.type == "media"
@@ -171,7 +175,9 @@ def test_send_with_idempotency_key_sets_header():
         headers_seen.update(dict(req.headers))
         return httpx.Response(201, json=_message("msg_5"))
 
-    _client(handler).messages.send(to="+15551234567", type="text", text="hi", idempotency_key="key-abc")
+    _client(handler).messages.send(
+        to="+15551234567", type="text", text="hi", idempotency_key="key-abc"
+    )
     assert headers_seen["idempotency-key"] == "key-abc"
 
 
@@ -262,3 +268,42 @@ def test_message_validation_fails_when_required_field_missing():
 
     with pytest.raises(ValidationError):
         _client(handler).messages.retrieve("msg_1")
+
+
+# ---------------------------------------------------------------------------
+# update() – PATCH /v1/messages/{id}
+# ---------------------------------------------------------------------------
+
+
+def test_update_patches_to_v1_messages_id():
+    body_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        assert req.method == "PATCH"
+        assert req.url.path == "/v1/messages/msg_xyz"
+        body_seen.update(json.loads(req.content))
+        return httpx.Response(200, json=_message(mid="msg_xyz", text="edited"))
+
+    result = _client(handler).messages.update("msg_xyz", text="edited")
+    assert isinstance(result, Message)
+    assert result.id == "msg_xyz"
+    assert result.text == "edited"
+    assert body_seen == {"text": "edited"}
+
+
+def test_update_raises_authentication_error_on_401():
+    def handler(req: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            401,
+            json={
+                "error": {
+                    "code": "authentication_required",
+                    "message": "bad key",
+                    "request_id": "req_upd_1",
+                }
+            },
+        )
+
+    with pytest.raises(AuthenticationError) as exc_info:
+        _client(handler).messages.update("msg_xyz", text="x")
+    assert exc_info.value.request_id == "req_upd_1"
