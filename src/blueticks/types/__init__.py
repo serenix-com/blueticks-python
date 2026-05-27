@@ -16,11 +16,15 @@ from blueticks.types.chats import (
     Participant,
 )
 from blueticks.types.groups import Group, GroupParticipant
-from blueticks.types.messages import LinkPreview, Message, MediaKind, MessageType
 from blueticks.types.newsletters import Newsletter
 from blueticks.types.page import Page
 from blueticks.types.ping import Ping
-from blueticks.types.scheduled_messages import ScheduledMessage
+from blueticks.types.scheduled_messages import (
+    LinkPreview,
+    MediaKind,
+    ScheduledMessage,
+    ScheduledMessageType,
+)
 from blueticks.types.webhooks import Webhook, WebhookCreateResult, WebhookEvent
 
 __all__ = [
@@ -42,15 +46,14 @@ __all__ = [
     "LoadOlderMessagesResponse",
     "MediaKind",
     "MediaUrlResponse",
-    "Message",
     "MessageAck",
-    "MessageType",
     "Newsletter",
     "OkResponse",
     "Page",
     "Participant",
     "Ping",
     "ScheduledMessage",
+    "ScheduledMessageType",
     "Webhook",
     "WebhookCreateResult",
     "WebhookEvent",

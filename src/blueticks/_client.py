@@ -68,7 +68,6 @@ class Blueticks:
         from blueticks.resources.contacts import ContactsResource
         from blueticks.resources.engines import EnginesResource
         from blueticks.resources.groups import GroupsResource
-        from blueticks.resources.messages import MessagesResource
         from blueticks.resources.newsletters import NewslettersResource
         from blueticks.resources.scheduled_messages import ScheduledMessagesResource
         from blueticks.resources.utils import UtilsResource
@@ -81,7 +80,6 @@ class Blueticks:
         self.contacts = ContactsResource(self)
         self.engines = EnginesResource(self)
         self.groups = GroupsResource(self)
-        self.messages = MessagesResource(self)
         self.newsletters = NewslettersResource(self)
         self.scheduled_messages = ScheduledMessagesResource(self)
         self.utils = UtilsResource(self)

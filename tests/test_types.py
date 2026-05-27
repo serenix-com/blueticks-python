@@ -1,10 +1,10 @@
 from blueticks.types.audiences import AppendContactsResult, Audience, Contact
 from blueticks.types.campaigns import Campaign
-from blueticks.types.messages import Message
+from blueticks.types.scheduled_messages import ScheduledMessage
 from blueticks.types.webhooks import Webhook, WebhookCreateResult, WebhookEvent
 
 
-def test_message_round_trip():
+def test_scheduled_message_round_trip():
     data = {
         "id": "msg_1",
         "to": "+1",
@@ -21,7 +21,7 @@ def test_message_round_trip():
         "failed_at": None,
         "failure_reason": None,
     }
-    m = Message.model_validate(data)
+    m = ScheduledMessage.model_validate(data)
     assert m.id == "msg_1"
     assert m.status == "queued"
     assert m.type == "text"

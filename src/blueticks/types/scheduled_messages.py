@@ -1,26 +1,44 @@
 from __future__ import annotations
 
 # ruff: noqa: UP045  # Pydantic field annotations need Optional[T] for Python 3.9 (see CLAUDE.md)
-from typing import Optional  # noqa: UP045
+from typing import Literal, Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
+
+ScheduledMessageStatus = Literal["scheduled", "queued", "sending", "delivered", "read", "failed"]
+ScheduledMessageType = Literal["text", "media", "poll"]
+MediaKind = Literal["image", "video", "audio", "document", "sticker", "voice", "gif"]
+
+
+class LinkPreview(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    title: Optional[str] = None  # noqa: UP045
+    description: Optional[str] = None  # noqa: UP045
+    canonical_url: Optional[str] = None  # noqa: UP045
+    thumbnail: Optional[str] = None  # noqa: UP045
 
 
 class ScheduledMessage(BaseModel):
-    """A message queued for future delivery via /v1/scheduled-messages."""
+    """A message queued for delivery via /v1/scheduled-messages."""
 
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(populate_by_name=True, extra="ignore")
 
     id: str
-    to: Optional[str] = None  # noqa: UP045
+    key: Optional[str] = None  # noqa: UP045
+    to: str
+    from_: Optional[str] = Field(default=None, alias="from")  # noqa: UP045
+    type: ScheduledMessageType
     text: Optional[str] = None  # noqa: UP045
     media_url: Optional[str] = None  # noqa: UP045
-    media_caption: Optional[str] = None  # noqa: UP045
-    media_filename: Optional[str] = None  # noqa: UP045
-    media_mime_type: Optional[str] = None  # noqa: UP045
+    media_kind: Optional[MediaKind] = None  # noqa: UP045
+    poll_question: Optional[str] = None  # noqa: UP045
+    status: ScheduledMessageStatus
     send_at: Optional[str] = None  # noqa: UP045
-    status: Optional[str] = None  # noqa: UP045
-    is_recurring: bool
-    recurrence_rule: Optional[str] = None  # noqa: UP045
-    created_at: Optional[str] = None  # noqa: UP045
-    updated_at: Optional[str] = None  # noqa: UP045
+    created_at: str
+    sent_at: Optional[str] = None  # noqa: UP045
+    delivered_at: Optional[str] = None  # noqa: UP045
+    read_at: Optional[str] = None  # noqa: UP045
+    failed_at: Optional[str] = None  # noqa: UP045
+    failure_reason: Optional[str] = None  # noqa: UP045
+    link_preview: Optional[LinkPreview] = None  # noqa: UP045

@@ -3,6 +3,31 @@
 All notable changes to `blueticks` will be documented in this file. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and [Keep a Changelog](https://keepachangelog.com/).
 
+## 4.0.0 — 2026-05-27
+
+**Breaking — wire rename.** The backend renamed the queued-send domain on
+the wire: `POST/GET/PATCH /v1/messages*` → `POST/GET/PATCH /v1/scheduled-messages*`.
+The SDK follows.
+
+### Removed (BREAKING)
+
+- `client.messages` is gone. The resource (and the underlying
+  `blueticks.types.messages.Message` type) no longer exists.
+
+### Changed (BREAKING)
+
+- All queued-send methods now live on `client.scheduled_messages`:
+  - `client.messages.send(...)` → `client.scheduled_messages.create(...)`
+  - `client.messages.retrieve(id)` → `client.scheduled_messages.retrieve(id)`
+  - `client.messages.list(...)` → `client.scheduled_messages.list(...)`
+  - `client.messages.update(id, ...)` → `client.scheduled_messages.update(id, ...)`
+- Response type renamed: `blueticks.types.messages.Message` →
+  `blueticks.types.scheduled_messages.ScheduledMessage` (same shape).
+- `client.scheduled_messages.list()` now accepts `chat_id`, `status`, and
+  `q` query params (matching the spec) in addition to `limit` / `cursor`.
+
+See `README.md` → "Migrating from 3.x → 4.0" for code samples.
+
 ## 3.4.0 — 2026-05-22
 
 OpenAPI parity pass. The SDK now matches `backend/openapi.json`
