@@ -5,6 +5,15 @@ from typing import Literal, Optional  # noqa: UP045
 
 from pydantic import BaseModel, ConfigDict, Field
 
+# Status + media-kind enums for the Message response shape returned by
+# POST /v1/chats/{chat_id}/messages. Identical to the scheduled-messages
+# enums; duplicated here to keep chats.py self-contained (the chats
+# resource shouldn't have to import from scheduled_messages).
+MessageStatus = Literal["scheduled", "queued", "sending", "delivered", "read", "failed"]
+MessageKind = Literal["text", "media", "poll"]
+MessageMediaKind = Literal["image", "video", "audio", "document", "sticker", "voice", "gif"]
+
+
 # Single source of truth for the WhatsApp message-`type` enum. Mirrors
 # MESSAGE_TYPE_VALUES on the backend (src/services/api/v1/lib/message-types.ts).
 # Used by ChatMessage.type (response) and message_types filter (request).
@@ -175,3 +184,44 @@ class BatchMessageAcksResponse(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
     data: list[BatchMessageAckEntry]
+
+
+class MessageLinkPreview(BaseModel):
+    """Resolved link preview attached to a sent message."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    title: Optional[str] = None  # noqa: UP045
+    description: Optional[str] = None  # noqa: UP045
+    canonical_url: Optional[str] = None  # noqa: UP045
+    thumbnail: Optional[str] = None  # noqa: UP045
+
+
+class Message(BaseModel):
+    """Response from POST /v1/chats/{chat_id}/messages — a fire-and-forget send.
+
+    Mirrors the ScheduledMessage shape but is emitted by the direct-send
+    endpoint, where ``id`` is null (no DB row is created) and ``key`` carries
+    the WhatsApp wire key.
+    """
+
+    model_config = ConfigDict(populate_by_name=True, extra="ignore")
+
+    id: Optional[str] = None  # noqa: UP045
+    key: Optional[str] = None  # noqa: UP045
+    to: str
+    from_: Optional[str] = Field(default=None, alias="from")  # noqa: UP045
+    type: MessageKind
+    text: Optional[str] = None  # noqa: UP045
+    media_url: Optional[str] = None  # noqa: UP045
+    media_kind: Optional[MessageMediaKind] = None  # noqa: UP045
+    poll_question: Optional[str] = None  # noqa: UP045
+    status: MessageStatus
+    send_at: Optional[str] = None  # noqa: UP045
+    created_at: str
+    sent_at: Optional[str] = None  # noqa: UP045
+    delivered_at: Optional[str] = None  # noqa: UP045
+    read_at: Optional[str] = None  # noqa: UP045
+    failed_at: Optional[str] = None  # noqa: UP045
+    failure_reason: Optional[str] = None  # noqa: UP045
+    link_preview: Optional[MessageLinkPreview] = None  # noqa: UP045

@@ -16,6 +16,7 @@ from blueticks.types.chats import (
     ChatRef,
     LoadOlderMessagesResponse,
     MediaUrlResponse,
+    Message,
     MessageAck,
     OkResponse,
     Participant,
@@ -243,6 +244,145 @@ def test_batch_message_acks_returns_typed_model():
     assert result.data[0].ack == 3
     assert result.data[1].ack == 1
     assert result.data[2].ack is None
+
+
+def _message_response(**overrides) -> dict:
+    data = {
+        "id": None,
+        "key": "wamid.HBg_test",
+        "to": "chat_1",
+        "from": "+15551234567",
+        "type": "text",
+        "text": "hello there",
+        "media_url": None,
+        "media_kind": None,
+        "poll_question": None,
+        "status": "sending",
+        "send_at": None,
+        "created_at": "2026-05-28T00:00:00Z",
+        "sent_at": "2026-05-28T00:00:01Z",
+        "delivered_at": None,
+        "read_at": None,
+        "failed_at": None,
+        "failure_reason": None,
+        "link_preview": None,
+    }
+    data.update(overrides)
+    return data
+
+
+def test_send_message_text_returns_typed_model():
+    body_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        body_seen.update(json.loads(req.content))
+        assert req.method == "POST"
+        assert req.url.path == "/v1/chats/chat_1/messages"
+        return httpx.Response(201, json=_message_response())
+
+    result = _client(handler).chats.send_message(
+        "chat_1",
+        type="text",
+        text="hello there",
+        link_preview=False,
+        reply_to="wamid.prev",
+    )
+    assert isinstance(result, Message)
+    assert result.key == "wamid.HBg_test"
+    assert result.type == "text"
+    assert result.status == "sending"
+    assert body_seen == {
+        "type": "text",
+        "text": "hello there",
+        "link_preview": False,
+        "reply_to": "wamid.prev",
+    }
+
+
+def test_send_message_media_returns_typed_model():
+    body_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        body_seen.update(json.loads(req.content))
+        assert req.url.path == "/v1/chats/chat_1/messages"
+        return httpx.Response(
+            201,
+            json=_message_response(
+                type="media",
+                text=None,
+                media_url="https://cdn.example/x.jpg",
+                media_kind="image",
+            ),
+        )
+
+    result = _client(handler).chats.send_message(
+        "chat_1",
+        type="media",
+        media={
+            "url": "https://cdn.example/x.jpg",
+            "kind": "image",
+            "caption": "look at this",
+        },
+        mentions={"ids": ["12345@c.us"], "displays": ["Alice"]},
+    )
+    assert isinstance(result, Message)
+    assert result.type == "media"
+    assert result.media_kind == "image"
+    assert body_seen["media"]["url"] == "https://cdn.example/x.jpg"
+    assert body_seen["mentions"] == {"ids": ["12345@c.us"], "displays": ["Alice"]}
+
+
+def test_send_message_poll_returns_typed_model():
+    body_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        body_seen.update(json.loads(req.content))
+        assert req.url.path == "/v1/chats/chat_1/messages"
+        return httpx.Response(
+            201,
+            json=_message_response(
+                type="poll",
+                text=None,
+                poll_question="Tea or coffee?",
+            ),
+        )
+
+    result = _client(handler).chats.send_message(
+        "chat_1",
+        type="poll",
+        poll={
+            "question": "Tea or coffee?",
+            "options": ["Tea", "Coffee"],
+            "allow_multiple": False,
+        },
+        from_="+15551234567",
+    )
+    assert isinstance(result, Message)
+    assert result.type == "poll"
+    assert result.poll_question == "Tea or coffee?"
+    assert body_seen == {
+        "type": "poll",
+        "poll": {
+            "question": "Tea or coffee?",
+            "options": ["Tea", "Coffee"],
+            "allow_multiple": False,
+        },
+        "from": "+15551234567",
+    }
+
+
+def test_send_message_forwards_idempotency_key():
+    def handler(req: httpx.Request) -> httpx.Response:
+        assert req.headers.get("Idempotency-Key") == "idem_abc"
+        return httpx.Response(201, json=_message_response())
+
+    result = _client(handler).chats.send_message(
+        "chat_1",
+        type="text",
+        text="hi",
+        idempotency_key="idem_abc",
+    )
+    assert isinstance(result, Message)
 
 
 def test_chats_get_raises_authentication_error_on_401():

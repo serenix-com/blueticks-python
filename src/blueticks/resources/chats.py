@@ -12,6 +12,7 @@ from blueticks.types.chats import (
     ChatRef,
     LoadOlderMessagesResponse,
     MediaUrlResponse,
+    Message,
     MessageAck,
     MessageType,
     OkResponse,
@@ -145,6 +146,71 @@ class ChatsResource(BaseResource):
         """Get a short-lived URL for message media, if available."""
         data = self._client._request("GET", f"/v1/chats/{chat_id}/messages/{key}/media_url")
         return MediaUrlResponse.model_validate(data)
+
+    def send_message(
+        self,
+        chat_id: str,
+        *,
+        type: str,
+        text: str | None = None,
+        link_preview: bool | dict[str, Any] | None = None,
+        media: dict[str, Any] | None = None,
+        poll: dict[str, Any] | None = None,
+        url: str | None = None,
+        from_: str | None = None,
+        reply_to: str | None = None,
+        mentions: dict[str, Any] | None = None,
+        idempotency_key: str | None = None,
+    ) -> Message:
+        """Send message to chat.
+
+        Send a message immediately to a specific chat. The body is the same
+        discriminated union as ``POST /v1/scheduled-messages`` minus ``to``
+        (derived from the URL path) and ``send_at`` (this endpoint is
+        fire-and-forget).
+
+        **Variants:**
+
+        - ``type="text"`` — required ``text`` (1–4096 chars). Optional
+          ``url`` (bare-URL shortcut) and ``link_preview`` (bool or dict).
+        - ``type="media"`` — required ``media`` dict with ``url`` or
+          ``data_base64``. Optional ``kind``, ``caption``, ``filename``.
+        - ``type="poll"`` — required ``poll`` dict with ``question`` and
+          ``options`` (2–12 items). Optional ``allow_multiple``.
+
+        All variants accept optional ``from_`` (E.164 sender for multi-session
+        workspaces), ``reply_to`` (wire ``key`` of a prior message to quote),
+        and ``mentions`` (``{"ids": [...], "displays": [...]}``).
+
+        The dispatch is direct — no DB row is created; the response carries
+        the WhatsApp wire ``key``. For scheduled or queue-managed sends use
+        :meth:`ScheduledMessagesResource.create` instead.
+        """
+        body: dict[str, Any] = {"type": type}
+        if text is not None:
+            body["text"] = text
+        if link_preview is not None:
+            body["link_preview"] = link_preview
+        if media is not None:
+            body["media"] = media
+        if poll is not None:
+            body["poll"] = poll
+        if url is not None:
+            body["url"] = url
+        if from_ is not None:
+            body["from"] = from_
+        if reply_to is not None:
+            body["reply_to"] = reply_to
+        if mentions is not None:
+            body["mentions"] = mentions
+
+        data = self._client._request(
+            "POST",
+            f"/v1/chats/{chat_id}/messages",
+            body=body,
+            idempotency_key=idempotency_key,
+        )
+        return Message.model_validate(data)
 
     def batch_message_acks(self, *, message_keys: Sequence[str]) -> BatchMessageAcksResponse:
         """Batch-fetch ACK data for up to 200 message keys at once."""
