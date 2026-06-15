@@ -77,7 +77,7 @@ class ChatsResource(BaseResource):
         self,
         chat_id: str,
         *,
-        mode: str = "latest",
+        order: str | None = None,
         query: str | None = None,
         since: str | None = None,
         until: str | None = None,
@@ -85,14 +85,17 @@ class ChatsResource(BaseResource):
         limit: int | None = None,
         cursor: str | None = None,
     ) -> Page[ChatMessage]:
-        """List messages in a chat. `mode` is 'latest' or 'history'.
+        """List messages in a chat. `order` is 'asc' (oldest-first) or
+        'desc' (newest-first, default).
 
         `message_types` filters to specific message kinds (e.g. only
         `["document"]` to find PDFs). System events (gp2/revoked/
         newsletter_notification) are excluded by default unless
         explicitly listed.
         """
-        params: dict[str, Any] = {"mode": mode}
+        params: dict[str, Any] = {}
+        if order is not None:
+            params["order"] = order
         if query is not None:
             params["query"] = query
         if since is not None:
@@ -178,7 +181,7 @@ class ChatsResource(BaseResource):
         - ``type="poll"`` — required ``poll`` dict with ``question`` and
           ``options`` (2–12 items). Optional ``allow_multiple``.
 
-        All variants accept optional ``from_`` (E.164 sender for multi-session
+        All variants accept optional ``from_`` (international-format sender for multi-session
         workspaces), ``reply_to`` (wire ``key`` of a prior message to quote),
         and ``mentions`` (``{"ids": [...], "displays": [...]}``).
 

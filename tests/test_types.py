@@ -12,18 +12,19 @@ def test_scheduled_message_round_trip():
         "type": "text",
         "text": "hi",
         "media_url": None,
-        "status": "queued",
+        "status": "pending",
         "send_at": None,
         "created_at": "2026-04-23T00:00:00Z",
-        "sent_at": None,
-        "delivered_at": None,
+        "confirmed_at": None,
+        "received_at": None,
         "read_at": None,
+        "played_at": None,
         "failed_at": None,
         "failure_reason": None,
     }
     m = ScheduledMessage.model_validate(data)
     assert m.id == "msg_1"
-    assert m.status == "queued"
+    assert m.status == "pending"
     assert m.type == "text"
 
 

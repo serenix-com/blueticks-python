@@ -5,7 +5,7 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
-ScheduledMessageStatus = Literal["scheduled", "queued", "sending", "delivered", "read", "failed"]
+ScheduledMessageStatus = Literal["pending", "confirmed", "received", "read", "played", "failed"]
 ScheduledMessageType = Literal["text", "media", "poll"]
 MediaKind = Literal["image", "video", "audio", "document", "sticker", "voice", "gif"]
 
@@ -36,9 +36,10 @@ class ScheduledMessage(BaseModel):
     status: ScheduledMessageStatus
     send_at: Optional[str] = None  # noqa: UP045
     created_at: str
-    sent_at: Optional[str] = None  # noqa: UP045
-    delivered_at: Optional[str] = None  # noqa: UP045
+    confirmed_at: Optional[str] = None  # noqa: UP045
+    received_at: Optional[str] = None  # noqa: UP045
     read_at: Optional[str] = None  # noqa: UP045
+    played_at: Optional[str] = None  # noqa: UP045
     failed_at: Optional[str] = None  # noqa: UP045
     failure_reason: Optional[str] = None  # noqa: UP045
     link_preview: Optional[LinkPreview] = None  # noqa: UP045

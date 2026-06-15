@@ -66,7 +66,7 @@ class ScheduledMessagesResource(BaseResource):
           ``options`` (2–12 items). Optional ``allow_multiple``.
 
         All variants accept optional ``send_at`` (ISO 8601, ≥10s future, ≤365d),
-        ``from_`` (E.164 sender for multi-session workspaces), and ``reply_to``
+        ``from_`` (international-format sender for multi-session workspaces), and ``reply_to``
         (wire ``key`` of a prior message to quote).
         """
         body: dict[str, Any] = {"type": type, "to": to}
@@ -114,10 +114,10 @@ class ScheduledMessagesResource(BaseResource):
     ) -> ScheduledMessage:
         """Update message.
 
-        Edit a previously-queued message that has not dispatched yet. Accepts a
+        Edit a previously-pending message that has not dispatched yet. Accepts a
         subset of ``text``, ``media_url``, ``media_caption``, ``send_at`` — at
         least one is required. Returns 400 once the message has advanced past
-        the editable window (status not in ``pending``/``sending``).
+        the editable window (status is no longer ``pending``).
         """
         body: dict[str, Any] = {}
         if text is not None:

@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field
 # POST /v1/chats/{chat_id}/messages. Identical to the scheduled-messages
 # enums; duplicated here to keep chats.py self-contained (the chats
 # resource shouldn't have to import from scheduled_messages).
-MessageStatus = Literal["scheduled", "queued", "sending", "delivered", "read", "failed"]
+MessageStatus = Literal["pending", "confirmed", "received", "read", "played", "failed"]
 MessageKind = Literal["text", "media", "poll"]
 MessageMediaKind = Literal["image", "video", "audio", "document", "sticker", "voice", "gif"]
 
@@ -219,9 +219,10 @@ class Message(BaseModel):
     status: MessageStatus
     send_at: Optional[str] = None  # noqa: UP045
     created_at: str
-    sent_at: Optional[str] = None  # noqa: UP045
-    delivered_at: Optional[str] = None  # noqa: UP045
+    confirmed_at: Optional[str] = None  # noqa: UP045
+    received_at: Optional[str] = None  # noqa: UP045
     read_at: Optional[str] = None  # noqa: UP045
+    played_at: Optional[str] = None  # noqa: UP045
     failed_at: Optional[str] = None  # noqa: UP045
     failure_reason: Optional[str] = None  # noqa: UP045
     link_preview: Optional[MessageLinkPreview] = None  # noqa: UP045

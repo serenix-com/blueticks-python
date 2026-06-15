@@ -129,7 +129,7 @@ def test_open_returns_chat_ref():
 def test_list_messages_returns_page_of_chat_messages():
     def handler(req: httpx.Request) -> httpx.Response:
         assert req.url.path == "/v1/chats/chat_1/messages"
-        assert req.url.params.get("mode") == "history"
+        assert req.url.params.get("order") == "asc"
         assert req.url.params.get("message_types") == "image,video"
         return httpx.Response(
             200,
@@ -137,7 +137,7 @@ def test_list_messages_returns_page_of_chat_messages():
         )
 
     page = _client(handler).chats.list_messages(
-        "chat_1", mode="history", message_types=["image", "video"]
+        "chat_1", order="asc", message_types=["image", "video"]
     )
     assert isinstance(page.data[0], ChatMessage)
     assert page.data[0].from_ == "+15551234567"
@@ -257,12 +257,13 @@ def _message_response(**overrides) -> dict:
         "media_url": None,
         "media_kind": None,
         "poll_question": None,
-        "status": "sending",
+        "status": "confirmed",
         "send_at": None,
         "created_at": "2026-05-28T00:00:00Z",
-        "sent_at": "2026-05-28T00:00:01Z",
-        "delivered_at": None,
+        "confirmed_at": "2026-05-28T00:00:01Z",
+        "received_at": None,
         "read_at": None,
+        "played_at": None,
         "failed_at": None,
         "failure_reason": None,
         "link_preview": None,
@@ -290,7 +291,7 @@ def test_send_message_text_returns_typed_model():
     assert isinstance(result, Message)
     assert result.key == "wamid.HBg_test"
     assert result.type == "text"
-    assert result.status == "sending"
+    assert result.status == "confirmed"
     assert body_seen == {
         "type": "text",
         "text": "hello there",

@@ -22,12 +22,13 @@ def _scheduled(sid: str = "msg_1", **overrides) -> dict:
         "media_url": None,
         "media_kind": None,
         "poll_question": None,
-        "status": "queued",
+        "status": "pending",
         "send_at": None,
         "created_at": "2026-04-23T00:00:00Z",
-        "sent_at": None,
-        "delivered_at": None,
+        "confirmed_at": None,
+        "received_at": None,
         "read_at": None,
+        "played_at": None,
         "failed_at": None,
         "failure_reason": None,
         "link_preview": None,
@@ -49,7 +50,7 @@ def test_list_scheduled_messages(mock_client) -> None:
             200,
             content=json.dumps(
                 {
-                    "data": [_scheduled("msg_1"), _scheduled("msg_2", status="delivered")],
+                    "data": [_scheduled("msg_1"), _scheduled("msg_2", status="received")],
                     "has_more": False,
                     "next_cursor": None,
                 }
@@ -62,7 +63,7 @@ def test_list_scheduled_messages(mock_client) -> None:
     assert isinstance(page, Page)
     assert len(page.data) == 2
     assert page.data[0].id == "msg_1"
-    assert page.data[1].status == "delivered"
+    assert page.data[1].status == "received"
     assert page.has_more is False
 
 
@@ -82,14 +83,14 @@ def test_list_scheduled_messages_passes_all_params(mock_client) -> None:
             limit=25,
             cursor="cur_abc",
             chat_id="15551234567@c.us",
-            status="queued",
+            status="pending",
             q="hello",
         )
     assert seen_params == {
         "limit": "25",
         "cursor": "cur_abc",
         "chat_id": "15551234567@c.us",
-        "status": "queued",
+        "status": "pending",
         "q": "hello",
     }
     assert page.next_cursor == "cur_next"
@@ -135,7 +136,7 @@ def test_create_text_with_from_and_send_at(mock_client) -> None:
                     "msg_2",
                     **{"from": "+19995550000"},
                     to="+15551234567",
-                    status="scheduled",
+                    status="pending",
                     send_at="2026-05-01T09:00:00Z",
                 )
             ).encode(),
@@ -252,9 +253,9 @@ def test_retrieve_scheduled_message(mock_client) -> None:
             content=json.dumps(
                 _scheduled(
                     "msg_xyz",
-                    status="delivered",
-                    sent_at="2026-04-23T00:00:01Z",
-                    delivered_at="2026-04-23T00:00:02Z",
+                    status="received",
+                    confirmed_at="2026-04-23T00:00:01Z",
+                    received_at="2026-04-23T00:00:02Z",
                 )
             ).encode(),
             headers={"content-type": "application/json"},
@@ -264,8 +265,8 @@ def test_retrieve_scheduled_message(mock_client) -> None:
         m = client.scheduled_messages.retrieve("msg_xyz")
     assert isinstance(m, ScheduledMessage)
     assert m.id == "msg_xyz"
-    assert m.status == "delivered"
-    assert m.delivered_at == "2026-04-23T00:00:02Z"
+    assert m.status == "received"
+    assert m.received_at == "2026-04-23T00:00:02Z"
 
 
 # ---------------------------------------------------------------------------
