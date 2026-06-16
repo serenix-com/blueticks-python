@@ -11,16 +11,16 @@ def test_scheduled_message_round_trip():
         "from": None,
         "type": "text",
         "text": "hi",
-        "media_url": None,
+        "mediaUrl": None,
         "status": "pending",
-        "send_at": None,
-        "created_at": "2026-04-23T00:00:00Z",
-        "confirmed_at": None,
-        "received_at": None,
-        "read_at": None,
-        "played_at": None,
-        "failed_at": None,
-        "failure_reason": None,
+        "sendAt": None,
+        "createdAt": "2026-04-23T00:00:00Z",
+        "confirmedAt": None,
+        "receivedAt": None,
+        "readAt": None,
+        "playedAt": None,
+        "failedAt": None,
+        "failureReason": None,
     }
     m = ScheduledMessage.model_validate(data)
     assert m.id == "msg_1"
@@ -36,7 +36,7 @@ def test_webhook_create_result_has_secret():
         "description": None,
         "status": "enabled",
         "secret": "whsec_abc",
-        "created_at": "2026-04-23T00:00:00Z",
+        "createdAt": "2026-04-23T00:00:00Z",
     }
     wh = WebhookCreateResult.model_validate(data)
     assert wh.secret == "whsec_abc"
@@ -49,7 +49,7 @@ def test_webhook_list_item_hides_secret():
         "events": ["message.delivered"],
         "description": None,
         "status": "enabled",
-        "created_at": "2026-04-23T00:00:00Z",
+        "createdAt": "2026-04-23T00:00:00Z",
     }
     wh = Webhook.model_validate(data)
     assert not hasattr(wh, "secret") or wh.secret is None  # type: ignore[union-attr]
@@ -59,7 +59,7 @@ def test_webhook_event_parses():
     data = {
         "id": "evt_1",
         "type": "message.delivered",
-        "created_at": "2026-04-23T00:00:00Z",
+        "createdAt": "2026-04-23T00:00:00Z",
         "data": {"id": "msg_1"},
     }
     ev = WebhookEvent.model_validate(data)
@@ -72,8 +72,8 @@ def test_audience_and_contact():
         {
             "id": "aud_1",
             "name": "a",
-            "contact_count": 2,
-            "created_at": "2026-04-23T00:00:00Z",
+            "contactCount": 2,
+            "createdAt": "2026-04-23T00:00:00Z",
         }
     )
     assert aud.contact_count == 2
@@ -82,14 +82,14 @@ def test_audience_and_contact():
             "id": "ctc_1",
             "to": "+1",
             "variables": {"name": "A"},
-            "added_at": "2026-04-23T00:00:00Z",
+            "addedAt": "2026-04-23T00:00:00Z",
         }
     )
     assert c.variables == {"name": "A"}
 
 
 def test_append_contacts_result():
-    r = AppendContactsResult.model_validate({"added": 3, "contact_count": 10})
+    r = AppendContactsResult.model_validate({"added": 3, "contactCount": 10})
     assert r.added == 3
 
 
@@ -98,18 +98,18 @@ def test_campaign_status_counters():
         {
             "id": "cmp_1",
             "name": "n",
-            "audience_id": "aud_1",
+            "audienceId": "aud_1",
             "status": "running",
-            "total_count": 10,
-            "sent_count": 5,
-            "delivered_count": 3,
-            "read_count": 1,
-            "failed_count": 0,
+            "totalCount": 10,
+            "sentCount": 5,
+            "deliveredCount": 3,
+            "readCount": 1,
+            "failedCount": 0,
             "from": None,
-            "created_at": "2026-04-23T00:00:00Z",
-            "started_at": "2026-04-23T00:00:00Z",
-            "completed_at": None,
-            "aborted_at": None,
+            "createdAt": "2026-04-23T00:00:00Z",
+            "startedAt": "2026-04-23T00:00:00Z",
+            "completedAt": None,
+            "abortedAt": None,
         }
     )
     assert c.status == "running"

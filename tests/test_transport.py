@@ -16,7 +16,7 @@ from blueticks._transport import Transport
 
 
 def _envelope(code: str, message: str = "x", request_id: str = "req_1") -> bytes:
-    body = {"error": {"code": code, "message": message, "request_id": request_id}}
+    body = {"error": {"code": code, "message": message, "requestId": request_id}}
     return json.dumps(body).encode()
 
 

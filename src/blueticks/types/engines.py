@@ -3,16 +3,16 @@ from __future__ import annotations
 # ruff: noqa: UP045  # Pydantic field annotations need Optional[T] for Python 3.9 (see CLAUDE.md)
 from typing import Optional  # noqa: UP045
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class EngineStatus(BaseModel):
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(populate_by_name=True, extra="ignore")
 
     connected: bool
     state: Optional[str] = None  # noqa: UP045
     stream: Optional[str] = None  # noqa: UP045
-    has_synced: Optional[bool] = None  # noqa: UP045
+    has_synced: Optional[bool] = Field(default=None, alias="hasSynced")  # noqa: UP045
 
 
 class WhatsAppMe(BaseModel):

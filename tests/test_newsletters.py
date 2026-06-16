@@ -22,7 +22,7 @@ def _newsletter(nid: str = "120363201733549020@newsletter", **overrides) -> dict
         "name": "Acme Updates",
         "description": "Weekly product news",
         "owner": "15551234567@s.whatsapp.net",
-        "created_at": "2026-04-23T00:00:00Z",
+        "createdAt": "2026-04-23T00:00:00Z",
         "subscribers": 1042,
         "invite": "XyZAbC123",
         "verification": "VERIFIED",
@@ -91,7 +91,7 @@ def test_list_newsletters_raises_authentication_error_on_401(mock_client) -> Non
                     "error": {
                         "code": "authentication_required",
                         "message": "invalid key",
-                        "request_id": "req_nsl_list_1",
+                        "requestId": "req_nsl_list_1",
                     }
                 }
             ).encode(),
@@ -140,7 +140,7 @@ def test_retrieve_newsletter_raises_authentication_error_on_401(mock_client) -> 
                     "error": {
                         "code": "authentication_required",
                         "message": "invalid key",
-                        "request_id": "req_nsl_get_1",
+                        "requestId": "req_nsl_get_1",
                     }
                 }
             ).encode(),
@@ -198,7 +198,7 @@ def test_create_newsletter_raises_authentication_error_on_401():
                 "error": {
                     "code": "authentication_required",
                     "message": "invalid key",
-                    "request_id": "req_nsl_1",
+                    "requestId": "req_nsl_1",
                 }
             },
         )

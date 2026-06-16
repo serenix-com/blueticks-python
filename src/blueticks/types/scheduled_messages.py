@@ -11,11 +11,11 @@ MediaKind = Literal["image", "video", "audio", "document", "sticker", "voice", "
 
 
 class LinkPreview(BaseModel):
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(populate_by_name=True, extra="ignore")
 
     title: Optional[str] = None  # noqa: UP045
     description: Optional[str] = None  # noqa: UP045
-    canonical_url: Optional[str] = None  # noqa: UP045
+    canonical_url: Optional[str] = Field(default=None, alias="canonicalUrl")  # noqa: UP045
     thumbnail: Optional[str] = None  # noqa: UP045
 
 
@@ -30,16 +30,16 @@ class ScheduledMessage(BaseModel):
     from_: Optional[str] = Field(default=None, alias="from")  # noqa: UP045
     type: ScheduledMessageType
     text: Optional[str] = None  # noqa: UP045
-    media_url: Optional[str] = None  # noqa: UP045
-    media_kind: Optional[MediaKind] = None  # noqa: UP045
-    poll_question: Optional[str] = None  # noqa: UP045
+    media_url: Optional[str] = Field(default=None, alias="mediaUrl")  # noqa: UP045
+    media_kind: Optional[MediaKind] = Field(default=None, alias="mediaKind")  # noqa: UP045
+    poll_question: Optional[str] = Field(default=None, alias="pollQuestion")  # noqa: UP045
     status: ScheduledMessageStatus
-    send_at: Optional[str] = None  # noqa: UP045
-    created_at: str
-    confirmed_at: Optional[str] = None  # noqa: UP045
-    received_at: Optional[str] = None  # noqa: UP045
-    read_at: Optional[str] = None  # noqa: UP045
-    played_at: Optional[str] = None  # noqa: UP045
-    failed_at: Optional[str] = None  # noqa: UP045
-    failure_reason: Optional[str] = None  # noqa: UP045
-    link_preview: Optional[LinkPreview] = None  # noqa: UP045
+    send_at: Optional[str] = Field(default=None, alias="sendAt")  # noqa: UP045
+    created_at: str = Field(alias="createdAt")
+    confirmed_at: Optional[str] = Field(default=None, alias="confirmedAt")  # noqa: UP045
+    received_at: Optional[str] = Field(default=None, alias="receivedAt")  # noqa: UP045
+    read_at: Optional[str] = Field(default=None, alias="readAt")  # noqa: UP045
+    played_at: Optional[str] = Field(default=None, alias="playedAt")  # noqa: UP045
+    failed_at: Optional[str] = Field(default=None, alias="failedAt")  # noqa: UP045
+    failure_reason: Optional[str] = Field(default=None, alias="failureReason")  # noqa: UP045
+    link_preview: Optional[LinkPreview] = Field(default=None, alias="linkPreview")  # noqa: UP045

@@ -15,7 +15,7 @@ SECRET = "whsec_test_secret"
 # Extracted to a module constant to keep test bodies under the 100-char
 # line-length budget.
 _EVT_PAYLOAD = (
-    b'{"id":"evt","type":"message.delivered","created_at":"2026-04-23T00:00:00Z","data":{}}'
+    b'{"id":"evt","type":"message.delivered","createdAt":"2026-04-23T00:00:00Z","data":{}}'
 )
 
 
@@ -42,7 +42,7 @@ def test_verify_accepts_valid_signature():
         {
             "id": "evt_1",
             "type": "message.delivered",
-            "created_at": "2026-04-23T00:00:00Z",
+            "createdAt": "2026-04-23T00:00:00Z",
             "data": {},
         }
     ).encode()
@@ -60,7 +60,7 @@ def test_verify_rejects_expired_timestamp():
 def test_verify_rejects_tampered_payload():
     payload = _EVT_PAYLOAD
     headers = _headers(payload)
-    tampered = b'{"id":"evt","type":"message.FAILED","created_at":"2026-04-23T00:00:00Z","data":{}}'
+    tampered = b'{"id":"evt","type":"message.FAILED","createdAt":"2026-04-23T00:00:00Z","data":{}}'
     with pytest.raises(WebhookVerificationError, match="invalid_signature"):
         verify(tampered, headers, secret=SECRET)
 
@@ -87,7 +87,7 @@ def test_verify_case_insensitive_headers():
 
 def test_verify_accepts_str_payload():
     payload = (
-        '{"id":"evt","type":"message.delivered","created_at":"2026-04-23T00:00:00Z","data":{}}'
+        '{"id":"evt","type":"message.delivered","createdAt":"2026-04-23T00:00:00Z","data":{}}'
     )
     event = verify(payload, _headers(payload.encode()), secret=SECRET)
     assert event.id == "evt"

@@ -22,9 +22,9 @@ def _group(gid: str = "grp_1", **overrides) -> dict:
         "name": "Acme Team",
         "description": "Internal coordination",
         "owner": "12345@c.us",
-        "created_at": "2026-04-23T00:00:00Z",
-        "last_message_at": "2026-04-24T00:00:00Z",
-        "participant_count": 5,
+        "createdAt": "2026-04-23T00:00:00Z",
+        "lastMessageAt": "2026-04-24T00:00:00Z",
+        "participantCount": 5,
         "announce": False,
         "restrict": False,
         "participants": None,
@@ -80,7 +80,7 @@ def test_list_groups_raises_authentication_error_on_401():
                 "error": {
                     "code": "authentication_required",
                     "message": "bad key",
-                    "request_id": "req_grp_list_1",
+                    "requestId": "req_grp_list_1",
                 }
             },
         )
@@ -138,19 +138,19 @@ def test_add_member_returns_typed_group():
         body_seen.update(json.loads(req.content))
         assert req.method == "POST"
         assert req.url.path == "/v1/groups/grp_1/members"
-        return httpx.Response(200, json=_group("grp_1", participant_count=6))
+        return httpx.Response(200, json=_group("grp_1", participantCount=6))
 
     g = _client(handler).groups.add_member("grp_1", chat_id="99999@c.us")
     assert isinstance(g, Group)
     assert g.participant_count == 6
-    assert body_seen == {"chat_id": "99999@c.us"}
+    assert body_seen == {"chatId": "99999@c.us"}
 
 
 def test_remove_member_returns_typed_group():
     def handler(req: httpx.Request) -> httpx.Response:
         assert req.method == "DELETE"
         assert req.url.path == "/v1/groups/grp_1/members/99999@c.us"
-        return httpx.Response(200, json=_group("grp_1", participant_count=4))
+        return httpx.Response(200, json=_group("grp_1", participantCount=4))
 
     g = _client(handler).groups.remove_member("grp_1", "99999@c.us")
     assert isinstance(g, Group)
@@ -193,9 +193,9 @@ def test_set_picture_returns_typed_group():
         file_mime_type="image/png",
     )
     assert isinstance(g, Group)
-    assert body_seen["file_data_url"].startswith("data:image/png;base64")
-    assert body_seen["file_name"] == "logo.png"
-    assert body_seen["file_mime_type"] == "image/png"
+    assert body_seen["fileDataUrl"].startswith("data:image/png;base64")
+    assert body_seen["fileName"] == "logo.png"
+    assert body_seen["fileMimeType"] == "image/png"
 
 
 def test_leave_group_returns_none_on_204():
@@ -215,7 +215,7 @@ def test_groups_get_raises_authentication_error_on_401():
                 "error": {
                     "code": "authentication_required",
                     "message": "bad key",
-                    "request_id": "req_groups_1",
+                    "requestId": "req_groups_1",
                 }
             },
         )

@@ -14,7 +14,7 @@ def _webhook_payload(wid: str = "wh_1", **overrides) -> dict:
         "events": ["message.delivered"],
         "description": None,
         "status": "enabled",
-        "created_at": "2026-04-23T00:00:00Z",
+        "createdAt": "2026-04-23T00:00:00Z",
     }
     data.update(overrides)
     return data

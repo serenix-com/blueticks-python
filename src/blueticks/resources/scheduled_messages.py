@@ -29,7 +29,7 @@ class ScheduledMessagesResource(BaseResource):
         if cursor is not None:
             params["cursor"] = cursor
         if chat_id is not None:
-            params["chat_id"] = chat_id
+            params["chatId"] = chat_id
         if status is not None:
             params["status"] = status
         if q is not None:
@@ -73,7 +73,7 @@ class ScheduledMessagesResource(BaseResource):
         if text is not None:
             body["text"] = text
         if link_preview is not None:
-            body["link_preview"] = link_preview
+            body["linkPreview"] = link_preview
         if media is not None:
             body["media"] = media
         if poll is not None:
@@ -81,11 +81,11 @@ class ScheduledMessagesResource(BaseResource):
         if url is not None:
             body["url"] = url
         if send_at is not None:
-            body["send_at"] = send_at
+            body["sendAt"] = send_at
         if from_ is not None:
             body["from"] = from_
         if reply_to is not None:
-            body["reply_to"] = reply_to
+            body["replyTo"] = reply_to
 
         data = self._client._request(
             "POST",
@@ -123,11 +123,11 @@ class ScheduledMessagesResource(BaseResource):
         if text is not None:
             body["text"] = text
         if media_url is not None:
-            body["media_url"] = media_url
+            body["mediaUrl"] = media_url
         if media_caption is not None:
-            body["media_caption"] = media_caption
+            body["mediaCaption"] = media_caption
         if send_at is not None:
-            body["send_at"] = send_at
+            body["sendAt"] = send_at
         data = self._client._request(
             "PATCH", f"/v1/scheduled-messages/{scheduled_message_id}", body=body
         )

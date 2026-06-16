@@ -18,7 +18,7 @@ def test_ping_retrieve_returns_typed_model(mock_client) -> None:
             200,
             content=json.dumps(
                 {
-                    "account_id": "acc_abc",
+                    "accountId": "acc_abc",
                     "key_prefix": "xy12ab34",
                     "scopes": ["messages:read"],
                 }
@@ -40,7 +40,7 @@ def test_ping_propagates_authentication_error(mock_client) -> None:
             "error": {
                 "code": "authentication_required",
                 "message": "bad key",
-                "request_id": "req_1",
+                "requestId": "req_1",
             }
         }
         return httpx.Response(

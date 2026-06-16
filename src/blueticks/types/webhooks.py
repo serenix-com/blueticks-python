@@ -3,7 +3,7 @@ from __future__ import annotations
 # ruff: noqa: UP045  # Pydantic field annotations need Optional[T] for Python 3.9 (see CLAUDE.md)
 from typing import Any, Literal, Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 WebhookStatus = Literal["enabled", "disabled"]
 
@@ -24,14 +24,14 @@ WebhookEventType = Literal[
 
 
 class Webhook(BaseModel):
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(populate_by_name=True, extra="ignore")
 
     id: str
     url: str
     events: list[str]
     description: Optional[str] = None
     status: WebhookStatus
-    created_at: str
+    created_at: str = Field(alias="createdAt")
 
 
 class WebhookCreateResult(Webhook):
@@ -39,9 +39,9 @@ class WebhookCreateResult(Webhook):
 
 
 class WebhookEvent(BaseModel):
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(populate_by_name=True, extra="ignore")
 
     id: str
     type: str
-    created_at: str
+    created_at: str = Field(alias="createdAt")
     data: dict[str, Any]

@@ -11,18 +11,18 @@ def _campaign(cid: str = "cmp_1", **overrides) -> dict:
     data = {
         "id": cid,
         "name": "n",
-        "audience_id": "aud_1",
+        "audienceId": "aud_1",
         "status": "pending",
-        "total_count": 0,
-        "sent_count": 0,
-        "delivered_count": 0,
-        "read_count": 0,
-        "failed_count": 0,
+        "totalCount": 0,
+        "sentCount": 0,
+        "deliveredCount": 0,
+        "readCount": 0,
+        "failedCount": 0,
         "from": None,
-        "created_at": "2026-04-23T00:00:00Z",
-        "started_at": None,
-        "completed_at": None,
-        "aborted_at": None,
+        "createdAt": "2026-04-23T00:00:00Z",
+        "startedAt": None,
+        "completedAt": None,
+        "abortedAt": None,
     }
     data.update(overrides)
     return data
@@ -49,7 +49,7 @@ def test_create_campaign_serializes_from_alias():
     assert body_seen["from"] == "+2"
     assert "from_" not in body_seen
     assert body_seen["text"] == "hi"
-    assert body_seen["on_missing_variable"] == "error"
+    assert body_seen["onMissingVariable"] == "error"
 
 
 def test_list_campaigns():

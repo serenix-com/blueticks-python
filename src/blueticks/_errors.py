@@ -98,7 +98,7 @@ def from_envelope(
             "status_code": status_code,
             "code": error.get("code"),
             "message": error.get("message", ""),
-            "request_id": error.get("request_id"),
+            "request_id": error.get("requestId"),
             "response": response,
         }
         if cls is RateLimitError:

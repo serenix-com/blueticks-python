@@ -105,49 +105,80 @@ class ChatsResource(BaseResource):
         if message_types:
             # Server accepts comma-separated form for OpenAPI
             # `style: form, explode: false` parameter style.
-            params["message_types"] = ",".join(message_types)
+            params["messageTypes"] = ",".join(message_types)
         if limit is not None:
             params["limit"] = limit
         if cursor is not None:
             params["cursor"] = cursor
-        data = self._client._request("GET", f"/v1/chats/{chat_id}/messages", params=params)
+        params["chatId"] = chat_id
+        data = self._client._request("GET", "/v1/messages", params=params)
         return Page[ChatMessage].model_validate(data)
 
-    def get_message(self, chat_id: str, key: str) -> ChatMessage:
-        """Retrieve a single message by WhatsApp message key."""
-        data = self._client._request("GET", f"/v1/chats/{chat_id}/messages/{key}")
+    def get_message(self, wa_message_key: str, *, chat_id: str | None = None) -> ChatMessage:
+        """Retrieve a single message by its complete WhatsApp message key.
+
+        ``chat_id`` is optional and only narrows the engine lookup.
+        """
+        params: dict[str, Any] = {}
+        if chat_id is not None:
+            params["chatId"] = chat_id
+        data = self._client._request(
+            "GET", f"/v1/messages/{wa_message_key}", params=params or None
+        )
         return ChatMessage.model_validate(data)
 
-    def get_message_ack(self, chat_id: str, key: str) -> MessageAck:
-        """Fetch ACK state for a single message."""
-        data = self._client._request("GET", f"/v1/chats/{chat_id}/messages/{key}/ack")
+    def get_message_ack(self, wa_message_key: str, *, chat_id: str | None = None) -> MessageAck:
+        """Fetch ACK state for a single message by its complete WhatsApp message key."""
+        params: dict[str, Any] = {}
+        if chat_id is not None:
+            params["chatId"] = chat_id
+        data = self._client._request(
+            "GET", f"/v1/messages/ack/{wa_message_key}", params=params or None
+        )
         return MessageAck.model_validate(data)
 
-    def react(self, chat_id: str, key: str, *, emoji: str) -> OkResponse:
-        """Add or clear an emoji reaction on a message.
+    def react(
+        self, wa_message_key: str, *, emoji: str, chat_id: str | None = None
+    ) -> OkResponse:
+        """Add or clear an emoji reaction on a message by its complete WhatsApp message key.
 
         Pass an empty string for ``emoji`` to clear an existing reaction.
+        ``chat_id`` is optional and only narrows the engine lookup.
         """
+        params: dict[str, Any] = {}
+        if chat_id is not None:
+            params["chatId"] = chat_id
         data = self._client._request(
             "POST",
-            f"/v1/chats/{chat_id}/messages/{key}/reactions",
+            f"/v1/messages/reactions/{wa_message_key}",
             body={"emoji": emoji},
+            params=params or None,
         )
         return OkResponse.model_validate(data)
 
     def load_older_messages(self, chat_id: str) -> LoadOlderMessagesResponse:
         """Pull older messages from the phone into the engine's local store."""
-        data = self._client._request("POST", f"/v1/chats/{chat_id}/messages/load_older")
+        data = self._client._request("POST", f"/v1/messages/load_older/{chat_id}")
         return LoadOlderMessagesResponse.model_validate(data)
 
-    def get_media(self, chat_id: str, key: str) -> ChatMedia:
-        """Download message media (may be returned as base64)."""
-        data = self._client._request("GET", f"/v1/chats/{chat_id}/messages/{key}/media")
+    def get_media(self, wa_message_key: str, *, chat_id: str | None = None) -> ChatMedia:
+        """Download message media by its complete WhatsApp message key (may be base64)."""
+        params: dict[str, Any] = {}
+        if chat_id is not None:
+            params["chatId"] = chat_id
+        data = self._client._request(
+            "GET", f"/v1/messages/media/{wa_message_key}", params=params or None
+        )
         return ChatMedia.model_validate(data)
 
-    def get_media_url(self, chat_id: str, key: str) -> MediaUrlResponse:
-        """Get a short-lived URL for message media, if available."""
-        data = self._client._request("GET", f"/v1/chats/{chat_id}/messages/{key}/media_url")
+    def get_media_url(self, wa_message_key: str, *, chat_id: str | None = None) -> MediaUrlResponse:
+        """Get a short-lived URL for message media by its complete WhatsApp message key."""
+        params: dict[str, Any] = {}
+        if chat_id is not None:
+            params["chatId"] = chat_id
+        data = self._client._request(
+            "GET", f"/v1/messages/media_url/{wa_message_key}", params=params or None
+        )
         return MediaUrlResponse.model_validate(data)
 
     def send_message(
@@ -193,7 +224,7 @@ class ChatsResource(BaseResource):
         if text is not None:
             body["text"] = text
         if link_preview is not None:
-            body["link_preview"] = link_preview
+            body["linkPreview"] = link_preview
         if media is not None:
             body["media"] = media
         if poll is not None:
@@ -203,13 +234,13 @@ class ChatsResource(BaseResource):
         if from_ is not None:
             body["from"] = from_
         if reply_to is not None:
-            body["reply_to"] = reply_to
+            body["replyTo"] = reply_to
         if mentions is not None:
             body["mentions"] = mentions
 
         data = self._client._request(
             "POST",
-            f"/v1/chats/{chat_id}/messages",
+            f"/v1/messages/{chat_id}",
             body=body,
             idempotency_key=idempotency_key,
         )
@@ -219,7 +250,7 @@ class ChatsResource(BaseResource):
         """Batch-fetch ACK data for up to 200 message keys at once."""
         data = self._client._request(
             "POST",
-            "/v1/chats/message_acks",
-            body={"message_keys": message_keys},
+            "/v1/messages/acks",
+            body={"messageKeys": message_keys},
         )
         return BatchMessageAcksResponse.model_validate(data)

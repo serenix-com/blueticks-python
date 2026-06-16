@@ -62,7 +62,7 @@ class GroupsResource(BaseResource):
     def add_member(self, group_id: str, *, chat_id: str) -> Group:
         """Invite a contact to the group."""
         data = self._client._request(
-            "POST", f"/v1/groups/{group_id}/members", body={"chat_id": chat_id}
+            "POST", f"/v1/groups/{group_id}/members", body={"chatId": chat_id}
         )
         return Group.model_validate(data)
 
@@ -90,11 +90,11 @@ class GroupsResource(BaseResource):
         file_mime_type: str | None = None,
     ) -> Group:
         """Upload a new group avatar (base64 data URL)."""
-        body: dict[str, Any] = {"file_data_url": file_data_url}
+        body: dict[str, Any] = {"fileDataUrl": file_data_url}
         if file_name is not None:
-            body["file_name"] = file_name
+            body["fileName"] = file_name
         if file_mime_type is not None:
-            body["file_mime_type"] = file_mime_type
+            body["fileMimeType"] = file_mime_type
         data = self._client._request("PUT", f"/v1/groups/{group_id}/picture", body=body)
         return Group.model_validate(data)
 

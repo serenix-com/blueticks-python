@@ -31,11 +31,11 @@ def _chat(cid: str = "chat_1", **overrides) -> dict:
     data = {
         "id": cid,
         "name": "Acme",
-        "is_group": False,
-        "is_newsletter": False,
-        "last_message_at": "2026-04-23T00:00:00Z",
-        "unread_count": 3,
-        "marked_unread": False,
+        "isGroup": False,
+        "isNewsletter": False,
+        "lastMessageAt": "2026-04-23T00:00:00Z",
+        "unreadCount": 3,
+        "markedUnread": False,
     }
     data.update(overrides)
     return data
@@ -44,14 +44,14 @@ def _chat(cid: str = "chat_1", **overrides) -> dict:
 def _chat_message(**overrides) -> dict:
     data = {
         "key": "msg_key_1",
-        "chat_id": "chat_1",
+        "chatId": "chat_1",
         "from": "+15551234567",
         "timestamp": "2026-04-23T00:00:00Z",
         "text": "hello",
         "type": "chat",
-        "from_me": False,
+        "fromMe": False,
         "ack": 3,
-        "media_url": None,
+        "mediaUrl": None,
         "caption": None,
         "filename": None,
     }
@@ -94,7 +94,7 @@ def test_list_participants_returns_page():
         return httpx.Response(
             200,
             json={
-                "data": [{"chat_id": "12345@c.us", "is_admin": True, "is_super_admin": False}],
+                "data": [{"chatId": "12345@c.us", "isAdmin": True, "isSuperAdmin": False}],
                 "has_more": False,
                 "next_cursor": None,
             },
@@ -119,7 +119,7 @@ def test_mark_read_returns_ok_response():
 def test_open_returns_chat_ref():
     def handler(req: httpx.Request) -> httpx.Response:
         assert req.url.path == "/v1/chats/chat_1/open"
-        return httpx.Response(200, json={"chat_id": "chat_1"})
+        return httpx.Response(200, json={"chatId": "chat_1"})
 
     result = _client(handler).chats.open("chat_1")
     assert isinstance(result, ChatRef)
@@ -128,9 +128,10 @@ def test_open_returns_chat_ref():
 
 def test_list_messages_returns_page_of_chat_messages():
     def handler(req: httpx.Request) -> httpx.Response:
-        assert req.url.path == "/v1/chats/chat_1/messages"
+        assert req.url.path == "/v1/messages"
+        assert req.url.params.get("chatId") == "chat_1"
         assert req.url.params.get("order") == "asc"
-        assert req.url.params.get("message_types") == "image,video"
+        assert req.url.params.get("messageTypes") == "image,video"
         return httpx.Response(
             200,
             json={"data": [_chat_message()], "has_more": True, "next_cursor": "cur_2"},
@@ -146,20 +147,21 @@ def test_list_messages_returns_page_of_chat_messages():
 
 def test_get_message_returns_chat_message():
     def handler(req: httpx.Request) -> httpx.Response:
-        assert req.url.path == "/v1/chats/chat_1/messages/msg_key_1"
+        assert req.url.path == "/v1/messages/msg_key_1"
+        assert req.url.params.get("chatId") == "chat_1"
         return httpx.Response(200, json=_chat_message())
 
-    msg = _client(handler).chats.get_message("chat_1", "msg_key_1")
+    msg = _client(handler).chats.get_message("msg_key_1", chat_id="chat_1")
     assert isinstance(msg, ChatMessage)
     assert msg.text == "hello"
 
 
 def test_get_message_ack_returns_typed_model():
     def handler(req: httpx.Request) -> httpx.Response:
-        assert req.url.path == "/v1/chats/chat_1/messages/msg_key_1/ack"
+        assert req.url.path == "/v1/messages/ack/msg_key_1"
         return httpx.Response(200, json={"ack": 3})
 
-    result = _client(handler).chats.get_message_ack("chat_1", "msg_key_1")
+    result = _client(handler).chats.get_message_ack("msg_key_1")
     assert isinstance(result, MessageAck)
     assert result.ack == 3
 
@@ -169,10 +171,10 @@ def test_react_returns_ok_response():
 
     def handler(req: httpx.Request) -> httpx.Response:
         body_seen.update(json.loads(req.content))
-        assert req.url.path == "/v1/chats/chat_1/messages/msg_key_1/reactions"
+        assert req.url.path == "/v1/messages/reactions/msg_key_1"
         return httpx.Response(200, json={"ok": True})
 
-    result = _client(handler).chats.react("chat_1", "msg_key_1", emoji="🔥")
+    result = _client(handler).chats.react("msg_key_1", emoji="🔥")
     assert isinstance(result, OkResponse)
     assert body_seen == {"emoji": "🔥"}
 
@@ -180,8 +182,8 @@ def test_react_returns_ok_response():
 def test_load_older_messages_returns_typed_model():
     def handler(req: httpx.Request) -> httpx.Response:
         assert req.method == "POST"
-        assert req.url.path == "/v1/chats/chat_1/messages/load_older"
-        return httpx.Response(200, json={"total_messages": 124, "added": 24, "can_load_more": True})
+        assert req.url.path == "/v1/messages/load_older/chat_1"
+        return httpx.Response(200, json={"totalMessages": 124, "added": 24, "canLoadMore": True})
 
     result = _client(handler).chats.load_older_messages("chat_1")
     assert isinstance(result, LoadOlderMessagesResponse)
@@ -191,30 +193,30 @@ def test_load_older_messages_returns_typed_model():
 
 def test_get_media_returns_chat_media():
     def handler(req: httpx.Request) -> httpx.Response:
-        assert req.url.path == "/v1/chats/chat_1/messages/msg_key_1/media"
+        assert req.url.path == "/v1/messages/media/msg_key_1"
         return httpx.Response(
             200,
             json={
                 "url": "https://cdn.example/x.jpg",
                 "mimetype": "image/jpeg",
                 "filename": "x.jpg",
-                "data_base64": None,
-                "original_quality": True,
-                "media_unavailable": None,
+                "dataBase64": None,
+                "originalQuality": True,
+                "mediaUnavailable": None,
             },
         )
 
-    result = _client(handler).chats.get_media("chat_1", "msg_key_1")
+    result = _client(handler).chats.get_media("msg_key_1")
     assert isinstance(result, ChatMedia)
     assert result.mimetype == "image/jpeg"
 
 
 def test_get_media_url_returns_typed_model():
     def handler(req: httpx.Request) -> httpx.Response:
-        assert req.url.path == "/v1/chats/chat_1/messages/msg_key_1/media_url"
+        assert req.url.path == "/v1/messages/media_url/msg_key_1"
         return httpx.Response(200, json={"url": "https://cdn.example/y.jpg"})
 
-    result = _client(handler).chats.get_media_url("chat_1", "msg_key_1")
+    result = _client(handler).chats.get_media_url("msg_key_1")
     assert isinstance(result, MediaUrlResponse)
     assert result.url == "https://cdn.example/y.jpg"
 
@@ -225,7 +227,7 @@ def test_batch_message_acks_returns_typed_model():
     def handler(req: httpx.Request) -> httpx.Response:
         body_seen.update(json.loads(req.content))
         assert req.method == "POST"
-        assert req.url.path == "/v1/chats/message_acks"
+        assert req.url.path == "/v1/messages/acks"
         return httpx.Response(
             200,
             json={
@@ -239,7 +241,7 @@ def test_batch_message_acks_returns_typed_model():
 
     result = _client(handler).chats.batch_message_acks(message_keys=["msg_a", "msg_b", "msg_c"])
     assert isinstance(result, BatchMessageAcksResponse)
-    assert body_seen == {"message_keys": ["msg_a", "msg_b", "msg_c"]}
+    assert body_seen == {"messageKeys": ["msg_a", "msg_b", "msg_c"]}
     assert result.data[0].key == "msg_a"
     assert result.data[0].ack == 3
     assert result.data[1].ack == 1
@@ -254,19 +256,19 @@ def _message_response(**overrides) -> dict:
         "from": "+15551234567",
         "type": "text",
         "text": "hello there",
-        "media_url": None,
-        "media_kind": None,
-        "poll_question": None,
+        "mediaUrl": None,
+        "mediaKind": None,
+        "pollQuestion": None,
         "status": "confirmed",
-        "send_at": None,
-        "created_at": "2026-05-28T00:00:00Z",
-        "confirmed_at": "2026-05-28T00:00:01Z",
-        "received_at": None,
-        "read_at": None,
-        "played_at": None,
-        "failed_at": None,
-        "failure_reason": None,
-        "link_preview": None,
+        "sendAt": None,
+        "createdAt": "2026-05-28T00:00:00Z",
+        "confirmedAt": "2026-05-28T00:00:01Z",
+        "receivedAt": None,
+        "readAt": None,
+        "playedAt": None,
+        "failedAt": None,
+        "failureReason": None,
+        "linkPreview": None,
     }
     data.update(overrides)
     return data
@@ -278,7 +280,7 @@ def test_send_message_text_returns_typed_model():
     def handler(req: httpx.Request) -> httpx.Response:
         body_seen.update(json.loads(req.content))
         assert req.method == "POST"
-        assert req.url.path == "/v1/chats/chat_1/messages"
+        assert req.url.path == "/v1/messages/chat_1"
         return httpx.Response(201, json=_message_response())
 
     result = _client(handler).chats.send_message(
@@ -295,8 +297,8 @@ def test_send_message_text_returns_typed_model():
     assert body_seen == {
         "type": "text",
         "text": "hello there",
-        "link_preview": False,
-        "reply_to": "wamid.prev",
+        "linkPreview": False,
+        "replyTo": "wamid.prev",
     }
 
 
@@ -305,14 +307,14 @@ def test_send_message_media_returns_typed_model():
 
     def handler(req: httpx.Request) -> httpx.Response:
         body_seen.update(json.loads(req.content))
-        assert req.url.path == "/v1/chats/chat_1/messages"
+        assert req.url.path == "/v1/messages/chat_1"
         return httpx.Response(
             201,
             json=_message_response(
                 type="media",
                 text=None,
-                media_url="https://cdn.example/x.jpg",
-                media_kind="image",
+                mediaUrl="https://cdn.example/x.jpg",
+                mediaKind="image",
             ),
         )
 
@@ -338,13 +340,13 @@ def test_send_message_poll_returns_typed_model():
 
     def handler(req: httpx.Request) -> httpx.Response:
         body_seen.update(json.loads(req.content))
-        assert req.url.path == "/v1/chats/chat_1/messages"
+        assert req.url.path == "/v1/messages/chat_1"
         return httpx.Response(
             201,
             json=_message_response(
                 type="poll",
                 text=None,
-                poll_question="Tea or coffee?",
+                pollQuestion="Tea or coffee?",
             ),
         )
 
@@ -394,7 +396,7 @@ def test_chats_get_raises_authentication_error_on_401():
                 "error": {
                     "code": "authentication_required",
                     "message": "bad key",
-                    "request_id": "req_chats_1",
+                    "requestId": "req_chats_1",
                 }
             },
         )

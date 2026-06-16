@@ -35,23 +35,23 @@ MessageType = Literal[
 
 
 class Chat(BaseModel):
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(populate_by_name=True, extra="ignore")
 
     id: str
     name: Optional[str] = None  # noqa: UP045
-    is_group: bool
-    is_newsletter: bool
-    last_message_at: Optional[str] = None  # noqa: UP045
-    unread_count: Optional[int] = None  # noqa: UP045
-    marked_unread: bool
+    is_group: bool = Field(alias="isGroup")
+    is_newsletter: bool = Field(alias="isNewsletter")
+    last_message_at: Optional[str] = Field(default=None, alias="lastMessageAt")  # noqa: UP045
+    unread_count: Optional[int] = Field(default=None, alias="unreadCount")  # noqa: UP045
+    marked_unread: bool = Field(alias="markedUnread")
 
 
 class Participant(BaseModel):
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(populate_by_name=True, extra="ignore")
 
-    chat_id: str
-    is_admin: bool
-    is_super_admin: Optional[bool] = None  # noqa: UP045
+    chat_id: str = Field(alias="chatId")
+    is_admin: bool = Field(alias="isAdmin")
+    is_super_admin: Optional[bool] = Field(default=None, alias="isSuperAdmin")  # noqa: UP045
 
 
 class ChatMessage(BaseModel):
@@ -62,14 +62,14 @@ class ChatMessage(BaseModel):
     model_config = ConfigDict(extra="ignore", populate_by_name=True)
 
     key: str
-    chat_id: str
+    chat_id: str = Field(alias="chatId")
     from_: str = Field(alias="from")
     timestamp: Optional[str] = None  # noqa: UP045
     text: Optional[str] = None  # noqa: UP045
     type: str
-    from_me: bool
+    from_me: bool = Field(alias="fromMe")
     ack: Optional[int] = None  # noqa: UP045
-    media_url: Optional[str] = None  # noqa: UP045
+    media_url: Optional[str] = Field(default=None, alias="mediaUrl")  # noqa: UP045
     # Caption + filename for media messages. For documents, `filename` is
     # the only discriminator (text is empty). For images/videos, `caption`
     # carries the user-visible text. Both are None for plain chat msgs and
@@ -88,16 +88,16 @@ MediaUnavailableReason = Literal[
 
 
 class ChatMedia(BaseModel):
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(populate_by_name=True, extra="ignore")
 
     url: Optional[str] = None  # noqa: UP045
     mimetype: Optional[str] = None  # noqa: UP045
     filename: Optional[str] = None  # noqa: UP045
-    data_base64: Optional[str] = None  # noqa: UP045
+    data_base64: Optional[str] = Field(default=None, alias="dataBase64")  # noqa: UP045
     # false when WA returned a preview JPEG instead of the original (#113 —
     # own-sent newsletter media only). None/absent when bytes are the
     # genuine original from the sender.
-    original_quality: Optional[bool] = None  # noqa: UP045
+    original_quality: Optional[bool] = Field(default=None, alias="originalQuality")  # noqa: UP045
     # Reason the bytes couldn't be retrieved. None/absent on success.
     # "expired" = WA aged the file out of CDN retention. "fetching" = WA is
     # mid-download from its CDN — transient, retry in a few seconds.
@@ -107,6 +107,7 @@ class ChatMedia(BaseModel):
     # "no_media" = the message is text-only/revoked/location/vcard.
     media_unavailable: Optional[MediaUnavailableReason] = Field(  # noqa: UP045
         default=None,
+        alias="mediaUnavailable",
         description=(
             "Set when the bytes could not be downloaded or never existed. "
             '"expired" = WA aged the file out of CDN retention. '
@@ -128,15 +129,15 @@ class OkResponse(BaseModel):
 
 
 class ChatRef(BaseModel):
-    """Response from POST /v1/chats/{chat_id}/open."""
+    """Response from POST /v1/chats/{chatId}/open."""
 
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(populate_by_name=True, extra="ignore")
 
-    chat_id: str
+    chat_id: str = Field(alias="chatId")
 
 
 class MessageAck(BaseModel):
-    """Response from GET /v1/chats/{chat_id}/messages/{key}/ack.
+    """Response from GET /v1/messages/ack/{waMessageKey}.
 
     `ack` codes: -1=error, 0=pending, 1=server, 2=device, 3=read, 4=played;
     None when no engine response.
@@ -148,17 +149,17 @@ class MessageAck(BaseModel):
 
 
 class LoadOlderMessagesResponse(BaseModel):
-    """Response from POST /v1/chats/{chat_id}/messages/load_older."""
+    """Response from POST /v1/messages/load_older/{chatId}."""
 
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(populate_by_name=True, extra="ignore")
 
-    total_messages: Optional[int] = None  # noqa: UP045
+    total_messages: Optional[int] = Field(default=None, alias="totalMessages")  # noqa: UP045
     added: Optional[int] = None  # noqa: UP045
-    can_load_more: bool
+    can_load_more: bool = Field(alias="canLoadMore")
 
 
 class MediaUrlResponse(BaseModel):
-    """Response from GET /v1/chats/{chat_id}/messages/{key}/media_url."""
+    """Response from GET /v1/messages/media_url/{waMessageKey}."""
 
     model_config = ConfigDict(extra="ignore")
 
@@ -179,7 +180,7 @@ class BatchMessageAckEntry(BaseModel):
 
 
 class BatchMessageAcksResponse(BaseModel):
-    """Response from POST /v1/chats/message_acks."""
+    """Response from POST /v1/messages/acks."""
 
     model_config = ConfigDict(extra="ignore")
 
@@ -189,16 +190,16 @@ class BatchMessageAcksResponse(BaseModel):
 class MessageLinkPreview(BaseModel):
     """Resolved link preview attached to a sent message."""
 
-    model_config = ConfigDict(extra="ignore")
+    model_config = ConfigDict(populate_by_name=True, extra="ignore")
 
     title: Optional[str] = None  # noqa: UP045
     description: Optional[str] = None  # noqa: UP045
-    canonical_url: Optional[str] = None  # noqa: UP045
+    canonical_url: Optional[str] = Field(default=None, alias="canonicalUrl")  # noqa: UP045
     thumbnail: Optional[str] = None  # noqa: UP045
 
 
 class Message(BaseModel):
-    """Response from POST /v1/chats/{chat_id}/messages — a fire-and-forget send.
+    """Response from POST /v1/messages/{chatId} — a fire-and-forget send.
 
     Mirrors the ScheduledMessage shape but is emitted by the direct-send
     endpoint, where ``id`` is null (no DB row is created) and ``key`` carries
@@ -213,16 +214,16 @@ class Message(BaseModel):
     from_: Optional[str] = Field(default=None, alias="from")  # noqa: UP045
     type: MessageKind
     text: Optional[str] = None  # noqa: UP045
-    media_url: Optional[str] = None  # noqa: UP045
-    media_kind: Optional[MessageMediaKind] = None  # noqa: UP045
-    poll_question: Optional[str] = None  # noqa: UP045
+    media_url: Optional[str] = Field(default=None, alias="mediaUrl")  # noqa: UP045
+    media_kind: Optional[MessageMediaKind] = Field(default=None, alias="mediaKind")  # noqa: UP045
+    poll_question: Optional[str] = Field(default=None, alias="pollQuestion")  # noqa: UP045
     status: MessageStatus
-    send_at: Optional[str] = None  # noqa: UP045
-    created_at: str
-    confirmed_at: Optional[str] = None  # noqa: UP045
-    received_at: Optional[str] = None  # noqa: UP045
-    read_at: Optional[str] = None  # noqa: UP045
-    played_at: Optional[str] = None  # noqa: UP045
-    failed_at: Optional[str] = None  # noqa: UP045
-    failure_reason: Optional[str] = None  # noqa: UP045
-    link_preview: Optional[MessageLinkPreview] = None  # noqa: UP045
+    send_at: Optional[str] = Field(default=None, alias="sendAt")  # noqa: UP045
+    created_at: str = Field(alias="createdAt")
+    confirmed_at: Optional[str] = Field(default=None, alias="confirmedAt")  # noqa: UP045
+    received_at: Optional[str] = Field(default=None, alias="receivedAt")  # noqa: UP045
+    read_at: Optional[str] = Field(default=None, alias="readAt")  # noqa: UP045
+    played_at: Optional[str] = Field(default=None, alias="playedAt")  # noqa: UP045
+    failed_at: Optional[str] = Field(default=None, alias="failedAt")  # noqa: UP045
+    failure_reason: Optional[str] = Field(default=None, alias="failureReason")  # noqa: UP045
+    link_preview: Optional[MessageLinkPreview] = Field(default=None, alias="linkPreview")  # noqa: UP045

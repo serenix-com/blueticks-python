@@ -11,8 +11,8 @@ def _audience(aid: str = "aud_1", **overrides) -> dict:
     data = {
         "id": aid,
         "name": "A",
-        "contact_count": 0,
-        "created_at": "2026-04-23T00:00:00Z",
+        "contactCount": 0,
+        "createdAt": "2026-04-23T00:00:00Z",
     }
     data.update(overrides)
     return data
@@ -23,7 +23,7 @@ def _contact(cid: str = "ctc_1", **overrides) -> dict:
         "id": cid,
         "to": "+1",
         "variables": {"name": "X"},
-        "added_at": "2026-04-23T00:00:00Z",
+        "addedAt": "2026-04-23T00:00:00Z",
     }
     data.update(overrides)
     return data
@@ -36,7 +36,7 @@ def test_create_audience_with_contacts():
         body_seen.update(json.loads(req.content))
         assert req.method == "POST"
         assert req.url.path == "/v1/audiences"
-        return httpx.Response(201, json=_audience(contact_count=1))
+        return httpx.Response(201, json=_audience(contactCount=1))
 
     client = Blueticks(api_key="bt_live_test", _http_transport=httpx.MockTransport(handler))
     aud = client.audiences.create(
@@ -113,7 +113,7 @@ def test_append_contacts():
         assert req.url.path == "/v1/audiences/aud_1/contacts"
         body = json.loads(req.content)
         assert body["contacts"][0]["to"] == "+1"
-        return httpx.Response(200, json={"added": 1, "contact_count": 5})
+        return httpx.Response(200, json={"added": 1, "contactCount": 5})
 
     client = Blueticks(api_key="bt_live_test", _http_transport=httpx.MockTransport(handler))
     result = client.audiences.append_contacts(

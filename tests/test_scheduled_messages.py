@@ -19,19 +19,19 @@ def _scheduled(sid: str = "msg_1", **overrides) -> dict:
         "from": None,
         "type": "text",
         "text": "hello",
-        "media_url": None,
-        "media_kind": None,
-        "poll_question": None,
+        "mediaUrl": None,
+        "mediaKind": None,
+        "pollQuestion": None,
         "status": "pending",
-        "send_at": None,
-        "created_at": "2026-04-23T00:00:00Z",
-        "confirmed_at": None,
-        "received_at": None,
-        "read_at": None,
-        "played_at": None,
-        "failed_at": None,
-        "failure_reason": None,
-        "link_preview": None,
+        "sendAt": None,
+        "createdAt": "2026-04-23T00:00:00Z",
+        "confirmedAt": None,
+        "receivedAt": None,
+        "readAt": None,
+        "playedAt": None,
+        "failedAt": None,
+        "failureReason": None,
+        "linkPreview": None,
     }
     data.update(overrides)
     return data
@@ -89,7 +89,7 @@ def test_list_scheduled_messages_passes_all_params(mock_client) -> None:
     assert seen_params == {
         "limit": "25",
         "cursor": "cur_abc",
-        "chat_id": "15551234567@c.us",
+        "chatId": "15551234567@c.us",
         "status": "pending",
         "q": "hello",
     }
@@ -137,7 +137,7 @@ def test_create_text_with_from_and_send_at(mock_client) -> None:
                     **{"from": "+19995550000"},
                     to="+15551234567",
                     status="pending",
-                    send_at="2026-05-01T09:00:00Z",
+                    sendAt="2026-05-01T09:00:00Z",
                 )
             ).encode(),
             headers={"content-type": "application/json"},
@@ -153,7 +153,7 @@ def test_create_text_with_from_and_send_at(mock_client) -> None:
         )
     assert m.from_ == "+19995550000"
     assert body_seen["from"] == "+19995550000"
-    assert body_seen["send_at"] == "2026-05-01T09:00:00Z"
+    assert body_seen["sendAt"] == "2026-05-01T09:00:00Z"
 
 
 def test_create_media_includes_media_dict(mock_client) -> None:
@@ -168,8 +168,8 @@ def test_create_media_includes_media_dict(mock_client) -> None:
                     "msg_3",
                     type="media",
                     text=None,
-                    media_url="https://cdn.example.com/receipt.pdf",
-                    media_kind="document",
+                    mediaUrl="https://cdn.example.com/receipt.pdf",
+                    mediaKind="document",
                 )
             ).encode(),
             headers={"content-type": "application/json"},
@@ -202,7 +202,7 @@ def test_create_poll_includes_poll_dict(mock_client) -> None:
         return httpx.Response(
             201,
             content=json.dumps(
-                _scheduled("msg_4", type="poll", text=None, poll_question="Pizza?")
+                _scheduled("msg_4", type="poll", text=None, pollQuestion="Pizza?")
             ).encode(),
             headers={"content-type": "application/json"},
         )
@@ -254,8 +254,8 @@ def test_retrieve_scheduled_message(mock_client) -> None:
                 _scheduled(
                     "msg_xyz",
                     status="received",
-                    confirmed_at="2026-04-23T00:00:01Z",
-                    received_at="2026-04-23T00:00:02Z",
+                    confirmedAt="2026-04-23T00:00:01Z",
+                    receivedAt="2026-04-23T00:00:02Z",
                 )
             ).encode(),
             headers={"content-type": "application/json"},
@@ -306,7 +306,7 @@ def test_scheduled_messages_propagates_authentication_error(mock_client) -> None
             "error": {
                 "code": "authentication_required",
                 "message": "bad key",
-                "request_id": "req_z",
+                "requestId": "req_z",
             }
         }
         return httpx.Response(

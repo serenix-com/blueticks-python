@@ -22,7 +22,7 @@ def test_account_retrieve_returns_typed_model(mock_client) -> None:
                     "id": "acc_1",
                     "name": "Acme",
                     "timezone": "America/New_York",
-                    "created_at": "2026-04-22T10:00:00Z",
+                    "createdAt": "2026-04-22T10:00:00Z",
                 }
             ).encode(),
             headers={"content-type": "application/json"},
@@ -46,7 +46,7 @@ def test_account_retrieve_accepts_null_timezone(mock_client) -> None:
                     "id": "acc_2",
                     "name": "Nobody",
                     "timezone": None,
-                    "created_at": "2026-01-01T00:00:00Z",
+                    "createdAt": "2026-01-01T00:00:00Z",
                 }
             ).encode(),
             headers={"content-type": "application/json"},
@@ -63,7 +63,7 @@ def test_account_retrieve_propagates_authentication_error(mock_client) -> None:
             "error": {
                 "code": "authentication_required",
                 "message": "bad key",
-                "request_id": "req_a",
+                "requestId": "req_a",
             }
         }
         return httpx.Response(
