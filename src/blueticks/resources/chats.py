@@ -156,6 +156,43 @@ class ChatsResource(BaseResource):
         )
         return OkResponse.model_validate(data)
 
+    def pin(
+        self, wa_message_key: str, *, duration: int | None = None, chat_id: str | None = None
+    ) -> OkResponse:
+        """Pin a message to the top of its chat by its complete WhatsApp message key.
+
+        ``duration`` is the pin expiry in seconds; omit to use WhatsApp's default
+        of 7 days. ``chat_id`` is optional and only narrows the engine lookup.
+        """
+        params: dict[str, Any] = {}
+        if chat_id is not None:
+            params["chatId"] = chat_id
+        body: dict[str, Any] = {}
+        if duration is not None:
+            body["duration"] = duration
+        data = self._client._request(
+            "POST",
+            f"/v1/messages/pin/{wa_message_key}",
+            body=body or None,
+            params=params or None,
+        )
+        return OkResponse.model_validate(data)
+
+    def unpin(self, wa_message_key: str, *, chat_id: str | None = None) -> OkResponse:
+        """Remove an existing pin from a message by its complete WhatsApp message key.
+
+        ``chat_id`` is optional and only narrows the engine lookup.
+        """
+        params: dict[str, Any] = {}
+        if chat_id is not None:
+            params["chatId"] = chat_id
+        data = self._client._request(
+            "POST",
+            f"/v1/messages/unpin/{wa_message_key}",
+            params=params or None,
+        )
+        return OkResponse.model_validate(data)
+
     def load_older_messages(self, chat_id: str) -> LoadOlderMessagesResponse:
         """Pull older messages from the phone into the engine's local store."""
         data = self._client._request("POST", f"/v1/messages/load_older/{chat_id}")
