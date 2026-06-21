@@ -20,7 +20,7 @@ def _webhook_payload(wid: str = "wh_1", **overrides) -> dict:
     return data
 
 
-def test_create_webhook_returns_secret():
+def test_create_webhook():
     body_seen: dict = {}
 
     def handler(req: httpx.Request) -> httpx.Response:
@@ -29,7 +29,7 @@ def test_create_webhook_returns_secret():
         assert req.url.path == "/v1/webhooks"
         return httpx.Response(
             201,
-            json=_webhook_payload(secret="whsec_abc"),
+            json=_webhook_payload(),
         )
 
     client = Blueticks(api_key="bt_live_test", _http_transport=httpx.MockTransport(handler))
@@ -38,7 +38,7 @@ def test_create_webhook_returns_secret():
         events=["message.delivered"],
         description="d",
     )
-    assert wh.secret == "whsec_abc"
+    assert wh.id == "wh_1"
     assert body_seen["url"] == "https://a.com/hook"
     assert body_seen["events"] == ["message.delivered"]
     assert body_seen["description"] == "d"
@@ -100,14 +100,3 @@ def test_delete_webhook_returns_typed_ref():
     result = client.webhooks.delete("wh_1")
     assert result.id == "wh_1"
     assert result.deleted is True
-
-
-def test_rotate_secret_returns_new_secret():
-    def handler(req: httpx.Request) -> httpx.Response:
-        assert req.method == "POST"
-        assert req.url.path == "/v1/webhooks/wh_1/rotate-secret"
-        return httpx.Response(200, json=_webhook_payload("wh_1", secret="whsec_new"))
-
-    client = Blueticks(api_key="bt_live_test", _http_transport=httpx.MockTransport(handler))
-    wh = client.webhooks.rotate_secret("wh_1")
-    assert wh.secret == "whsec_new"

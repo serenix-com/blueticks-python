@@ -27,7 +27,7 @@ from blueticks.types.scheduled_messages import (
     ScheduledMessage,
     ScheduledMessageType,
 )
-from blueticks.types.webhooks import Webhook, WebhookCreateResult, WebhookEvent
+from blueticks.types.webhooks import Webhook
 
 __all__ = [
     "Account",
@@ -59,6 +59,4 @@ __all__ = [
     "ScheduledMessage",
     "ScheduledMessageType",
     "Webhook",
-    "WebhookCreateResult",
-    "WebhookEvent",
 ]

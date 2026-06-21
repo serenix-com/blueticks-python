@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 # ruff: noqa: UP045  # Pydantic field annotations need Optional[T] for Python 3.9 (see CLAUDE.md)
-from typing import Any, Literal, Optional
+from typing import Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -32,16 +32,3 @@ class Webhook(BaseModel):
     description: Optional[str] = None
     status: WebhookStatus
     created_at: str = Field(alias="createdAt")
-
-
-class WebhookCreateResult(Webhook):
-    secret: str
-
-
-class WebhookEvent(BaseModel):
-    model_config = ConfigDict(populate_by_name=True, extra="ignore")
-
-    id: str
-    type: str
-    created_at: str = Field(alias="createdAt")
-    data: dict[str, Any]

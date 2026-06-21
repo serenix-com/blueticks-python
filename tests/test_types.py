@@ -1,7 +1,7 @@
 from blueticks.types.audiences import AppendContactsResult, Audience, Contact
 from blueticks.types.campaigns import Campaign
 from blueticks.types.scheduled_messages import ScheduledMessage
-from blueticks.types.webhooks import Webhook, WebhookCreateResult, WebhookEvent
+from blueticks.types.webhooks import Webhook
 
 
 def test_scheduled_message_round_trip():
@@ -28,21 +28,7 @@ def test_scheduled_message_round_trip():
     assert m.type == "text"
 
 
-def test_webhook_create_result_has_secret():
-    data = {
-        "id": "wh_1",
-        "url": "https://a.com/",
-        "events": ["message.delivered"],
-        "description": None,
-        "status": "enabled",
-        "secret": "whsec_abc",
-        "createdAt": "2026-04-23T00:00:00Z",
-    }
-    wh = WebhookCreateResult.model_validate(data)
-    assert wh.secret == "whsec_abc"
-
-
-def test_webhook_list_item_hides_secret():
+def test_webhook_round_trip():
     data = {
         "id": "wh_1",
         "url": "https://a.com/",
@@ -52,19 +38,9 @@ def test_webhook_list_item_hides_secret():
         "createdAt": "2026-04-23T00:00:00Z",
     }
     wh = Webhook.model_validate(data)
-    assert not hasattr(wh, "secret") or wh.secret is None  # type: ignore[union-attr]
-
-
-def test_webhook_event_parses():
-    data = {
-        "id": "evt_1",
-        "type": "message.delivered",
-        "createdAt": "2026-04-23T00:00:00Z",
-        "data": {"id": "msg_1"},
-    }
-    ev = WebhookEvent.model_validate(data)
-    assert ev.type == "message.delivered"
-    assert ev.data["id"] == "msg_1"
+    assert wh.id == "wh_1"
+    assert wh.status == "enabled"
+    assert not hasattr(wh, "secret")
 
 
 def test_audience_and_contact():

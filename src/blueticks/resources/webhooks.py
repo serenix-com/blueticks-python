@@ -6,7 +6,7 @@ from typing import Any
 from blueticks._base_resource import BaseResource
 from blueticks.types._deleted_resource import DeletedResource
 from blueticks.types.page import Page
-from blueticks.types.webhooks import Webhook, WebhookCreateResult
+from blueticks.types.webhooks import Webhook
 
 
 class WebhooksResource(BaseResource):
@@ -16,12 +16,12 @@ class WebhooksResource(BaseResource):
         url: str,
         events: builtins.list[str],
         description: str | None = None,
-    ) -> WebhookCreateResult:
+    ) -> Webhook:
         body: dict[str, Any] = {"url": url, "events": events}
         if description is not None:
             body["description"] = description
         data = self._client._request("POST", "/v1/webhooks", body=body)
-        return WebhookCreateResult.model_validate(data)
+        return Webhook.model_validate(data)
 
     def list(
         self,
@@ -75,7 +75,3 @@ class WebhooksResource(BaseResource):
         """
         data = self._client._request("DELETE", f"/v1/webhooks/{webhook_id}")
         return DeletedResource.model_validate(data)
-
-    def rotate_secret(self, webhook_id: str) -> WebhookCreateResult:
-        data = self._client._request("POST", f"/v1/webhooks/{webhook_id}/rotate-secret")
-        return WebhookCreateResult.model_validate(data)
