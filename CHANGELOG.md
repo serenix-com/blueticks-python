@@ -3,6 +3,28 @@
 All notable changes to `blueticks` will be documented in this file. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and [Keep a Changelog](https://keepachangelog.com/).
 
+## 6.0.0 — 2026-06-25
+
+**Breaking — newsletter identity field renamed and split by surface.** The
+backend split the `/v1/newsletters` identity field by response surface to match
+how chats/contacts/groups list endpoints key rows. The SDK follows.
+
+### Changed (BREAKING)
+
+- `blueticks.types.newsletters.Newsletter` (returned by
+  `client.newsletters.retrieve()` and `client.newsletters.create()`) renamed its
+  identity field `id` → `newsletter_id` (JSON `newsletterId`). The stale `owner`
+  field, no longer in the API spec, has been removed.
+- `client.newsletters.list()` now returns
+  `Page[blueticks.types.newsletters.NewsletterListItem]` instead of
+  `Page[Newsletter]`. List rows key their identity field as `chat_id`
+  (JSON `chatId`), matching the chats/contacts/groups list shape.
+
+### Added
+
+- `blueticks.types.newsletters.NewsletterListItem` — list-row model, exported
+  from `blueticks.types`.
+
 ## 5.0.0 — 2026-06-18
 
 **Breaking — webhook signing removed.** The backend no longer signs webhook

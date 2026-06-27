@@ -18,7 +18,7 @@ from blueticks.types.chats import (
     Participant,
 )
 from blueticks.types.groups import Group, GroupParticipant
-from blueticks.types.newsletters import Newsletter
+from blueticks.types.newsletters import Newsletter, NewsletterListItem
 from blueticks.types.page import Page
 from blueticks.types.ping import Ping
 from blueticks.types.scheduled_messages import (
@@ -52,6 +52,7 @@ __all__ = [
     "MessageAck",
     "MessageLinkPreview",
     "Newsletter",
+    "NewsletterListItem",
     "OkResponse",
     "Page",
     "Participant",

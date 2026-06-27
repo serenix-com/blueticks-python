@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from blueticks._base_resource import BaseResource
-from blueticks.types.newsletters import Newsletter
+from blueticks.types.newsletters import Newsletter, NewsletterListItem
 from blueticks.types.page import Page
 
 
@@ -13,7 +13,7 @@ class NewslettersResource(BaseResource):
         *,
         limit: int | None = None,
         cursor: str | None = None,
-    ) -> Page[Newsletter]:
+    ) -> Page[NewsletterListItem]:
         """List newsletters.
 
         List newsletters visible to the connected WhatsApp engine. Cursor-paginated via `limit` + `cursor`. Requires `newsletters:read` scope.
@@ -25,8 +25,8 @@ class NewslettersResource(BaseResource):
             params["cursor"] = cursor
         data = self._client._request("GET", "/v1/newsletters", params=params or None)
         raw: list[Any] = data.get("data", [])
-        return Page[Newsletter](
-            data=[Newsletter.model_validate(item) for item in raw],
+        return Page[NewsletterListItem](
+            data=[NewsletterListItem.model_validate(item) for item in raw],
             has_more=data["has_more"],
             next_cursor=data.get("next_cursor"),
         )

@@ -8,7 +8,7 @@ from pydantic import ValidationError
 
 from blueticks import Blueticks
 from blueticks._errors import AuthenticationError
-from blueticks.types.newsletters import Newsletter
+from blueticks.types.newsletters import Newsletter, NewsletterListItem
 from blueticks.types.page import Page
 
 
@@ -17,11 +17,26 @@ def _client(handler):
 
 
 def _newsletter(nid: str = "120363201733549020@newsletter", **overrides) -> dict:
+    """Single-object payload (GET /{id}, POST) — identity field ``newsletterId``."""
     data = {
-        "id": nid,
+        "newsletterId": nid,
         "name": "Acme Updates",
         "description": "Weekly product news",
-        "owner": "15551234567@s.whatsapp.net",
+        "createdAt": "2026-04-23T00:00:00Z",
+        "subscribers": 1042,
+        "invite": "XyZAbC123",
+        "verification": "VERIFIED",
+    }
+    data.update(overrides)
+    return data
+
+
+def _newsletter_row(nid: str = "120363201733549020@newsletter", **overrides) -> dict:
+    """List-row payload (GET /v1/newsletters data[]) — identity field ``chatId``."""
+    data = {
+        "chatId": nid,
+        "name": "Acme Updates",
+        "description": "Weekly product news",
         "createdAt": "2026-04-23T00:00:00Z",
         "subscribers": 1042,
         "invite": "XyZAbC123",
@@ -44,7 +59,7 @@ def test_list_newsletters_returns_page(mock_client) -> None:
             200,
             content=json.dumps(
                 {
-                    "data": [_newsletter()],
+                    "data": [_newsletter_row()],
                     "has_more": False,
                     "next_cursor": None,
                 }
@@ -56,8 +71,8 @@ def test_list_newsletters_returns_page(mock_client) -> None:
         result = client.newsletters.list()
     assert isinstance(result, Page)
     assert len(result.data) == 1
-    assert isinstance(result.data[0], Newsletter)
-    assert result.data[0].id == "120363201733549020@newsletter"
+    assert isinstance(result.data[0], NewsletterListItem)
+    assert result.data[0].chat_id == "120363201733549020@newsletter"
     assert result.data[0].name == "Acme Updates"
     assert result.data[0].subscribers == 1042
     assert result.data[0].verification == "VERIFIED"
@@ -125,10 +140,9 @@ def test_retrieve_newsletter_returns_typed_model(mock_client) -> None:
     with _client(handler) as client:
         result = client.newsletters.retrieve(nid)
     assert isinstance(result, Newsletter)
-    assert result.id == nid
+    assert result.newsletter_id == nid
     assert result.name == "Acme Updates"
     assert result.invite == "XyZAbC123"
-    assert result.owner == "15551234567@s.whatsapp.net"
 
 
 def test_retrieve_newsletter_raises_authentication_error_on_401(mock_client) -> None:
@@ -172,7 +186,7 @@ def test_create_newsletter_returns_typed_model():
         name="Acme Updates", description="Weekly product news"
     )
     assert isinstance(result, Newsletter)
-    assert result.id == "120363201733549020@newsletter"
+    assert result.newsletter_id == "120363201733549020@newsletter"
     assert result.name == "Acme Updates"
     assert result.description == "Weekly product news"
     assert body_seen == {"name": "Acme Updates", "description": "Weekly product news"}
