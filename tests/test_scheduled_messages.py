@@ -107,7 +107,7 @@ def test_create_text_posts_to_v1_scheduled_messages(mock_client) -> None:
     def handler(req: httpx.Request) -> httpx.Response:
         body_seen.update(json.loads(req.content))
         assert req.method == "POST"
-        assert req.url.path == "/v1/scheduled-messages"
+        assert req.url.path == "/v1/scheduled-messages/+15551234567"
         return httpx.Response(
             201,
             content=json.dumps(_scheduled("msg_1", to="+15551234567", text="hello")).encode(),
@@ -115,12 +115,12 @@ def test_create_text_posts_to_v1_scheduled_messages(mock_client) -> None:
         )
 
     with mock_client(handler) as client:
-        m = client.scheduled_messages.create(to="+15551234567", type="text", text="hello")
+        m = client.scheduled_messages.create("+15551234567", type="text", text="hello")
     assert isinstance(m, ScheduledMessage)
     assert m.id == "msg_1"
     assert m.type == "text"
     assert body_seen["type"] == "text"
-    assert body_seen["to"] == "+15551234567"
+    assert "to" not in body_seen
     assert body_seen["text"] == "hello"
 
 
@@ -129,6 +129,7 @@ def test_create_text_with_from_and_send_at(mock_client) -> None:
 
     def handler(req: httpx.Request) -> httpx.Response:
         body_seen.update(json.loads(req.content))
+        assert req.url.path == "/v1/scheduled-messages/+15551234567"
         return httpx.Response(
             201,
             content=json.dumps(
@@ -145,13 +146,14 @@ def test_create_text_with_from_and_send_at(mock_client) -> None:
 
     with mock_client(handler) as client:
         m = client.scheduled_messages.create(
-            to="+15551234567",
+            "+15551234567",
             type="text",
             text="reminder",
             send_at="2026-05-01T09:00:00Z",
             from_="+19995550000",
         )
     assert m.from_ == "+19995550000"
+    assert "to" not in body_seen
     assert body_seen["from"] == "+19995550000"
     assert body_seen["sendAt"] == "2026-05-01T09:00:00Z"
 
@@ -161,6 +163,7 @@ def test_create_media_includes_media_dict(mock_client) -> None:
 
     def handler(req: httpx.Request) -> httpx.Response:
         body_seen.update(json.loads(req.content))
+        assert req.url.path == "/v1/scheduled-messages/+15551234567"
         return httpx.Response(
             201,
             content=json.dumps(
@@ -177,7 +180,7 @@ def test_create_media_includes_media_dict(mock_client) -> None:
 
     with mock_client(handler) as client:
         m = client.scheduled_messages.create(
-            to="+15551234567",
+            "+15551234567",
             type="media",
             media={
                 "url": "https://cdn.example.com/receipt.pdf",
@@ -189,6 +192,7 @@ def test_create_media_includes_media_dict(mock_client) -> None:
     assert m.type == "media"
     assert m.media_url == "https://cdn.example.com/receipt.pdf"
     assert m.media_kind == "document"
+    assert "to" not in body_seen
     assert body_seen["type"] == "media"
     assert body_seen["media"]["url"] == "https://cdn.example.com/receipt.pdf"
     assert body_seen["media"]["filename"] == "receipt.pdf"
@@ -199,6 +203,7 @@ def test_create_poll_includes_poll_dict(mock_client) -> None:
 
     def handler(req: httpx.Request) -> httpx.Response:
         body_seen.update(json.loads(req.content))
+        assert req.url.path == "/v1/scheduled-messages/+15551234567"
         return httpx.Response(
             201,
             content=json.dumps(
@@ -209,13 +214,14 @@ def test_create_poll_includes_poll_dict(mock_client) -> None:
 
     with mock_client(handler) as client:
         m = client.scheduled_messages.create(
-            to="+15551234567",
+            "+15551234567",
             type="poll",
             poll={"question": "Pizza?", "options": ["Yes", "No"], "allow_multiple": False},
         )
     assert isinstance(m, ScheduledMessage)
     assert m.type == "poll"
     assert m.poll_question == "Pizza?"
+    assert "to" not in body_seen
     assert body_seen["type"] == "poll"
     assert body_seen["poll"]["question"] == "Pizza?"
     assert body_seen["poll"]["options"] == ["Yes", "No"]
@@ -234,7 +240,7 @@ def test_create_with_idempotency_key_sets_header(mock_client) -> None:
 
     with mock_client(handler) as client:
         client.scheduled_messages.create(
-            to="+15551234567", type="text", text="hi", idempotency_key="key-abc"
+            "+15551234567", type="text", text="hi", idempotency_key="key-abc"
         )
     assert headers_seen["idempotency-key"] == "key-abc"
 

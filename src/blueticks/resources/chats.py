@@ -11,7 +11,6 @@ from blueticks.types.chats import (
     ChatMessage,
     ChatRef,
     LoadOlderMessagesResponse,
-    MediaUrlResponse,
     Message,
     MessageAck,
     MessageType,
@@ -207,16 +206,6 @@ class ChatsResource(BaseResource):
             "GET", f"/v1/messages/media/{wa_message_key}", params=params or None
         )
         return ChatMedia.model_validate(data)
-
-    def get_media_url(self, wa_message_key: str, *, chat_id: str | None = None) -> MediaUrlResponse:
-        """Get a short-lived URL for message media by its complete WhatsApp message key."""
-        params: dict[str, Any] = {}
-        if chat_id is not None:
-            params["chatId"] = chat_id
-        data = self._client._request(
-            "GET", f"/v1/messages/media_url/{wa_message_key}", params=params or None
-        )
-        return MediaUrlResponse.model_validate(data)
 
     def send_message(
         self,

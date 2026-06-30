@@ -15,7 +15,6 @@ from blueticks.types.chats import (
     ChatMessage,
     ChatRef,
     LoadOlderMessagesResponse,
-    MediaUrlResponse,
     Message,
     MessageAck,
     OkResponse,
@@ -209,16 +208,6 @@ def test_get_media_returns_chat_media():
     result = _client(handler).chats.get_media("msg_key_1")
     assert isinstance(result, ChatMedia)
     assert result.mimetype == "image/jpeg"
-
-
-def test_get_media_url_returns_typed_model():
-    def handler(req: httpx.Request) -> httpx.Response:
-        assert req.url.path == "/v1/messages/media_url/msg_key_1"
-        return httpx.Response(200, json={"url": "https://cdn.example/y.jpg"})
-
-    result = _client(handler).chats.get_media_url("msg_key_1")
-    assert isinstance(result, MediaUrlResponse)
-    assert result.url == "https://cdn.example/y.jpg"
 
 
 def test_batch_message_acks_returns_typed_model():

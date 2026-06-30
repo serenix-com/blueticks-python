@@ -39,8 +39,8 @@ class ScheduledMessagesResource(BaseResource):
 
     def create(
         self,
+        chat_id: str,
         *,
-        to: str,
         type: str,
         text: str | None = None,
         link_preview: bool | dict[str, Any] | None = None,
@@ -54,8 +54,9 @@ class ScheduledMessagesResource(BaseResource):
     ) -> ScheduledMessage:
         """Send message.
 
-        Send a message via WhatsApp. The body is a discriminated union — set the
-        ``type`` field to one of ``text``, ``media``, or ``poll``.
+        Send a message via WhatsApp to the chat identified by ``chat_id`` (the
+        recipient is the URL path, not a body field). The body is a discriminated
+        union — set the ``type`` field to one of ``text``, ``media``, or ``poll``.
 
         **Variants:**
 
@@ -69,7 +70,7 @@ class ScheduledMessagesResource(BaseResource):
         ``from_`` (international-format sender for multi-session workspaces), and ``reply_to``
         (wire ``key`` of a prior message to quote).
         """
-        body: dict[str, Any] = {"type": type, "to": to}
+        body: dict[str, Any] = {"type": type}
         if text is not None:
             body["text"] = text
         if link_preview is not None:
@@ -89,7 +90,7 @@ class ScheduledMessagesResource(BaseResource):
 
         data = self._client._request(
             "POST",
-            "/v1/scheduled-messages",
+            f"/v1/scheduled-messages/{chat_id}",
             body=body,
             idempotency_key=idempotency_key,
         )

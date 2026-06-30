@@ -158,14 +158,6 @@ class LoadOlderMessagesResponse(BaseModel):
     can_load_more: bool = Field(alias="canLoadMore")
 
 
-class MediaUrlResponse(BaseModel):
-    """Response from GET /v1/messages/media_url/{waMessageKey}."""
-
-    model_config = ConfigDict(extra="ignore")
-
-    url: Optional[str] = None  # noqa: UP045
-
-
 class BatchMessageAckEntry(BaseModel):
     """One entry in :class:`BatchMessageAcksResponse.data`.
 
