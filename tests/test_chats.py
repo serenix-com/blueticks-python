@@ -115,6 +115,28 @@ def test_mark_read_returns_ok_response():
     assert result.ok is True
 
 
+def test_archive_returns_ok_response():
+    def handler(req: httpx.Request) -> httpx.Response:
+        assert req.method == "POST"
+        assert req.url.path == "/v1/chats/chat_1/archive"
+        return httpx.Response(200, json={"ok": True})
+
+    result = _client(handler).chats.archive("chat_1")
+    assert isinstance(result, OkResponse)
+    assert result.ok is True
+
+
+def test_unarchive_returns_ok_response():
+    def handler(req: httpx.Request) -> httpx.Response:
+        assert req.method == "POST"
+        assert req.url.path == "/v1/chats/chat_1/unarchive"
+        return httpx.Response(200, json={"ok": True})
+
+    result = _client(handler).chats.unarchive("chat_1")
+    assert isinstance(result, OkResponse)
+    assert result.ok is True
+
+
 def test_open_returns_chat_ref():
     def handler(req: httpx.Request) -> httpx.Response:
         assert req.url.path == "/v1/chats/chat_1/open"

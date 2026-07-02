@@ -67,6 +67,16 @@ class ChatsResource(BaseResource):
         data = self._client._request("POST", f"/v1/chats/{chat_id}/mark_read")
         return OkResponse.model_validate(data)
 
+    def archive(self, chat_id: str) -> OkResponse:
+        """Archive a chat (hides it from the main chat list)."""
+        data = self._client._request("POST", f"/v1/chats/{chat_id}/archive")
+        return OkResponse.model_validate(data)
+
+    def unarchive(self, chat_id: str) -> OkResponse:
+        """Unarchive a chat (restores it to the main chat list)."""
+        data = self._client._request("POST", f"/v1/chats/{chat_id}/unarchive")
+        return OkResponse.model_validate(data)
+
     def open(self, chat_id: str) -> ChatRef:
         """Open a chat on the engine (useful for UI-assisted workflows)."""
         data = self._client._request("POST", f"/v1/chats/{chat_id}/open")
