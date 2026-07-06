@@ -48,9 +48,14 @@ class GroupsResource(BaseResource):
         group_id: str,
         *,
         name: str | None = None,
-        settings: dict[str, bool] | None = None,
+        settings: dict[str, Any] | None = None,
     ) -> Group:
-        """Rename the group and/or update admin-only settings."""
+        """Rename the group and/or update admin-only settings.
+
+        ``settings`` accepts the boolean toggles ``announce``, ``restrict``,
+        ``editInfoAdminsOnly`` and the group ``description`` (a string, 1–2048
+        chars).
+        """
         body: dict[str, Any] = {}
         if name is not None:
             body["name"] = name

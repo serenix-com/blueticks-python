@@ -9,7 +9,23 @@ from pydantic import BaseModel, ConfigDict, Field
 # POST /v1/chats/{chat_id}/messages. Identical to the scheduled-messages
 # enums; duplicated here to keep chats.py self-contained (the chats
 # resource shouldn't have to import from scheduled_messages).
-MessageStatus = Literal["pending", "confirmed", "received", "read", "played", "failed"]
+MessageStatus = Literal[
+    "pending",
+    "before-wa-send",
+    "bt-sent",
+    "sending",
+    "sent",
+    "sent_pending_ack",
+    "confirmed",
+    "delivered",
+    "received",
+    "read",
+    "played",
+    "cancelled",
+    "error",
+    "failed",
+    "expired",
+]
 MessageKind = Literal["text", "media", "poll"]
 MessageMediaKind = Literal["image", "video", "audio", "document", "sticker", "voice", "gif"]
 
@@ -39,8 +55,9 @@ class Chat(BaseModel):
 
     id: str
     name: Optional[str] = None  # noqa: UP045
-    is_group: bool = Field(alias="isGroup")
-    is_newsletter: bool = Field(alias="isNewsletter")
+    chat_type: Literal["contact", "group", "newsletter"] = Field(alias="chatType")
+    archived: Optional[bool] = None  # noqa: UP045
+    pinned: Optional[bool] = None  # noqa: UP045
     last_message_at: Optional[str] = Field(default=None, alias="lastMessageAt")  # noqa: UP045
     unread_count: Optional[int] = Field(default=None, alias="unreadCount")  # noqa: UP045
     marked_unread: bool = Field(alias="markedUnread")
@@ -52,6 +69,7 @@ class Participant(BaseModel):
     chat_id: str = Field(alias="chatId")
     is_admin: bool = Field(alias="isAdmin")
     is_super_admin: Optional[bool] = Field(default=None, alias="isSuperAdmin")  # noqa: UP045
+    name: Optional[str] = None  # noqa: UP045
 
 
 class ChatMessage(BaseModel):
@@ -209,6 +227,10 @@ class Message(BaseModel):
     media_url: Optional[str] = Field(default=None, alias="mediaUrl")  # noqa: UP045
     media_kind: Optional[MessageMediaKind] = Field(default=None, alias="mediaKind")  # noqa: UP045
     poll_question: Optional[str] = Field(default=None, alias="pollQuestion")  # noqa: UP045
+    poll_options: Optional[list[str]] = Field(default=None, alias="pollOptions")  # noqa: UP045
+    poll_allow_multiple: Optional[bool] = Field(  # noqa: UP045
+        default=None, alias="pollAllowMultiple"
+    )
     status: MessageStatus
     send_at: Optional[str] = Field(default=None, alias="sendAt")  # noqa: UP045
     created_at: str = Field(alias="createdAt")

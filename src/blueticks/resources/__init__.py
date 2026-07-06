@@ -8,6 +8,7 @@ from blueticks.resources.groups import GroupsResource
 from blueticks.resources.newsletters import NewslettersResource
 from blueticks.resources.ping import PingResource
 from blueticks.resources.scheduled_messages import ScheduledMessagesResource
+from blueticks.resources.suno import SunoResource
 from blueticks.resources.utils import UtilsResource
 from blueticks.resources.webhooks import WebhooksResource
 
@@ -22,6 +23,7 @@ __all__ = [
     "NewslettersResource",
     "PingResource",
     "ScheduledMessagesResource",
+    "SunoResource",
     "UtilsResource",
     "WebhooksResource",
 ]

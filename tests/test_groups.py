@@ -131,6 +131,23 @@ def test_update_group_returns_typed_group():
     assert body_seen == {"name": "Renamed", "settings": {"announce": True}}
 
 
+def test_update_group_settings_description_passes_through():
+    body_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        body_seen.update(json.loads(req.content))
+        assert req.method == "PATCH"
+        assert req.url.path == "/v1/groups/grp_1"
+        return httpx.Response(200, json=_group("grp_1", description="New topic"))
+
+    g = _client(handler).groups.update(
+        "grp_1", settings={"description": "New topic", "restrict": True}
+    )
+    assert isinstance(g, Group)
+    assert g.description == "New topic"
+    assert body_seen == {"settings": {"description": "New topic", "restrict": True}}
+
+
 def test_add_member_returns_typed_group():
     body_seen: dict = {}
 

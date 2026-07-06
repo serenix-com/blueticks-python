@@ -26,6 +26,13 @@ from blueticks.types.scheduled_messages import (
     ScheduledMessage,
     ScheduledMessageType,
 )
+from blueticks.types.suno import (
+    SunoAccount,
+    SunoClip,
+    SunoClipStatus,
+    SunoGeneration,
+    SunoUpload,
+)
 from blueticks.types.webhooks import Webhook
 
 __all__ = [
@@ -57,5 +64,10 @@ __all__ = [
     "Ping",
     "ScheduledMessage",
     "ScheduledMessageType",
+    "SunoAccount",
+    "SunoClip",
+    "SunoClipStatus",
+    "SunoGeneration",
+    "SunoUpload",
     "Webhook",
 ]

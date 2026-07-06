@@ -51,7 +51,7 @@ class AudiencesResource(BaseResource):
     def delete(self, audience_id: str) -> DeletedResource:
         """Delete audience.
 
-        Soft-delete an audience. 409 if it`s referenced by an active campaign.
+        Soft-delete an audience. 409 if it's referenced by an active campaign.
         Returns the deleted ref. Requires ``audiences:write``.
         """
         data = self._client._request("DELETE", f"/v1/audiences/{audience_id}")

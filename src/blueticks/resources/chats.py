@@ -131,9 +131,7 @@ class ChatsResource(BaseResource):
         params: dict[str, Any] = {}
         if chat_id is not None:
             params["chatId"] = chat_id
-        data = self._client._request(
-            "GET", f"/v1/messages/{wa_message_key}", params=params or None
-        )
+        data = self._client._request("GET", f"/v1/messages/{wa_message_key}", params=params or None)
         return ChatMessage.model_validate(data)
 
     def get_message_ack(self, wa_message_key: str, *, chat_id: str | None = None) -> MessageAck:
@@ -146,9 +144,7 @@ class ChatsResource(BaseResource):
         )
         return MessageAck.model_validate(data)
 
-    def react(
-        self, wa_message_key: str, *, emoji: str, chat_id: str | None = None
-    ) -> OkResponse:
+    def react(self, wa_message_key: str, *, emoji: str, chat_id: str | None = None) -> OkResponse:
         """Add or clear an emoji reaction on a message by its complete WhatsApp message key.
 
         Pass an empty string for ``emoji`` to clear an existing reaction.

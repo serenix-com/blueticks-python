@@ -30,8 +30,9 @@ def _chat(cid: str = "chat_1", **overrides) -> dict:
     data = {
         "id": cid,
         "name": "Acme",
-        "isGroup": False,
-        "isNewsletter": False,
+        "chatType": "group",
+        "archived": False,
+        "pinned": True,
         "lastMessageAt": "2026-04-23T00:00:00Z",
         "unreadCount": 3,
         "markedUnread": False,
@@ -85,6 +86,9 @@ def test_get_chat_returns_typed_model():
     chat = _client(handler).chats.get("chat_1")
     assert isinstance(chat, Chat)
     assert chat.unread_count == 3
+    assert chat.chat_type == "group"
+    assert chat.archived is False
+    assert chat.pinned is True
 
 
 def test_list_participants_returns_page():
@@ -93,7 +97,14 @@ def test_list_participants_returns_page():
         return httpx.Response(
             200,
             json={
-                "data": [{"chatId": "12345@c.us", "isAdmin": True, "isSuperAdmin": False}],
+                "data": [
+                    {
+                        "chatId": "12345@c.us",
+                        "isAdmin": True,
+                        "isSuperAdmin": False,
+                        "name": "Alice",
+                    }
+                ],
                 "has_more": False,
                 "next_cursor": None,
             },
@@ -102,6 +113,7 @@ def test_list_participants_returns_page():
     page = _client(handler).chats.list_participants("chat_1")
     assert isinstance(page.data[0], Participant)
     assert page.data[0].is_admin is True
+    assert page.data[0].name == "Alice"
 
 
 def test_mark_read_returns_ok_response():
@@ -358,6 +370,8 @@ def test_send_message_poll_returns_typed_model():
                 type="poll",
                 text=None,
                 pollQuestion="Tea or coffee?",
+                pollOptions=["Tea", "Coffee"],
+                pollAllowMultiple=False,
             ),
         )
 
@@ -374,6 +388,8 @@ def test_send_message_poll_returns_typed_model():
     assert isinstance(result, Message)
     assert result.type == "poll"
     assert result.poll_question == "Tea or coffee?"
+    assert result.poll_options == ["Tea", "Coffee"]
+    assert result.poll_allow_multiple is False
     assert body_seen == {
         "type": "poll",
         "poll": {
