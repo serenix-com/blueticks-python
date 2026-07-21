@@ -4,41 +4,39 @@ from __future__ import annotations
 import datetime
 from typing import Literal, Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
+from pydantic.alias_generators import to_camel
 
-
-class Newsletter(BaseModel):
-    """Single-object response model for a WhatsApp newsletter (channel).
-
-    Returned by ``GET /v1/newsletters/{id}`` and ``POST /v1/newsletters``.
-    The identity field is ``newsletterId`` on the wire.
-    """
-
-    model_config = ConfigDict(populate_by_name=True, extra="ignore")
-
-    newsletter_id: str = Field(alias="newsletterId")
-    name: str
-    description: Optional[str] = None  # noqa: UP045
-    created_at: Optional[datetime.datetime] = Field(default=None, alias="createdAt")  # noqa: UP045
-    subscribers: Optional[int] = None  # noqa: UP045
-    invite: Optional[str] = None  # noqa: UP045
-    verification: Optional[Literal["VERIFIED", "UNVERIFIED"]] = None  # noqa: UP045
+Verification = Literal["VERIFIED", "UNVERIFIED"]
 
 
 class NewsletterListItem(BaseModel):
-    """List-row response model for a WhatsApp newsletter (channel).
+    """A newsletter (channel) in the list response (GET /v1/newsletters).
 
-    Returned in each ``data[]`` row of ``GET /v1/newsletters``. Identical to
-    :class:`Newsletter` except the identity field is ``chatId`` on the wire
-    (matching how chats/contacts/groups list endpoints key rows by ``chatId``).
+    The list endpoint keys the channel by ``chat_id``; the create/get endpoints
+    key it by ``newsletter_id`` (see :class:`Newsletter`).
     """
 
-    model_config = ConfigDict(populate_by_name=True, extra="ignore")
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, extra="ignore")
 
-    chat_id: str = Field(alias="chatId")
+    chat_id: str
     name: str
     description: Optional[str] = None  # noqa: UP045
-    created_at: Optional[datetime.datetime] = Field(default=None, alias="createdAt")  # noqa: UP045
+    created_at: Optional[datetime.datetime] = None  # noqa: UP045
     subscribers: Optional[int] = None  # noqa: UP045
     invite: Optional[str] = None  # noqa: UP045
-    verification: Optional[Literal["VERIFIED", "UNVERIFIED"]] = None  # noqa: UP045
+    verification: Optional[Verification] = None  # noqa: UP045
+
+
+class Newsletter(BaseModel):
+    """A WhatsApp newsletter (channel), as returned by create/get."""
+
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, extra="ignore")
+
+    newsletter_id: str
+    name: str
+    description: Optional[str] = None  # noqa: UP045
+    created_at: Optional[datetime.datetime] = None  # noqa: UP045
+    subscribers: Optional[int] = None  # noqa: UP045
+    invite: Optional[str] = None  # noqa: UP045
+    verification: Optional[Verification] = None  # noqa: UP045

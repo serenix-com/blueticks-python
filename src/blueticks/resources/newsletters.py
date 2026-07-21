@@ -11,33 +11,27 @@ class NewslettersResource(BaseResource):
     def list(
         self,
         *,
+        search_token: str | None = None,
+        include_archive: bool | None = None,
+        skip: int | None = None,
         limit: int | None = None,
-        cursor: str | None = None,
     ) -> Page[NewsletterListItem]:
         """List newsletters.
 
-        List newsletters visible to the connected WhatsApp engine. Cursor-paginated via `limit` + `cursor`. Requires `newsletters:read` scope.
+        List newsletters visible to the connected WhatsApp engine.
+        Offset-paginated via ``limit`` + ``skip``. Requires ``newsletters:read``.
         """
         params: dict[str, Any] = {}
+        if search_token is not None:
+            params["searchToken"] = search_token
+        if include_archive is not None:
+            params["includeArchive"] = include_archive
+        if skip is not None:
+            params["skip"] = skip
         if limit is not None:
             params["limit"] = limit
-        if cursor is not None:
-            params["cursor"] = cursor
-        data = self._client._request("GET", "/v1/newsletters", params=params or None)
-        raw: list[Any] = data.get("data", [])
-        return Page[NewsletterListItem](
-            data=[NewsletterListItem.model_validate(item) for item in raw],
-            has_more=data["has_more"],
-            next_cursor=data.get("next_cursor"),
-        )
-
-    def retrieve(self, id: str) -> Newsletter:
-        """Get newsletter.
-
-        Retrieve a newsletter by its JID. Requires `newsletters:read` scope.
-        """
-        data = self._client._request("GET", f"/v1/newsletters/{id}")
-        return Newsletter.model_validate(data)
+        envelope = self._client._request("GET", "/v1/newsletters", params=params or None)
+        return Page[NewsletterListItem].model_validate(envelope)
 
     def create(
         self,
@@ -47,10 +41,19 @@ class NewslettersResource(BaseResource):
     ) -> Newsletter:
         """Create newsletter.
 
-        Create a new WhatsApp newsletter (channel). Requires `messages:write` scope (newsletter creation shares the messages write budget).
+        Create a new WhatsApp newsletter (channel). Requires ``messages:write``
+        scope (newsletter creation shares the messages write budget).
         """
         body: dict[str, Any] = {"name": name}
         if description is not None:
             body["description"] = description
-        data = self._client._request("POST", "/v1/newsletters", body=body)
-        return Newsletter.model_validate(data)
+        envelope = self._client._request("POST", "/v1/newsletters", body=body)
+        return Newsletter.model_validate(envelope["data"])
+
+    def retrieve(self, newsletter_id: str) -> Newsletter:
+        """Get newsletter.
+
+        Retrieve a newsletter by its JID. Requires ``newsletters:read``.
+        """
+        envelope = self._client._request("GET", f"/v1/newsletters/{newsletter_id}")
+        return Newsletter.model_validate(envelope["data"])

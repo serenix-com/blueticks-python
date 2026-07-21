@@ -6,30 +6,43 @@ import httpx
 import pytest
 from pydantic import ValidationError
 
-from blueticks import AuthenticationError
+from blueticks import Blueticks
+from blueticks._errors import AuthenticationError
+from blueticks.types._deleted_resource import DeletedResource
 from blueticks.types.page import Page
 from blueticks.types.scheduled_messages import ScheduledMessage
 
 
-def _scheduled(sid: str = "msg_1", **overrides) -> dict:
+def _client(handler):
+    return Blueticks(api_key="bt_live_test", _http_transport=httpx.MockTransport(handler))
+
+
+def _ok(data, status=200):
+    return httpx.Response(status, json={"success": True, "data": data})
+
+
+def _page(items, **extra):
+    body = {"success": True, "data": items, "limit": 50, "skip": 0, "total": len(items)}
+    body.update(extra)
+    return httpx.Response(200, json=body)
+
+
+def _scheduled(sid="msg_1", **overrides):
     data = {
         "id": sid,
-        "key": None,
-        "to": "+15551234567",
-        "from": None,
+        "waMessageKey": None,
+        "to": "12345@c.us",
         "type": "text",
         "text": "hello",
         "mediaUrl": None,
         "mediaKind": None,
         "pollQuestion": None,
+        "pollOptions": None,
+        "pollAllowMultiple": None,
         "status": "pending",
         "sendAt": None,
         "createdAt": "2026-04-23T00:00:00Z",
         "confirmedAt": None,
-        "receivedAt": None,
-        "readAt": None,
-        "playedAt": None,
-        "failedAt": None,
         "failureReason": None,
         "linkPreview": None,
     }
@@ -37,304 +50,150 @@ def _scheduled(sid: str = "msg_1", **overrides) -> dict:
     return data
 
 
-# ---------------------------------------------------------------------------
-# list()
-# ---------------------------------------------------------------------------
+def test_list_scheduled_messages_passes_camel_case_params():
+    params_seen: dict = {}
 
-
-def test_list_scheduled_messages(mock_client) -> None:
     def handler(req: httpx.Request) -> httpx.Response:
-        assert req.method == "GET"
+        params_seen.update(dict(req.url.params))
         assert req.url.path == "/v1/scheduled-messages"
-        return httpx.Response(
-            200,
-            content=json.dumps(
-                {
-                    "data": [_scheduled("msg_1"), _scheduled("msg_2", status="received")],
-                    "has_more": False,
-                    "next_cursor": None,
-                }
-            ).encode(),
-            headers={"content-type": "application/json"},
-        )
+        return _page([_scheduled("msg_1"), _scheduled("msg_2", status="delivered")])
 
-    with mock_client(handler) as client:
-        page = client.scheduled_messages.list()
+    page = _client(handler).scheduled_messages.list(
+        chat_id="12345@c.us", search_token="hi", status="pending", order="desc", skip=0, limit=25
+    )
     assert isinstance(page, Page)
-    assert len(page.data) == 2
-    assert page.data[0].id == "msg_1"
-    assert page.data[1].status == "received"
-    assert page.has_more is False
-
-
-def test_list_scheduled_messages_passes_all_params(mock_client) -> None:
-    seen_params: dict = {}
-
-    def handler(req: httpx.Request) -> httpx.Response:
-        seen_params.update(dict(req.url.params))
-        return httpx.Response(
-            200,
-            content=json.dumps({"data": [], "has_more": True, "next_cursor": "cur_next"}).encode(),
-            headers={"content-type": "application/json"},
-        )
-
-    with mock_client(handler) as client:
-        page = client.scheduled_messages.list(
-            limit=25,
-            cursor="cur_abc",
-            chat_id="15551234567@c.us",
-            status="pending",
-            q="hello",
-        )
-    assert seen_params == {
-        "limit": "25",
-        "cursor": "cur_abc",
-        "chatId": "15551234567@c.us",
+    assert page.data[1].status == "delivered"
+    assert params_seen == {
+        "chatId": "12345@c.us",
+        "searchToken": "hi",
         "status": "pending",
-        "q": "hello",
+        "order": "desc",
+        "skip": "0",
+        "limit": "25",
     }
-    assert page.next_cursor == "cur_next"
 
 
-# ---------------------------------------------------------------------------
-# create() — text variant
-# ---------------------------------------------------------------------------
-
-
-def test_create_text_posts_to_v1_scheduled_messages(mock_client) -> None:
+def test_create_posts_to_chat_scoped_path():
     body_seen: dict = {}
 
     def handler(req: httpx.Request) -> httpx.Response:
         body_seen.update(json.loads(req.content))
         assert req.method == "POST"
-        assert req.url.path == "/v1/scheduled-messages/+15551234567"
-        return httpx.Response(
-            201,
-            content=json.dumps(_scheduled("msg_1", to="+15551234567", text="hello")).encode(),
-            headers={"content-type": "application/json"},
-        )
+        assert req.url.path == "/v1/scheduled-messages/12345@c.us"
+        return _ok(_scheduled("msg_1", status="pending", sendAt="2026-05-01T09:00:00Z"), status=201)
 
-    with mock_client(handler) as client:
-        m = client.scheduled_messages.create("+15551234567", type="text", text="hello")
+    m = _client(handler).scheduled_messages.create(
+        "12345@c.us",
+        type="text",
+        text="hello",
+        send_at="2026-05-01T09:00:00Z",
+        reply_to="wamid.prev",
+    )
     assert isinstance(m, ScheduledMessage)
-    assert m.id == "msg_1"
-    assert m.type == "text"
-    assert body_seen["type"] == "text"
-    assert "to" not in body_seen
-    assert body_seen["text"] == "hello"
+    assert m.status == "pending"
+    assert m.send_at is not None
+    assert body_seen == {
+        "type": "text",
+        "text": "hello",
+        "sendAt": "2026-05-01T09:00:00Z",
+        "replyTo": "wamid.prev",
+    }
 
 
-def test_create_text_with_from_and_send_at(mock_client) -> None:
+def test_create_poll_serializes_camel_case():
     body_seen: dict = {}
 
     def handler(req: httpx.Request) -> httpx.Response:
         body_seen.update(json.loads(req.content))
-        assert req.url.path == "/v1/scheduled-messages/+15551234567"
-        return httpx.Response(
-            201,
-            content=json.dumps(
-                _scheduled(
-                    "msg_2",
-                    **{"from": "+19995550000"},
-                    to="+15551234567",
-                    status="pending",
-                    sendAt="2026-05-01T09:00:00Z",
-                )
-            ).encode(),
-            headers={"content-type": "application/json"},
-        )
+        return _ok(_scheduled("msg_2", type="poll", text=None, pollQuestion="Pizza?"), status=201)
 
-    with mock_client(handler) as client:
-        m = client.scheduled_messages.create(
-            "+15551234567",
-            type="text",
-            text="reminder",
-            send_at="2026-05-01T09:00:00Z",
-            from_="+19995550000",
-        )
-    assert m.from_ == "+19995550000"
-    assert "to" not in body_seen
-    assert body_seen["from"] == "+19995550000"
-    assert body_seen["sendAt"] == "2026-05-01T09:00:00Z"
-
-
-def test_create_media_includes_media_dict(mock_client) -> None:
-    body_seen: dict = {}
-
-    def handler(req: httpx.Request) -> httpx.Response:
-        body_seen.update(json.loads(req.content))
-        assert req.url.path == "/v1/scheduled-messages/+15551234567"
-        return httpx.Response(
-            201,
-            content=json.dumps(
-                _scheduled(
-                    "msg_3",
-                    type="media",
-                    text=None,
-                    mediaUrl="https://cdn.example.com/receipt.pdf",
-                    mediaKind="document",
-                )
-            ).encode(),
-            headers={"content-type": "application/json"},
-        )
-
-    with mock_client(handler) as client:
-        m = client.scheduled_messages.create(
-            "+15551234567",
-            type="media",
-            media={
-                "url": "https://cdn.example.com/receipt.pdf",
-                "kind": "document",
-                "filename": "receipt.pdf",
-            },
-        )
-    assert isinstance(m, ScheduledMessage)
-    assert m.type == "media"
-    assert m.media_url == "https://cdn.example.com/receipt.pdf"
-    assert m.media_kind == "document"
-    assert "to" not in body_seen
-    assert body_seen["type"] == "media"
-    assert body_seen["media"]["url"] == "https://cdn.example.com/receipt.pdf"
-    assert body_seen["media"]["filename"] == "receipt.pdf"
-
-
-def test_create_poll_includes_poll_dict(mock_client) -> None:
-    body_seen: dict = {}
-
-    def handler(req: httpx.Request) -> httpx.Response:
-        body_seen.update(json.loads(req.content))
-        assert req.url.path == "/v1/scheduled-messages/+15551234567"
-        return httpx.Response(
-            201,
-            content=json.dumps(
-                _scheduled("msg_4", type="poll", text=None, pollQuestion="Pizza?")
-            ).encode(),
-            headers={"content-type": "application/json"},
-        )
-
-    with mock_client(handler) as client:
-        m = client.scheduled_messages.create(
-            "+15551234567",
-            type="poll",
-            poll={"question": "Pizza?", "options": ["Yes", "No"], "allow_multiple": False},
-        )
-    assert isinstance(m, ScheduledMessage)
+    m = _client(handler).scheduled_messages.create(
+        "12345@c.us",
+        type="poll",
+        poll_question="Pizza?",
+        poll_options=["Yes", "No"],
+        poll_allow_multiple=False,
+    )
     assert m.type == "poll"
     assert m.poll_question == "Pizza?"
-    assert "to" not in body_seen
-    assert body_seen["type"] == "poll"
-    assert body_seen["poll"]["question"] == "Pizza?"
-    assert body_seen["poll"]["options"] == ["Yes", "No"]
+    assert body_seen == {
+        "type": "poll",
+        "pollQuestion": "Pizza?",
+        "pollOptions": ["Yes", "No"],
+        "pollAllowMultiple": False,
+    }
 
 
-def test_create_with_idempotency_key_sets_header(mock_client) -> None:
+def test_create_with_idempotency_key_sets_header():
     headers_seen: dict = {}
 
     def handler(req: httpx.Request) -> httpx.Response:
         headers_seen.update(dict(req.headers))
-        return httpx.Response(
-            201,
-            content=json.dumps(_scheduled("msg_5")).encode(),
-            headers={"content-type": "application/json"},
-        )
+        return _ok(_scheduled("msg_5"), status=201)
 
-    with mock_client(handler) as client:
-        client.scheduled_messages.create(
-            "+15551234567", type="text", text="hi", idempotency_key="key-abc"
-        )
+    _client(handler).scheduled_messages.create(
+        "12345@c.us", type="text", text="hi", idempotency_key="key-abc"
+    )
     assert headers_seen["idempotency-key"] == "key-abc"
 
 
-# ---------------------------------------------------------------------------
-# retrieve()
-# ---------------------------------------------------------------------------
-
-
-def test_retrieve_scheduled_message(mock_client) -> None:
+def test_retrieve_scheduled_message():
     def handler(req: httpx.Request) -> httpx.Response:
-        assert req.method == "GET"
         assert req.url.path == "/v1/scheduled-messages/msg_xyz"
-        return httpx.Response(
-            200,
-            content=json.dumps(
-                _scheduled(
-                    "msg_xyz",
-                    status="received",
-                    confirmedAt="2026-04-23T00:00:01Z",
-                    receivedAt="2026-04-23T00:00:02Z",
-                )
-            ).encode(),
-            headers={"content-type": "application/json"},
-        )
+        return _ok(_scheduled("msg_xyz", status="delivered", confirmedAt="2026-04-23T00:00:02Z"))
 
-    with mock_client(handler) as client:
-        m = client.scheduled_messages.retrieve("msg_xyz")
-    assert isinstance(m, ScheduledMessage)
-    assert m.id == "msg_xyz"
-    assert m.status == "received"
-    assert m.received_at == "2026-04-23T00:00:02Z"
+    m = _client(handler).scheduled_messages.retrieve("msg_xyz")
+    assert m.status == "delivered"
+    assert m.confirmed_at is not None
 
 
-# ---------------------------------------------------------------------------
-# update()
-# ---------------------------------------------------------------------------
-
-
-def test_update_patches_to_v1_scheduled_messages_id(mock_client) -> None:
+def test_update_serializes_camel_case():
     body_seen: dict = {}
 
     def handler(req: httpx.Request) -> httpx.Response:
+        body_seen.update(json.loads(req.content))
         assert req.method == "PATCH"
         assert req.url.path == "/v1/scheduled-messages/msg_xyz"
-        body_seen.update(json.loads(req.content))
-        return httpx.Response(
-            200,
-            content=json.dumps(_scheduled("msg_xyz", text="edited")).encode(),
-            headers={"content-type": "application/json"},
-        )
+        return _ok(_scheduled("msg_xyz", text="edited"))
 
-    with mock_client(handler) as client:
-        result = client.scheduled_messages.update("msg_xyz", text="edited")
-    assert isinstance(result, ScheduledMessage)
-    assert result.id == "msg_xyz"
+    result = _client(handler).scheduled_messages.update(
+        "msg_xyz", text="edited", media_url="https://cdn.example/x.jpg"
+    )
     assert result.text == "edited"
-    assert body_seen == {"text": "edited"}
+    assert body_seen == {"text": "edited", "mediaUrl": "https://cdn.example/x.jpg"}
 
 
-# ---------------------------------------------------------------------------
-# error + validation paths
-# ---------------------------------------------------------------------------
+def test_delete_scheduled_message():
+    def handler(req: httpx.Request) -> httpx.Response:
+        assert req.method == "DELETE"
+        assert req.url.path == "/v1/scheduled-messages/msg_xyz"
+        return _ok({"id": "msg_xyz", "deleted": True})
+
+    result = _client(handler).scheduled_messages.delete("msg_xyz")
+    assert isinstance(result, DeletedResource)
+    assert result.id == "msg_xyz"
+    assert result.deleted is True
 
 
-def test_scheduled_messages_propagates_authentication_error(mock_client) -> None:
-    def handler(_req: httpx.Request) -> httpx.Response:
-        body = {
-            "error": {
-                "code": "authentication_required",
-                "message": "bad key",
-                "requestId": "req_z",
-            }
-        }
+def test_scheduled_messages_raises_authentication_error_on_401():
+    def handler(req: httpx.Request) -> httpx.Response:
         return httpx.Response(
             401,
-            content=json.dumps(body).encode(),
-            headers={"content-type": "application/json"},
+            json={
+                "success": False,
+                "error": {
+                    "code": "authentication_required",
+                    "message": "bad key",
+                    "request_id": "req_sm_1",
+                },
+            },
         )
 
-    with mock_client(handler) as client:
-        with pytest.raises(AuthenticationError) as info:
-            client.scheduled_messages.retrieve("msg_1")
-    assert info.value.code == "authentication_required"
-    assert info.value.message == "bad key"
-    assert info.value.request_id == "req_z"
+    with pytest.raises(AuthenticationError) as exc_info:
+        _client(handler).scheduled_messages.retrieve("msg_1")
+    assert exc_info.value.request_id == "req_sm_1"
 
 
-def test_scheduled_messages_missing_required_field_raises_validation_error(
-    mock_client,
-) -> None:
-    def handler(_req: httpx.Request) -> httpx.Response:
-        return httpx.Response(200, content=b"{}", headers={"content-type": "application/json"})
-
-    with mock_client(handler) as client:
-        with pytest.raises(ValidationError):
-            client.scheduled_messages.retrieve("msg_1")
+def test_scheduled_message_validation_fails_when_required_field_missing():
+    with pytest.raises(ValidationError):
+        _client(lambda req: _ok({})).scheduled_messages.retrieve("msg_1")

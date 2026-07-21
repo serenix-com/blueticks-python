@@ -65,7 +65,7 @@ def test_from_envelope_maps_status_to_typed_exception(
 ) -> None:
     err = from_envelope(
         status_code=status,
-        body={"error": {"code": code, "message": "m", "requestId": "r"}},
+        body={"error": {"code": code, "message": "m", "request_id": "r"}},
         response=None,
     )
     assert isinstance(err, expected_cls)

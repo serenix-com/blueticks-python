@@ -5,48 +5,74 @@ from typing import Any
 
 from blueticks._base_resource import BaseResource
 from blueticks.types._deleted_resource import DeletedResource
-from blueticks.types.audiences import AppendContactsResult, Audience, Contact
+from blueticks.types.audiences import (
+    AppendContactsResult,
+    Audience,
+    AudienceContact,
+    RemovedContact,
+)
 from blueticks.types.page import Page
 
 
 class AudiencesResource(BaseResource):
+    def list(
+        self,
+        *,
+        order: str | None = None,
+        skip: int | None = None,
+        limit: int | None = None,
+    ) -> Page[Audience]:
+        """List audiences.
+
+        List the audiences in your workspace, newest first. Offset-paginated via
+        ``limit`` + ``skip``. Requires ``audiences:read``.
+        """
+        params: dict[str, Any] = {}
+        if order is not None:
+            params["order"] = order
+        if skip is not None:
+            params["skip"] = skip
+        if limit is not None:
+            params["limit"] = limit
+        envelope = self._client._request("GET", "/v1/audiences", params=params or None)
+        return Page[Audience].model_validate(envelope)
+
     def create(
         self,
         *,
         name: str,
         contacts: builtins.list[dict[str, Any]] | None = None,
     ) -> Audience:
+        """Create audience.
+
+        Create a new audience. Returns the audience with ``contact_count: 0``.
+        Requires ``audiences:write``.
+        """
         body: dict[str, Any] = {"name": name}
         if contacts is not None:
             body["contacts"] = contacts
-        data = self._client._request("POST", "/v1/audiences", body=body)
-        return Audience.model_validate(data)
+        envelope = self._client._request("POST", "/v1/audiences", body=body)
+        return Audience.model_validate(envelope["data"])
 
-    def list(
-        self,
-        *,
-        limit: int | None = None,
-        cursor: str | None = None,
-    ) -> Page[Audience]:
-        """List audiences, newest first. Cursor-paginated."""
-        params: dict[str, Any] = {}
-        if limit is not None:
-            params["limit"] = limit
-        if cursor is not None:
-            params["cursor"] = cursor
-        data = self._client._request("GET", "/v1/audiences", params=params or None)
-        return Page[Audience].model_validate(data)
+    def get(self, audience_id: str) -> Audience:
+        """Get audience.
 
-    def get(self, audience_id: str, *, page: int | None = None) -> Audience:
-        params: dict[str, Any] | None = None
-        if page is not None:
-            params = {"page": page}
-        data = self._client._request("GET", f"/v1/audiences/{audience_id}", params=params)
-        return Audience.model_validate(data)
+        Retrieve a single audience by id, including its ``contact_count`` and
+        variable schema. Requires ``audiences:read``.
+        """
+        envelope = self._client._request("GET", f"/v1/audiences/{audience_id}")
+        return Audience.model_validate(envelope["data"])
 
     def update(self, audience_id: str, *, name: str) -> Audience:
-        data = self._client._request("PATCH", f"/v1/audiences/{audience_id}", body={"name": name})
-        return Audience.model_validate(data)
+        """Update audience.
+
+        Rename an audience or update its variable schema. Requires
+        ``audiences:write``.
+        """
+        envelope = self._client._request(
+            "PATCH", f"/v1/audiences/{audience_id}", body={"name": name}
+        )
+        return Audience.model_validate(envelope["data"])
 
     def delete(self, audience_id: str) -> DeletedResource:
         """Delete audience.
@@ -54,8 +80,8 @@ class AudiencesResource(BaseResource):
         Soft-delete an audience. 409 if it's referenced by an active campaign.
         Returns the deleted ref. Requires ``audiences:write``.
         """
-        data = self._client._request("DELETE", f"/v1/audiences/{audience_id}")
-        return DeletedResource.model_validate(data)
+        envelope = self._client._request("DELETE", f"/v1/audiences/{audience_id}")
+        return DeletedResource.model_validate(envelope["data"])
 
     def append_contacts(
         self,
@@ -63,12 +89,17 @@ class AudiencesResource(BaseResource):
         *,
         contacts: builtins.list[dict[str, Any]],
     ) -> AppendContactsResult:
-        data = self._client._request(
+        """Append contacts to audience.
+
+        Append contacts to an audience. Duplicates (by ``to``) are skipped.
+        Requires ``audiences:write``.
+        """
+        envelope = self._client._request(
             "POST",
             f"/v1/audiences/{audience_id}/contacts",
             body={"contacts": contacts},
         )
-        return AppendContactsResult.model_validate(data)
+        return AppendContactsResult.model_validate(envelope["data"])
 
     def update_contact(
         self,
@@ -76,20 +107,30 @@ class AudiencesResource(BaseResource):
         contact_id: str,
         *,
         to: str | None = None,
-        variables: dict[str, str] | None = None,
-    ) -> Contact:
+        variables: dict[str, Any] | None = None,
+    ) -> AudienceContact:
+        """Update audience contact.
+
+        Edit a contact's phone or variables. Requires ``audiences:write``.
+        """
         body: dict[str, Any] = {}
         if to is not None:
             body["to"] = to
         if variables is not None:
             body["variables"] = variables
-        data = self._client._request(
+        envelope = self._client._request(
             "PATCH",
             f"/v1/audiences/{audience_id}/contacts/{contact_id}",
             body=body,
         )
-        return Contact.model_validate(data)
+        return AudienceContact.model_validate(envelope["data"])
 
-    def delete_contact(self, audience_id: str, contact_id: str) -> None:
-        self._client._request("DELETE", f"/v1/audiences/{audience_id}/contacts/{contact_id}")
-        return None
+    def delete_contact(self, audience_id: str, contact_id: str) -> RemovedContact:
+        """Remove audience contact.
+
+        Remove a contact from an audience. Requires ``audiences:write``.
+        """
+        envelope = self._client._request(
+            "DELETE", f"/v1/audiences/{audience_id}/contacts/{contact_id}"
+        )
+        return RemovedContact.model_validate(envelope["data"])

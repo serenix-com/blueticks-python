@@ -1781,6 +1781,11 @@
             "nullable": true,
             "type": "string"
           },
+          "secret": {
+            "description": "Opaque correlation token carried on the message. Echoes the `secret` you sent (or the engine-encoded internal id when you omitted it), and is carried into WhatsApp's `messageSecret`. Null until a queued/scheduled send dispatches.",
+            "nullable": true,
+            "type": "string"
+          },
           "sendAt": {
             "format": "date-time",
             "nullable": true,
@@ -1866,7 +1871,8 @@
           "readAt",
           "playedAt",
           "failedAt",
-          "failureReason"
+          "failureReason",
+          "secret"
         ],
         "type": "object"
       },
@@ -3189,20 +3195,16 @@
                         },
                         "timezone": {
                           "description": "IANA timezone (e.g. \"America/New_York\"), or null if unset.",
-                          "nullable": true,
                           "type": "string"
                         },
                         "userEmail": {
                           "description": "Email address of the user the API key belongs to, or null if unavailable.",
-                          "nullable": true,
                           "type": "string"
                         }
                       },
                       "required": [
                         "id",
                         "name",
-                        "userEmail",
-                        "timezone",
                         "createdAt"
                       ],
                       "type": "object"
@@ -4708,7 +4710,6 @@
                         "properties": {
                           "abortedAt": {
                             "format": "date-time",
-                            "nullable": true,
                             "type": "string"
                           },
                           "audienceId": {
@@ -4719,7 +4720,6 @@
                           },
                           "completedAt": {
                             "format": "date-time",
-                            "nullable": true,
                             "type": "string"
                           },
                           "createdAt": {
@@ -4747,7 +4747,6 @@
                           },
                           "startedAt": {
                             "format": "date-time",
-                            "nullable": true,
                             "type": "string"
                           },
                           "status": {
@@ -4776,10 +4775,7 @@
                           "deliveredCount",
                           "readCount",
                           "failedCount",
-                          "createdAt",
-                          "startedAt",
-                          "completedAt",
-                          "abortedAt"
+                          "createdAt"
                         ],
                         "type": "object"
                       },
@@ -4960,7 +4956,6 @@
                       "properties": {
                         "abortedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "audienceId": {
@@ -4971,7 +4966,6 @@
                         },
                         "completedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "createdAt": {
@@ -4999,7 +4993,6 @@
                         },
                         "startedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "status": {
@@ -5028,10 +5021,7 @@
                         "deliveredCount",
                         "readCount",
                         "failedCount",
-                        "createdAt",
-                        "startedAt",
-                        "completedAt",
-                        "abortedAt"
+                        "createdAt"
                       ],
                       "type": "object"
                     },
@@ -5153,7 +5143,6 @@
                       "properties": {
                         "abortedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "audienceId": {
@@ -5164,7 +5153,6 @@
                         },
                         "completedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "createdAt": {
@@ -5192,7 +5180,6 @@
                         },
                         "startedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "status": {
@@ -5221,10 +5208,7 @@
                         "deliveredCount",
                         "readCount",
                         "failedCount",
-                        "createdAt",
-                        "startedAt",
-                        "completedAt",
-                        "abortedAt"
+                        "createdAt"
                       ],
                       "type": "object"
                     },
@@ -5356,7 +5340,6 @@
                       "properties": {
                         "abortedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "audienceId": {
@@ -5367,7 +5350,6 @@
                         },
                         "completedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "createdAt": {
@@ -5395,7 +5377,6 @@
                         },
                         "startedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "status": {
@@ -5424,10 +5405,7 @@
                         "deliveredCount",
                         "readCount",
                         "failedCount",
-                        "createdAt",
-                        "startedAt",
-                        "completedAt",
-                        "abortedAt"
+                        "createdAt"
                       ],
                       "type": "object"
                     },
@@ -5559,7 +5537,6 @@
                       "properties": {
                         "abortedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "audienceId": {
@@ -5570,7 +5547,6 @@
                         },
                         "completedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "createdAt": {
@@ -5598,7 +5574,6 @@
                         },
                         "startedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "status": {
@@ -5627,10 +5602,7 @@
                         "deliveredCount",
                         "readCount",
                         "failedCount",
-                        "createdAt",
-                        "startedAt",
-                        "completedAt",
-                        "abortedAt"
+                        "createdAt"
                       ],
                       "type": "object"
                     },
@@ -5762,7 +5734,6 @@
                       "properties": {
                         "abortedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "audienceId": {
@@ -5773,7 +5744,6 @@
                         },
                         "completedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "createdAt": {
@@ -5801,7 +5771,6 @@
                         },
                         "startedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "status": {
@@ -5830,10 +5799,7 @@
                         "deliveredCount",
                         "readCount",
                         "failedCount",
-                        "createdAt",
-                        "startedAt",
-                        "completedAt",
-                        "abortedAt"
+                        "createdAt"
                       ],
                       "type": "object"
                     },
@@ -6060,17 +6026,14 @@
                           "lastMessageAt": {
                             "description": "ISO-8601 timestamp of the most recent message in this chat. Null when the chat has no messages.",
                             "format": "date-time",
-                            "nullable": true,
                             "type": "string"
                           },
                           "lastMessageFromMe": {
                             "description": "True if the last message was sent by the connected account. Present only when includeLastMessage=true.",
-                            "nullable": true,
                             "type": "boolean"
                           },
                           "lastMessageText": {
                             "description": "Preview text of the most recent message. Present only when includeLastMessage=true.",
-                            "nullable": true,
                             "type": "string"
                           },
                           "markedUnread": {
@@ -6079,7 +6042,6 @@
                           },
                           "name": {
                             "description": "Display name of the chat (contact name, group subject, or channel title). Null when WhatsApp has no name for it.",
-                            "nullable": true,
                             "type": "string"
                           },
                           "pinned": {
@@ -6089,16 +6051,12 @@
                           "unreadCount": {
                             "description": "Count of unseen incoming messages (>= 0). Excludes the \"manually marked unread\" sentinel \u2014 see `markedUnread`.",
                             "minimum": 0,
-                            "nullable": true,
                             "type": "integer"
                           }
                         },
                         "required": [
                           "chatId",
-                          "name",
                           "chatType",
-                          "lastMessageAt",
-                          "unreadCount",
                           "markedUnread"
                         ],
                         "type": "object"
@@ -6561,7 +6519,6 @@
                           },
                           "name": {
                             "description": "Participant's display name, or null when the engine couldn't resolve one.",
-                            "nullable": true,
                             "type": "string"
                           }
                         },
@@ -6873,17 +6830,14 @@
                         "lastMessageAt": {
                           "description": "ISO-8601 timestamp of the most recent message in this chat. Null when the chat has no messages.",
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "lastMessageFromMe": {
                           "description": "True if the last message was sent by the connected account. Present only when includeLastMessage=true.",
-                          "nullable": true,
                           "type": "boolean"
                         },
                         "lastMessageText": {
                           "description": "Preview text of the most recent message. Present only when includeLastMessage=true.",
-                          "nullable": true,
                           "type": "string"
                         },
                         "markedUnread": {
@@ -6892,7 +6846,6 @@
                         },
                         "name": {
                           "description": "Display name of the chat (contact name, group subject, or channel title). Null when WhatsApp has no name for it.",
-                          "nullable": true,
                           "type": "string"
                         },
                         "pinned": {
@@ -6902,16 +6855,12 @@
                         "unreadCount": {
                           "description": "Count of unseen incoming messages (>= 0). Excludes the \"manually marked unread\" sentinel \u2014 see `markedUnread`.",
                           "minimum": 0,
-                          "nullable": true,
                           "type": "integer"
                         }
                       },
                       "required": [
                         "chatId",
-                        "name",
                         "chatType",
-                        "lastMessageAt",
-                        "unreadCount",
                         "markedUnread"
                       ],
                       "type": "object"
@@ -7083,7 +7032,6 @@
                           },
                           "name": {
                             "description": "Saved/pushname of the contact. Null or absent when WhatsApp has no name for it.",
-                            "nullable": true,
                             "type": "string"
                           }
                         },
@@ -7228,11 +7176,9 @@
                         "properties": {
                           "createdAt": {
                             "format": "date-time",
-                            "nullable": true,
                             "type": "string"
                           },
                           "description": {
-                            "nullable": true,
                             "type": "string"
                           },
                           "id": {
@@ -7240,36 +7186,24 @@
                           },
                           "lastMessageAt": {
                             "format": "date-time",
-                            "nullable": true,
                             "type": "string"
                           },
                           "name": {
-                            "nullable": true,
                             "type": "string"
                           },
                           "owner": {
-                            "nullable": true,
                             "type": "string"
                           },
                           "participantCount": {
                             "minimum": 0,
-                            "nullable": true,
                             "type": "integer"
                           },
                           "restrict": {
-                            "nullable": true,
                             "type": "boolean"
                           }
                         },
                         "required": [
-                          "id",
-                          "name",
-                          "description",
-                          "owner",
-                          "createdAt",
-                          "lastMessageAt",
-                          "participantCount",
-                          "restrict"
+                          "id"
                         ],
                         "type": "object"
                       },
@@ -7414,7 +7348,6 @@
                           },
                           "hasSynced": {
                             "description": "Whether the engine has completed its initial history sync.",
-                            "nullable": true,
                             "type": "boolean"
                           },
                           "id": {
@@ -7423,12 +7356,10 @@
                           },
                           "state": {
                             "description": "Engine-side connection state (e.g. CONNECTED, OPENING, PAIRING). Null when unknown.",
-                            "nullable": true,
                             "type": "string"
                           },
                           "stream": {
                             "description": "Underlying WA stream state. Null when unknown.",
-                            "nullable": true,
                             "type": "string"
                           },
                           "type": {
@@ -7443,10 +7374,7 @@
                         "required": [
                           "id",
                           "type",
-                          "connected",
-                          "state",
-                          "stream",
-                          "hasSynced"
+                          "connected"
                         ],
                         "type": "object"
                       },
@@ -7606,11 +7534,9 @@
                         "properties": {
                           "createdAt": {
                             "format": "date-time",
-                            "nullable": true,
                             "type": "string"
                           },
                           "description": {
-                            "nullable": true,
                             "type": "string"
                           },
                           "id": {
@@ -7618,36 +7544,24 @@
                           },
                           "lastMessageAt": {
                             "format": "date-time",
-                            "nullable": true,
                             "type": "string"
                           },
                           "name": {
-                            "nullable": true,
                             "type": "string"
                           },
                           "owner": {
-                            "nullable": true,
                             "type": "string"
                           },
                           "participantCount": {
                             "minimum": 0,
-                            "nullable": true,
                             "type": "integer"
                           },
                           "restrict": {
-                            "nullable": true,
                             "type": "boolean"
                           }
                         },
                         "required": [
-                          "id",
-                          "name",
-                          "description",
-                          "owner",
-                          "createdAt",
-                          "lastMessageAt",
-                          "participantCount",
-                          "restrict"
+                          "id"
                         ],
                         "type": "object"
                       },
@@ -7815,16 +7729,13 @@
                       "additionalProperties": false,
                       "properties": {
                         "announce": {
-                          "nullable": true,
                           "type": "boolean"
                         },
                         "createdAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "description": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "id": {
@@ -7832,20 +7743,16 @@
                         },
                         "lastMessageAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "name": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "owner": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "participantCount": {
                           "minimum": 0,
-                          "nullable": true,
                           "type": "integer"
                         },
                         "participants": {
@@ -7862,37 +7769,24 @@
                                 "type": "boolean"
                               },
                               "name": {
-                                "nullable": true,
                                 "type": "string"
                               }
                             },
                             "required": [
                               "chatId",
                               "isAdmin",
-                              "isSuperAdmin",
-                              "name"
+                              "isSuperAdmin"
                             ],
                             "type": "object"
                           },
-                          "nullable": true,
                           "type": "array"
                         },
                         "restrict": {
-                          "nullable": true,
                           "type": "boolean"
                         }
                       },
                       "required": [
-                        "id",
-                        "name",
-                        "description",
-                        "owner",
-                        "createdAt",
-                        "lastMessageAt",
-                        "participantCount",
-                        "announce",
-                        "restrict",
-                        "participants"
+                        "id"
                       ],
                       "type": "object"
                     },
@@ -8025,16 +7919,13 @@
                       "additionalProperties": false,
                       "properties": {
                         "announce": {
-                          "nullable": true,
                           "type": "boolean"
                         },
                         "createdAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "description": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "id": {
@@ -8042,20 +7933,16 @@
                         },
                         "lastMessageAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "name": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "owner": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "participantCount": {
                           "minimum": 0,
-                          "nullable": true,
                           "type": "integer"
                         },
                         "participants": {
@@ -8072,37 +7959,24 @@
                                 "type": "boolean"
                               },
                               "name": {
-                                "nullable": true,
                                 "type": "string"
                               }
                             },
                             "required": [
                               "chatId",
                               "isAdmin",
-                              "isSuperAdmin",
-                              "name"
+                              "isSuperAdmin"
                             ],
                             "type": "object"
                           },
-                          "nullable": true,
                           "type": "array"
                         },
                         "restrict": {
-                          "nullable": true,
                           "type": "boolean"
                         }
                       },
                       "required": [
-                        "id",
-                        "name",
-                        "description",
-                        "owner",
-                        "createdAt",
-                        "lastMessageAt",
-                        "participantCount",
-                        "announce",
-                        "restrict",
-                        "participants"
+                        "id"
                       ],
                       "type": "object"
                     },
@@ -8269,16 +8143,13 @@
                       "additionalProperties": false,
                       "properties": {
                         "announce": {
-                          "nullable": true,
                           "type": "boolean"
                         },
                         "createdAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "description": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "id": {
@@ -8286,20 +8157,16 @@
                         },
                         "lastMessageAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "name": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "owner": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "participantCount": {
                           "minimum": 0,
-                          "nullable": true,
                           "type": "integer"
                         },
                         "participants": {
@@ -8316,37 +8183,24 @@
                                 "type": "boolean"
                               },
                               "name": {
-                                "nullable": true,
                                 "type": "string"
                               }
                             },
                             "required": [
                               "chatId",
                               "isAdmin",
-                              "isSuperAdmin",
-                              "name"
+                              "isSuperAdmin"
                             ],
                             "type": "object"
                           },
-                          "nullable": true,
                           "type": "array"
                         },
                         "restrict": {
-                          "nullable": true,
                           "type": "boolean"
                         }
                       },
                       "required": [
-                        "id",
-                        "name",
-                        "description",
-                        "owner",
-                        "createdAt",
-                        "lastMessageAt",
-                        "participantCount",
-                        "announce",
-                        "restrict",
-                        "participants"
+                        "id"
                       ],
                       "type": "object"
                     },
@@ -8501,16 +8355,13 @@
                       "additionalProperties": false,
                       "properties": {
                         "announce": {
-                          "nullable": true,
                           "type": "boolean"
                         },
                         "createdAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "description": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "id": {
@@ -8518,20 +8369,16 @@
                         },
                         "lastMessageAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "name": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "owner": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "participantCount": {
                           "minimum": 0,
-                          "nullable": true,
                           "type": "integer"
                         },
                         "participants": {
@@ -8548,37 +8395,24 @@
                                 "type": "boolean"
                               },
                               "name": {
-                                "nullable": true,
                                 "type": "string"
                               }
                             },
                             "required": [
                               "chatId",
                               "isAdmin",
-                              "isSuperAdmin",
-                              "name"
+                              "isSuperAdmin"
                             ],
                             "type": "object"
                           },
-                          "nullable": true,
                           "type": "array"
                         },
                         "restrict": {
-                          "nullable": true,
                           "type": "boolean"
                         }
                       },
                       "required": [
-                        "id",
-                        "name",
-                        "description",
-                        "owner",
-                        "createdAt",
-                        "lastMessageAt",
-                        "participantCount",
-                        "announce",
-                        "restrict",
-                        "participants"
+                        "id"
                       ],
                       "type": "object"
                     },
@@ -8819,16 +8653,13 @@
                       "additionalProperties": false,
                       "properties": {
                         "announce": {
-                          "nullable": true,
                           "type": "boolean"
                         },
                         "createdAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "description": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "id": {
@@ -8836,20 +8667,16 @@
                         },
                         "lastMessageAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "name": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "owner": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "participantCount": {
                           "minimum": 0,
-                          "nullable": true,
                           "type": "integer"
                         },
                         "participants": {
@@ -8866,37 +8693,24 @@
                                 "type": "boolean"
                               },
                               "name": {
-                                "nullable": true,
                                 "type": "string"
                               }
                             },
                             "required": [
                               "chatId",
                               "isAdmin",
-                              "isSuperAdmin",
-                              "name"
+                              "isSuperAdmin"
                             ],
                             "type": "object"
                           },
-                          "nullable": true,
                           "type": "array"
                         },
                         "restrict": {
-                          "nullable": true,
                           "type": "boolean"
                         }
                       },
                       "required": [
-                        "id",
-                        "name",
-                        "description",
-                        "owner",
-                        "createdAt",
-                        "lastMessageAt",
-                        "participantCount",
-                        "announce",
-                        "restrict",
-                        "participants"
+                        "id"
                       ],
                       "type": "object"
                     },
@@ -9035,16 +8849,13 @@
                       "additionalProperties": false,
                       "properties": {
                         "announce": {
-                          "nullable": true,
                           "type": "boolean"
                         },
                         "createdAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "description": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "id": {
@@ -9052,20 +8863,16 @@
                         },
                         "lastMessageAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "name": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "owner": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "participantCount": {
                           "minimum": 0,
-                          "nullable": true,
                           "type": "integer"
                         },
                         "participants": {
@@ -9082,37 +8889,24 @@
                                 "type": "boolean"
                               },
                               "name": {
-                                "nullable": true,
                                 "type": "string"
                               }
                             },
                             "required": [
                               "chatId",
                               "isAdmin",
-                              "isSuperAdmin",
-                              "name"
+                              "isSuperAdmin"
                             ],
                             "type": "object"
                           },
-                          "nullable": true,
                           "type": "array"
                         },
                         "restrict": {
-                          "nullable": true,
                           "type": "boolean"
                         }
                       },
                       "required": [
-                        "id",
-                        "name",
-                        "description",
-                        "owner",
-                        "createdAt",
-                        "lastMessageAt",
-                        "participantCount",
-                        "announce",
-                        "restrict",
-                        "participants"
+                        "id"
                       ],
                       "type": "object"
                     },
@@ -9249,16 +9043,13 @@
                       "additionalProperties": false,
                       "properties": {
                         "announce": {
-                          "nullable": true,
                           "type": "boolean"
                         },
                         "createdAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "description": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "id": {
@@ -9266,20 +9057,16 @@
                         },
                         "lastMessageAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "name": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "owner": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "participantCount": {
                           "minimum": 0,
-                          "nullable": true,
                           "type": "integer"
                         },
                         "participants": {
@@ -9296,37 +9083,24 @@
                                 "type": "boolean"
                               },
                               "name": {
-                                "nullable": true,
                                 "type": "string"
                               }
                             },
                             "required": [
                               "chatId",
                               "isAdmin",
-                              "isSuperAdmin",
-                              "name"
+                              "isSuperAdmin"
                             ],
                             "type": "object"
                           },
-                          "nullable": true,
                           "type": "array"
                         },
                         "restrict": {
-                          "nullable": true,
                           "type": "boolean"
                         }
                       },
                       "required": [
-                        "id",
-                        "name",
-                        "description",
-                        "owner",
-                        "createdAt",
-                        "lastMessageAt",
-                        "participantCount",
-                        "announce",
-                        "restrict",
-                        "participants"
+                        "id"
                       ],
                       "type": "object"
                     },
@@ -9488,16 +9262,13 @@
                       "additionalProperties": false,
                       "properties": {
                         "announce": {
-                          "nullable": true,
                           "type": "boolean"
                         },
                         "createdAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "description": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "id": {
@@ -9505,20 +9276,16 @@
                         },
                         "lastMessageAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "name": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "owner": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "participantCount": {
                           "minimum": 0,
-                          "nullable": true,
                           "type": "integer"
                         },
                         "participants": {
@@ -9535,37 +9302,24 @@
                                 "type": "boolean"
                               },
                               "name": {
-                                "nullable": true,
                                 "type": "string"
                               }
                             },
                             "required": [
                               "chatId",
                               "isAdmin",
-                              "isSuperAdmin",
-                              "name"
+                              "isSuperAdmin"
                             ],
                             "type": "object"
                           },
-                          "nullable": true,
                           "type": "array"
                         },
                         "restrict": {
-                          "nullable": true,
                           "type": "boolean"
                         }
                       },
                       "required": [
-                        "id",
-                        "name",
-                        "description",
-                        "owner",
-                        "createdAt",
-                        "lastMessageAt",
-                        "participantCount",
-                        "announce",
-                        "restrict",
-                        "participants"
+                        "id"
                       ],
                       "type": "object"
                     },
@@ -10088,13 +9842,9 @@
                       "properties": {
                         "ack": {
                           "description": "-1=error, 0=pending, 1=server, 2=device, 3=read, 4=played; null when no engine response.",
-                          "nullable": true,
                           "type": "integer"
                         }
                       },
-                      "required": [
-                        "ack"
-                      ],
                       "type": "object"
                     },
                     "success": {
@@ -10245,7 +9995,6 @@
                         "properties": {
                           "ack": {
                             "description": "-1=error, 0=pending, 1=server, 2=device, 3=read, 4=played; null when the message has no determined ack \u2014 or when the key was not found (see `found`).",
-                            "nullable": true,
                             "type": "integer"
                           },
                           "found": {
@@ -10258,7 +10007,6 @@
                         },
                         "required": [
                           "key",
-                          "ack",
                           "found"
                         ],
                         "type": "object"
@@ -10397,7 +10145,6 @@
                       "additionalProperties": false,
                       "properties": {
                         "added": {
-                          "nullable": true,
                           "type": "integer"
                         },
                         "canLoadMore": {
@@ -10405,7 +10152,6 @@
                         },
                         "error": {
                           "description": "Human-readable reason older messages could not be loaded from the phone; null when the pull succeeded or the chat is already fully synced.",
-                          "nullable": true,
                           "type": "string"
                         },
                         "historyUnavailable": {
@@ -10413,16 +10159,12 @@
                           "type": "boolean"
                         },
                         "totalMessages": {
-                          "nullable": true,
                           "type": "integer"
                         }
                       },
                       "required": [
-                        "totalMessages",
-                        "added",
                         "canLoadMore",
-                        "historyUnavailable",
-                        "error"
+                        "historyUnavailable"
                       ],
                       "type": "object"
                     },
@@ -10904,14 +10646,12 @@
                             "type": "string"
                           },
                           "text": {
-                            "nullable": true,
                             "type": "string"
                           }
                         },
                         "required": [
                           "key",
-                          "chatId",
-                          "text"
+                          "chatId"
                         ],
                         "type": "object"
                       },
@@ -11475,7 +11215,6 @@
                       "properties": {
                         "confirmedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "createdAt": {
@@ -11484,11 +11223,9 @@
                         },
                         "failedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "failureReason": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "id": {
@@ -11497,31 +11234,20 @@
                         },
                         "linkPreview": {
                           "additionalProperties": false,
-                          "nullable": true,
                           "properties": {
                             "canonicalUrl": {
-                              "nullable": true,
                               "type": "string"
                             },
                             "description": {
-                              "nullable": true,
                               "type": "string"
                             },
                             "thumbnail": {
-                              "nullable": true,
                               "type": "string"
                             },
                             "title": {
-                              "nullable": true,
                               "type": "string"
                             }
                           },
-                          "required": [
-                            "title",
-                            "description",
-                            "canonicalUrl",
-                            "thumbnail"
-                          ],
                           "type": "object"
                         },
                         "mediaKind": {
@@ -11534,21 +11260,17 @@
                             "voice",
                             "gif"
                           ],
-                          "nullable": true,
                           "type": "string"
                         },
                         "mediaUrl": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "playedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "pollAllowMultiple": {
                           "description": "Whether the poll accepts multiple selections (type=poll). Null for non-poll messages.",
-                          "nullable": true,
                           "type": "boolean"
                         },
                         "pollOptions": {
@@ -11556,26 +11278,25 @@
                           "items": {
                             "type": "string"
                           },
-                          "nullable": true,
                           "type": "array"
                         },
                         "pollQuestion": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "readAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "receivedAt": {
                           "format": "date-time",
-                          "nullable": true,
+                          "type": "string"
+                        },
+                        "secret": {
+                          "description": "Opaque correlation token carried on the message. Echoes the `secret` you sent (or the engine-encoded internal id when you omitted it), and is carried into WhatsApp's `messageSecret`. Null until a queued/scheduled send dispatches.",
                           "type": "string"
                         },
                         "sendAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "status": {
@@ -11599,7 +11320,6 @@
                           "type": "string"
                         },
                         "text": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "to": {
@@ -11616,7 +11336,6 @@
                         },
                         "waMessageKey": {
                           "additionalProperties": false,
-                          "nullable": true,
                           "properties": {
                             "_serialized": {
                               "type": "string"
@@ -11641,24 +11360,10 @@
                         }
                       },
                       "required": [
-                        "waMessageKey",
                         "to",
                         "type",
-                        "text",
-                        "mediaUrl",
-                        "mediaKind",
-                        "pollQuestion",
-                        "pollOptions",
-                        "pollAllowMultiple",
                         "status",
-                        "sendAt",
-                        "createdAt",
-                        "confirmedAt",
-                        "receivedAt",
-                        "readAt",
-                        "playedAt",
-                        "failedAt",
-                        "failureReason"
+                        "createdAt"
                       ],
                       "type": "object"
                     },
@@ -12093,17 +11798,14 @@
                           },
                           "createdAt": {
                             "format": "date-time",
-                            "nullable": true,
                             "type": "string"
                           },
                           "description": {
                             "description": "Optional description.",
-                            "nullable": true,
                             "type": "string"
                           },
                           "invite": {
                             "description": "Invite code (suffix of https://whatsapp.com/channel/<invite>).",
-                            "nullable": true,
                             "type": "string"
                           },
                           "name": {
@@ -12112,7 +11814,6 @@
                           },
                           "subscribers": {
                             "minimum": 0,
-                            "nullable": true,
                             "type": "integer"
                           },
                           "verification": {
@@ -12120,18 +11821,12 @@
                               "VERIFIED",
                               "UNVERIFIED"
                             ],
-                            "nullable": true,
                             "type": "string"
                           }
                         },
                         "required": [
                           "chatId",
-                          "name",
-                          "description",
-                          "createdAt",
-                          "subscribers",
-                          "invite",
-                          "verification"
+                          "name"
                         ],
                         "type": "object"
                       },
@@ -12283,17 +11978,14 @@
                       "properties": {
                         "createdAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "description": {
                           "description": "Optional description.",
-                          "nullable": true,
                           "type": "string"
                         },
                         "invite": {
                           "description": "Invite code (suffix of https://whatsapp.com/channel/<invite>).",
-                          "nullable": true,
                           "type": "string"
                         },
                         "name": {
@@ -12306,7 +11998,6 @@
                         },
                         "subscribers": {
                           "minimum": 0,
-                          "nullable": true,
                           "type": "integer"
                         },
                         "verification": {
@@ -12314,18 +12005,12 @@
                             "VERIFIED",
                             "UNVERIFIED"
                           ],
-                          "nullable": true,
                           "type": "string"
                         }
                       },
                       "required": [
                         "newsletterId",
-                        "name",
-                        "description",
-                        "createdAt",
-                        "subscribers",
-                        "invite",
-                        "verification"
+                        "name"
                       ],
                       "type": "object"
                     },
@@ -12449,17 +12134,14 @@
                       "properties": {
                         "createdAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "description": {
                           "description": "Optional description.",
-                          "nullable": true,
                           "type": "string"
                         },
                         "invite": {
                           "description": "Invite code (suffix of https://whatsapp.com/channel/<invite>).",
-                          "nullable": true,
                           "type": "string"
                         },
                         "name": {
@@ -12472,7 +12154,6 @@
                         },
                         "subscribers": {
                           "minimum": 0,
-                          "nullable": true,
                           "type": "integer"
                         },
                         "verification": {
@@ -12480,18 +12161,12 @@
                             "VERIFIED",
                             "UNVERIFIED"
                           ],
-                          "nullable": true,
                           "type": "string"
                         }
                       },
                       "required": [
                         "newsletterId",
-                        "name",
-                        "description",
-                        "createdAt",
-                        "subscribers",
-                        "invite",
-                        "verification"
+                        "name"
                       ],
                       "type": "object"
                     },
@@ -12861,7 +12536,6 @@
                         "properties": {
                           "confirmedAt": {
                             "format": "date-time",
-                            "nullable": true,
                             "type": "string"
                           },
                           "createdAt": {
@@ -12870,11 +12544,9 @@
                           },
                           "failedAt": {
                             "format": "date-time",
-                            "nullable": true,
                             "type": "string"
                           },
                           "failureReason": {
-                            "nullable": true,
                             "type": "string"
                           },
                           "id": {
@@ -12883,31 +12555,20 @@
                           },
                           "linkPreview": {
                             "additionalProperties": false,
-                            "nullable": true,
                             "properties": {
                               "canonicalUrl": {
-                                "nullable": true,
                                 "type": "string"
                               },
                               "description": {
-                                "nullable": true,
                                 "type": "string"
                               },
                               "thumbnail": {
-                                "nullable": true,
                                 "type": "string"
                               },
                               "title": {
-                                "nullable": true,
                                 "type": "string"
                               }
                             },
-                            "required": [
-                              "title",
-                              "description",
-                              "canonicalUrl",
-                              "thumbnail"
-                            ],
                             "type": "object"
                           },
                           "mediaKind": {
@@ -12920,21 +12581,17 @@
                               "voice",
                               "gif"
                             ],
-                            "nullable": true,
                             "type": "string"
                           },
                           "mediaUrl": {
-                            "nullable": true,
                             "type": "string"
                           },
                           "playedAt": {
                             "format": "date-time",
-                            "nullable": true,
                             "type": "string"
                           },
                           "pollAllowMultiple": {
                             "description": "Whether the poll accepts multiple selections (type=poll). Null for non-poll messages.",
-                            "nullable": true,
                             "type": "boolean"
                           },
                           "pollOptions": {
@@ -12942,26 +12599,25 @@
                             "items": {
                               "type": "string"
                             },
-                            "nullable": true,
                             "type": "array"
                           },
                           "pollQuestion": {
-                            "nullable": true,
                             "type": "string"
                           },
                           "readAt": {
                             "format": "date-time",
-                            "nullable": true,
                             "type": "string"
                           },
                           "receivedAt": {
                             "format": "date-time",
-                            "nullable": true,
+                            "type": "string"
+                          },
+                          "secret": {
+                            "description": "Opaque correlation token carried on the message. Echoes the `secret` you sent (or the engine-encoded internal id when you omitted it), and is carried into WhatsApp's `messageSecret`. Null until a queued/scheduled send dispatches.",
                             "type": "string"
                           },
                           "sendAt": {
                             "format": "date-time",
-                            "nullable": true,
                             "type": "string"
                           },
                           "status": {
@@ -12985,7 +12641,6 @@
                             "type": "string"
                           },
                           "text": {
-                            "nullable": true,
                             "type": "string"
                           },
                           "to": {
@@ -13002,7 +12657,6 @@
                           },
                           "waMessageKey": {
                             "additionalProperties": false,
-                            "nullable": true,
                             "properties": {
                               "_serialized": {
                                 "type": "string"
@@ -13027,24 +12681,10 @@
                           }
                         },
                         "required": [
-                          "waMessageKey",
                           "to",
                           "type",
-                          "text",
-                          "mediaUrl",
-                          "mediaKind",
-                          "pollQuestion",
-                          "pollOptions",
-                          "pollAllowMultiple",
                           "status",
-                          "sendAt",
-                          "createdAt",
-                          "confirmedAt",
-                          "receivedAt",
-                          "readAt",
-                          "playedAt",
-                          "failedAt",
-                          "failureReason"
+                          "createdAt"
                         ],
                         "type": "object"
                       },
@@ -13347,7 +12987,6 @@
                       "properties": {
                         "confirmedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "createdAt": {
@@ -13356,11 +12995,9 @@
                         },
                         "failedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "failureReason": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "id": {
@@ -13369,31 +13006,20 @@
                         },
                         "linkPreview": {
                           "additionalProperties": false,
-                          "nullable": true,
                           "properties": {
                             "canonicalUrl": {
-                              "nullable": true,
                               "type": "string"
                             },
                             "description": {
-                              "nullable": true,
                               "type": "string"
                             },
                             "thumbnail": {
-                              "nullable": true,
                               "type": "string"
                             },
                             "title": {
-                              "nullable": true,
                               "type": "string"
                             }
                           },
-                          "required": [
-                            "title",
-                            "description",
-                            "canonicalUrl",
-                            "thumbnail"
-                          ],
                           "type": "object"
                         },
                         "mediaKind": {
@@ -13406,21 +13032,17 @@
                             "voice",
                             "gif"
                           ],
-                          "nullable": true,
                           "type": "string"
                         },
                         "mediaUrl": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "playedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "pollAllowMultiple": {
                           "description": "Whether the poll accepts multiple selections (type=poll). Null for non-poll messages.",
-                          "nullable": true,
                           "type": "boolean"
                         },
                         "pollOptions": {
@@ -13428,26 +13050,25 @@
                           "items": {
                             "type": "string"
                           },
-                          "nullable": true,
                           "type": "array"
                         },
                         "pollQuestion": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "readAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "receivedAt": {
                           "format": "date-time",
-                          "nullable": true,
+                          "type": "string"
+                        },
+                        "secret": {
+                          "description": "Opaque correlation token carried on the message. Echoes the `secret` you sent (or the engine-encoded internal id when you omitted it), and is carried into WhatsApp's `messageSecret`. Null until a queued/scheduled send dispatches.",
                           "type": "string"
                         },
                         "sendAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "status": {
@@ -13471,7 +13092,6 @@
                           "type": "string"
                         },
                         "text": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "to": {
@@ -13488,7 +13108,6 @@
                         },
                         "waMessageKey": {
                           "additionalProperties": false,
-                          "nullable": true,
                           "properties": {
                             "_serialized": {
                               "type": "string"
@@ -13513,24 +13132,10 @@
                         }
                       },
                       "required": [
-                        "waMessageKey",
                         "to",
                         "type",
-                        "text",
-                        "mediaUrl",
-                        "mediaKind",
-                        "pollQuestion",
-                        "pollOptions",
-                        "pollAllowMultiple",
                         "status",
-                        "sendAt",
-                        "createdAt",
-                        "confirmedAt",
-                        "receivedAt",
-                        "readAt",
-                        "playedAt",
-                        "failedAt",
-                        "failureReason"
+                        "createdAt"
                       ],
                       "type": "object"
                     },
@@ -13563,7 +13168,6 @@
                       "properties": {
                         "confirmedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "createdAt": {
@@ -13572,11 +13176,9 @@
                         },
                         "failedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "failureReason": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "id": {
@@ -13585,31 +13187,20 @@
                         },
                         "linkPreview": {
                           "additionalProperties": false,
-                          "nullable": true,
                           "properties": {
                             "canonicalUrl": {
-                              "nullable": true,
                               "type": "string"
                             },
                             "description": {
-                              "nullable": true,
                               "type": "string"
                             },
                             "thumbnail": {
-                              "nullable": true,
                               "type": "string"
                             },
                             "title": {
-                              "nullable": true,
                               "type": "string"
                             }
                           },
-                          "required": [
-                            "title",
-                            "description",
-                            "canonicalUrl",
-                            "thumbnail"
-                          ],
                           "type": "object"
                         },
                         "mediaKind": {
@@ -13622,21 +13213,17 @@
                             "voice",
                             "gif"
                           ],
-                          "nullable": true,
                           "type": "string"
                         },
                         "mediaUrl": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "playedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "pollAllowMultiple": {
                           "description": "Whether the poll accepts multiple selections (type=poll). Null for non-poll messages.",
-                          "nullable": true,
                           "type": "boolean"
                         },
                         "pollOptions": {
@@ -13644,26 +13231,25 @@
                           "items": {
                             "type": "string"
                           },
-                          "nullable": true,
                           "type": "array"
                         },
                         "pollQuestion": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "readAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "receivedAt": {
                           "format": "date-time",
-                          "nullable": true,
+                          "type": "string"
+                        },
+                        "secret": {
+                          "description": "Opaque correlation token carried on the message. Echoes the `secret` you sent (or the engine-encoded internal id when you omitted it), and is carried into WhatsApp's `messageSecret`. Null until a queued/scheduled send dispatches.",
                           "type": "string"
                         },
                         "sendAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "status": {
@@ -13687,7 +13273,6 @@
                           "type": "string"
                         },
                         "text": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "to": {
@@ -13704,7 +13289,6 @@
                         },
                         "waMessageKey": {
                           "additionalProperties": false,
-                          "nullable": true,
                           "properties": {
                             "_serialized": {
                               "type": "string"
@@ -13729,24 +13313,10 @@
                         }
                       },
                       "required": [
-                        "waMessageKey",
                         "to",
                         "type",
-                        "text",
-                        "mediaUrl",
-                        "mediaKind",
-                        "pollQuestion",
-                        "pollOptions",
-                        "pollAllowMultiple",
                         "status",
-                        "sendAt",
-                        "createdAt",
-                        "confirmedAt",
-                        "receivedAt",
-                        "readAt",
-                        "playedAt",
-                        "failedAt",
-                        "failureReason"
+                        "createdAt"
                       ],
                       "type": "object"
                     },
@@ -14020,7 +13590,6 @@
                       "properties": {
                         "confirmedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "createdAt": {
@@ -14029,11 +13598,9 @@
                         },
                         "failedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "failureReason": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "id": {
@@ -14042,31 +13609,20 @@
                         },
                         "linkPreview": {
                           "additionalProperties": false,
-                          "nullable": true,
                           "properties": {
                             "canonicalUrl": {
-                              "nullable": true,
                               "type": "string"
                             },
                             "description": {
-                              "nullable": true,
                               "type": "string"
                             },
                             "thumbnail": {
-                              "nullable": true,
                               "type": "string"
                             },
                             "title": {
-                              "nullable": true,
                               "type": "string"
                             }
                           },
-                          "required": [
-                            "title",
-                            "description",
-                            "canonicalUrl",
-                            "thumbnail"
-                          ],
                           "type": "object"
                         },
                         "mediaKind": {
@@ -14079,21 +13635,17 @@
                             "voice",
                             "gif"
                           ],
-                          "nullable": true,
                           "type": "string"
                         },
                         "mediaUrl": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "playedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "pollAllowMultiple": {
                           "description": "Whether the poll accepts multiple selections (type=poll). Null for non-poll messages.",
-                          "nullable": true,
                           "type": "boolean"
                         },
                         "pollOptions": {
@@ -14101,26 +13653,25 @@
                           "items": {
                             "type": "string"
                           },
-                          "nullable": true,
                           "type": "array"
                         },
                         "pollQuestion": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "readAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "receivedAt": {
                           "format": "date-time",
-                          "nullable": true,
+                          "type": "string"
+                        },
+                        "secret": {
+                          "description": "Opaque correlation token carried on the message. Echoes the `secret` you sent (or the engine-encoded internal id when you omitted it), and is carried into WhatsApp's `messageSecret`. Null until a queued/scheduled send dispatches.",
                           "type": "string"
                         },
                         "sendAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "status": {
@@ -14144,7 +13695,6 @@
                           "type": "string"
                         },
                         "text": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "to": {
@@ -14161,7 +13711,6 @@
                         },
                         "waMessageKey": {
                           "additionalProperties": false,
-                          "nullable": true,
                           "properties": {
                             "_serialized": {
                               "type": "string"
@@ -14186,24 +13735,10 @@
                         }
                       },
                       "required": [
-                        "waMessageKey",
                         "to",
                         "type",
-                        "text",
-                        "mediaUrl",
-                        "mediaKind",
-                        "pollQuestion",
-                        "pollOptions",
-                        "pollAllowMultiple",
                         "status",
-                        "sendAt",
-                        "createdAt",
-                        "confirmedAt",
-                        "receivedAt",
-                        "readAt",
-                        "playedAt",
-                        "failedAt",
-                        "failureReason"
+                        "createdAt"
                       ],
                       "type": "object"
                     },
@@ -14453,7 +13988,6 @@
                       "properties": {
                         "confirmedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "createdAt": {
@@ -14462,11 +13996,9 @@
                         },
                         "failedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "failureReason": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "id": {
@@ -14475,31 +14007,20 @@
                         },
                         "linkPreview": {
                           "additionalProperties": false,
-                          "nullable": true,
                           "properties": {
                             "canonicalUrl": {
-                              "nullable": true,
                               "type": "string"
                             },
                             "description": {
-                              "nullable": true,
                               "type": "string"
                             },
                             "thumbnail": {
-                              "nullable": true,
                               "type": "string"
                             },
                             "title": {
-                              "nullable": true,
                               "type": "string"
                             }
                           },
-                          "required": [
-                            "title",
-                            "description",
-                            "canonicalUrl",
-                            "thumbnail"
-                          ],
                           "type": "object"
                         },
                         "mediaKind": {
@@ -14512,21 +14033,17 @@
                             "voice",
                             "gif"
                           ],
-                          "nullable": true,
                           "type": "string"
                         },
                         "mediaUrl": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "playedAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "pollAllowMultiple": {
                           "description": "Whether the poll accepts multiple selections (type=poll). Null for non-poll messages.",
-                          "nullable": true,
                           "type": "boolean"
                         },
                         "pollOptions": {
@@ -14534,26 +14051,25 @@
                           "items": {
                             "type": "string"
                           },
-                          "nullable": true,
                           "type": "array"
                         },
                         "pollQuestion": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "readAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "receivedAt": {
                           "format": "date-time",
-                          "nullable": true,
+                          "type": "string"
+                        },
+                        "secret": {
+                          "description": "Opaque correlation token carried on the message. Echoes the `secret` you sent (or the engine-encoded internal id when you omitted it), and is carried into WhatsApp's `messageSecret`. Null until a queued/scheduled send dispatches.",
                           "type": "string"
                         },
                         "sendAt": {
                           "format": "date-time",
-                          "nullable": true,
                           "type": "string"
                         },
                         "status": {
@@ -14577,7 +14093,6 @@
                           "type": "string"
                         },
                         "text": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "to": {
@@ -14594,7 +14109,6 @@
                         },
                         "waMessageKey": {
                           "additionalProperties": false,
-                          "nullable": true,
                           "properties": {
                             "_serialized": {
                               "type": "string"
@@ -14619,24 +14133,10 @@
                         }
                       },
                       "required": [
-                        "waMessageKey",
                         "to",
                         "type",
-                        "text",
-                        "mediaUrl",
-                        "mediaKind",
-                        "pollQuestion",
-                        "pollOptions",
-                        "pollAllowMultiple",
                         "status",
-                        "sendAt",
-                        "createdAt",
-                        "confirmedAt",
-                        "receivedAt",
-                        "readAt",
-                        "playedAt",
-                        "failedAt",
-                        "failureReason"
+                        "createdAt"
                       ],
                       "type": "object"
                     },
@@ -14762,25 +14262,19 @@
                         },
                         "monthlyLimit": {
                           "description": "Monthly credit allowance, if known.",
-                          "nullable": true,
                           "type": "number"
                         },
                         "monthlyUsage": {
                           "description": "Credits used this month, if known.",
-                          "nullable": true,
                           "type": "number"
                         },
                         "plan": {
                           "description": "Suno plan name (e.g. \"Pro Plan\").",
-                          "nullable": true,
                           "type": "string"
                         }
                       },
                       "required": [
-                        "creditsLeft",
-                        "monthlyLimit",
-                        "monthlyUsage",
-                        "plan"
+                        "creditsLeft"
                       ],
                       "type": "object"
                     },
@@ -14998,22 +14492,18 @@
                             "properties": {
                               "audioUrl": {
                                 "description": "MP3 URL once complete, else null.",
-                                "nullable": true,
                                 "type": "string"
                               },
                               "durationSec": {
                                 "description": "Audio duration in seconds once complete, else null.",
-                                "nullable": true,
                                 "type": "number"
                               },
                               "errorMessage": {
                                 "description": "Human-readable reason a clip failed (e.g. \"Your lyrics contain copyrighted material\"). Only set when status is \"error\".",
-                                "nullable": true,
                                 "type": "string"
                               },
                               "errorType": {
                                 "description": "Failure class when status is \"error\" (e.g. \"moderation_failure\"). Omitted otherwise.",
-                                "nullable": true,
                                 "type": "string"
                               },
                               "id": {
@@ -15022,12 +14512,10 @@
                               },
                               "imageUrl": {
                                 "description": "Cover-art URL once available, else null.",
-                                "nullable": true,
                                 "type": "string"
                               },
                               "model": {
                                 "description": "Model version that produced the clip (e.g. \"v5.5\").",
-                                "nullable": true,
                                 "type": "string"
                               },
                               "status": {
@@ -15044,18 +14532,12 @@
                               },
                               "title": {
                                 "description": "Resolved song title, if any.",
-                                "nullable": true,
                                 "type": "string"
                               }
                             },
                             "required": [
                               "id",
-                              "status",
-                              "audioUrl",
-                              "imageUrl",
-                              "title",
-                              "durationSec",
-                              "model"
+                              "status"
                             ],
                             "type": "object"
                           },
@@ -15190,22 +14672,18 @@
                       "properties": {
                         "audioUrl": {
                           "description": "MP3 URL once complete, else null.",
-                          "nullable": true,
                           "type": "string"
                         },
                         "durationSec": {
                           "description": "Audio duration in seconds once complete, else null.",
-                          "nullable": true,
                           "type": "number"
                         },
                         "errorMessage": {
                           "description": "Human-readable reason a clip failed (e.g. \"Your lyrics contain copyrighted material\"). Only set when status is \"error\".",
-                          "nullable": true,
                           "type": "string"
                         },
                         "errorType": {
                           "description": "Failure class when status is \"error\" (e.g. \"moderation_failure\"). Omitted otherwise.",
-                          "nullable": true,
                           "type": "string"
                         },
                         "id": {
@@ -15214,12 +14692,10 @@
                         },
                         "imageUrl": {
                           "description": "Cover-art URL once available, else null.",
-                          "nullable": true,
                           "type": "string"
                         },
                         "model": {
                           "description": "Model version that produced the clip (e.g. \"v5.5\").",
-                          "nullable": true,
                           "type": "string"
                         },
                         "status": {
@@ -15236,18 +14712,12 @@
                         },
                         "title": {
                           "description": "Resolved song title, if any.",
-                          "nullable": true,
                           "type": "string"
                         }
                       },
                       "required": [
                         "id",
-                        "status",
-                        "audioUrl",
-                        "imageUrl",
-                        "title",
-                        "durationSec",
-                        "model"
+                        "status"
                       ],
                       "type": "object"
                     },
@@ -15568,7 +15038,6 @@
                             "type": "string"
                           },
                           "description": {
-                            "nullable": true,
                             "type": "string"
                           },
                           "events": {
@@ -15595,7 +15064,6 @@
                           "id",
                           "url",
                           "events",
-                          "description",
                           "status",
                           "createdAt"
                         ],
@@ -15814,7 +15282,6 @@
                           "type": "string"
                         },
                         "description": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "events": {
@@ -15841,7 +15308,6 @@
                         "id",
                         "url",
                         "events",
-                        "description",
                         "status",
                         "createdAt"
                       ],
@@ -16108,7 +15574,6 @@
                           "type": "string"
                         },
                         "description": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "events": {
@@ -16135,7 +15600,6 @@
                         "id",
                         "url",
                         "events",
-                        "description",
                         "status",
                         "createdAt"
                       ],
@@ -16336,7 +15800,6 @@
                           "type": "string"
                         },
                         "description": {
-                          "nullable": true,
                           "type": "string"
                         },
                         "events": {
@@ -16363,7 +15826,6 @@
                         "id",
                         "url",
                         "events",
-                        "description",
                         "status",
                         "createdAt"
                       ],

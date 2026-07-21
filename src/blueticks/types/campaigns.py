@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 # ruff: noqa: UP045  # Pydantic field annotations need Optional[T] for Python 3.9 (see CLAUDE.md)
+import datetime
 from typing import Literal, Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
+from pydantic.alias_generators import to_camel
 
 CampaignStatus = Literal[
     "pending",
@@ -16,19 +18,20 @@ CampaignStatus = Literal[
 
 
 class Campaign(BaseModel):
-    model_config = ConfigDict(populate_by_name=True, extra="ignore")
+    """A bulk-message campaign with its live delivery counters."""
 
-    id: str
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, extra="ignore")
+
+    cmp_id: str
     name: str
-    audience_id: str = Field(alias="audienceId")
+    audience_id: str
     status: CampaignStatus
-    total_count: int = Field(alias="totalCount")
-    sent_count: int = Field(alias="sentCount")
-    delivered_count: int = Field(alias="deliveredCount")
-    read_count: int = Field(alias="readCount")
-    failed_count: int = Field(alias="failedCount")
-    from_: Optional[str] = Field(default=None, alias="from")
-    created_at: str = Field(alias="createdAt")
-    started_at: Optional[str] = Field(default=None, alias="startedAt")
-    completed_at: Optional[str] = Field(default=None, alias="completedAt")
-    aborted_at: Optional[str] = Field(default=None, alias="abortedAt")
+    total_count: int
+    sent_count: int
+    delivered_count: int
+    read_count: int
+    failed_count: int
+    created_at: datetime.datetime
+    started_at: Optional[datetime.datetime] = None  # noqa: UP045
+    completed_at: Optional[datetime.datetime] = None  # noqa: UP045
+    aborted_at: Optional[datetime.datetime] = None  # noqa: UP045

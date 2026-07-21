@@ -6,9 +6,9 @@ from blueticks.types.account import Account
 
 class AccountResource(BaseResource):
     def retrieve(self) -> Account:
-        """Retrieve the authenticated account.
+        """Get account.
 
-        Returns the account associated with the API key used for this request.
+        Retrieve the account the API key belongs to.
         """
-        data = self._client._request("GET", "/v1/account")
-        return Account.model_validate(data)
+        envelope = self._client._request("GET", "/v1/account")
+        return Account.model_validate(envelope["data"])

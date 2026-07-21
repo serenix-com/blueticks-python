@@ -10,6 +10,24 @@ from blueticks.types.webhooks import Webhook
 
 
 class WebhooksResource(BaseResource):
+    def list(
+        self,
+        *,
+        order: str | None = None,
+        skip: int | None = None,
+        limit: int | None = None,
+    ) -> Page[Webhook]:
+        """List webhooks in the workspace. Offset-paginated via ``limit`` + ``skip``."""
+        params: dict[str, Any] = {}
+        if order is not None:
+            params["order"] = order
+        if skip is not None:
+            params["skip"] = skip
+        if limit is not None:
+            params["limit"] = limit
+        envelope = self._client._request("GET", "/v1/webhooks", params=params or None)
+        return Page[Webhook].model_validate(envelope)
+
     def create(
         self,
         *,
@@ -17,34 +35,17 @@ class WebhooksResource(BaseResource):
         events: builtins.list[str],
         description: str | None = None,
     ) -> Webhook:
+        """Register a new webhook."""
         body: dict[str, Any] = {"url": url, "events": events}
         if description is not None:
             body["description"] = description
-        data = self._client._request("POST", "/v1/webhooks", body=body)
-        return Webhook.model_validate(data)
-
-    def list(
-        self,
-        *,
-        limit: int | None = None,
-        cursor: str | None = None,
-    ) -> Page[Webhook]:
-        """List webhooks, newest first. Cursor-paginated.
-
-        :param limit: Page size, 1-200 (default 50 server-side).
-        :param cursor: Opaque cursor from a previous ``Page.next_cursor``.
-        """
-        params: dict[str, Any] = {}
-        if limit is not None:
-            params["limit"] = limit
-        if cursor is not None:
-            params["cursor"] = cursor
-        data = self._client._request("GET", "/v1/webhooks", params=params or None)
-        return Page[Webhook].model_validate(data)
+        envelope = self._client._request("POST", "/v1/webhooks", body=body)
+        return Webhook.model_validate(envelope["data"])
 
     def get(self, webhook_id: str) -> Webhook:
-        data = self._client._request("GET", f"/v1/webhooks/{webhook_id}")
-        return Webhook.model_validate(data)
+        """Get a webhook by id."""
+        envelope = self._client._request("GET", f"/v1/webhooks/{webhook_id}")
+        return Webhook.model_validate(envelope["data"])
 
     def update(
         self,
@@ -55,6 +56,7 @@ class WebhooksResource(BaseResource):
         description: str | None = None,
         status: str | None = None,
     ) -> Webhook:
+        """Update a webhook."""
         body: dict[str, Any] = {}
         if url is not None:
             body["url"] = url
@@ -64,14 +66,10 @@ class WebhooksResource(BaseResource):
             body["description"] = description
         if status is not None:
             body["status"] = status
-        data = self._client._request("PATCH", f"/v1/webhooks/{webhook_id}", body=body)
-        return Webhook.model_validate(data)
+        envelope = self._client._request("PATCH", f"/v1/webhooks/{webhook_id}", body=body)
+        return Webhook.model_validate(envelope["data"])
 
     def delete(self, webhook_id: str) -> DeletedResource:
-        """Delete webhook.
-
-        Delete a webhook subscription. Returns the deleted ref. Requires
-        ``webhooks:write``.
-        """
-        data = self._client._request("DELETE", f"/v1/webhooks/{webhook_id}")
-        return DeletedResource.model_validate(data)
+        """Delete a webhook. Returns the deleted ref."""
+        envelope = self._client._request("DELETE", f"/v1/webhooks/{webhook_id}")
+        return DeletedResource.model_validate(envelope["data"])

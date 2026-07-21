@@ -6,9 +6,10 @@ from blueticks.types.ping import Ping
 
 class PingResource(BaseResource):
     def retrieve(self) -> Ping:
-        """Health check.
+        """Ping.
 
-        Returns basic info about the authenticated API key.
+        Health and connectivity probe. Confirms the Blueticks API server is live
+        and lists the WhatsApp engines currently connected to this account.
         """
-        data = self._client._request("GET", "/v1/ping")
-        return Ping.model_validate(data)
+        envelope = self._client._request("GET", "/v1/ping")
+        return Ping.model_validate(envelope["data"])
