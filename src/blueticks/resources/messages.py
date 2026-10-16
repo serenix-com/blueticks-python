@@ -18,6 +18,19 @@ from blueticks.types.page import Page
 from blueticks.types.scheduled_messages import ScheduledMessage
 
 
+def _with_page_defaults(envelope: Any) -> Any:
+    """Fill ``limit``/``skip``/``total`` for bounded lookups that return a bare array.
+
+    ``POST /v1/messages/acks`` and ``GET /v1/messages/pinned/{chatId}`` return
+    ``{success, data: [...]}`` with no paging fields (not paginated lists). A
+    paged envelope is passed through untouched.
+    """
+    if isinstance(envelope, dict) and isinstance(envelope.get("data"), list):
+        n = len(envelope["data"])
+        return {"limit": n, "skip": 0, "total": n, **envelope}
+    return envelope
+
+
 class MessagesResource(BaseResource):
     def list(
         self,
@@ -155,7 +168,7 @@ class MessagesResource(BaseResource):
         if chat_id is not None:
             body["chatId"] = chat_id
         envelope = self._client._request("POST", "/v1/messages/acks", body=body)
-        return Page[BatchMessageAck].model_validate(envelope)
+        return Page[BatchMessageAck].model_validate(_with_page_defaults(envelope))
 
     def load_older(self, chat_id: str) -> LoadOlderResult:
         """Load older messages.
@@ -219,7 +232,7 @@ class MessagesResource(BaseResource):
     def list_pinned(self, chat_id: str) -> Page[PinnedMessage]:
         """List the currently pinned messages in a chat. Requires ``chats:read``."""
         envelope = self._client._request("GET", f"/v1/messages/pinned/{chat_id}")
-        return Page[PinnedMessage].model_validate(envelope)
+        return Page[PinnedMessage].model_validate(_with_page_defaults(envelope))
 
     def react(
         self,
