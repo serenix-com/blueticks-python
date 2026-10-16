@@ -212,6 +212,27 @@ def test_batch_acks_returns_page():
     assert body_seen == {"messageKeys": ["k1", "k2"], "chatId": "12345@c.us"}
 
 
+def test_batch_acks_accepts_bare_array_envelope():
+    # Server returns {success, data:[...]} with NO limit/skip/total for this
+    # bounded lookup; Page[...] validation used to raise ValidationError.
+    def handler(req: httpx.Request) -> httpx.Response:
+        return _ok([{"key": "k1", "ack": 3, "found": True}, {"key": "k2", "found": False}])
+
+    page = _client(handler).messages.batch_acks(message_keys=["k1", "k2"])
+    assert isinstance(page, Page)
+    assert [e.key for e in page.data] == ["k1", "k2"]
+    assert (page.limit, page.skip, page.total) == (2, 0, 2)
+
+
+def test_list_pinned_accepts_bare_array_envelope():
+    def handler(req: httpx.Request) -> httpx.Response:
+        return _ok([{"key": "k1", "chatId": "12345@c.us", "text": "pinned!"}])
+
+    page = _client(handler).messages.list_pinned("12345@c.us")
+    assert page.data[0].text == "pinned!"
+    assert (page.limit, page.skip, page.total) == (1, 0, 1)
+
+
 def test_load_older():
     def handler(req: httpx.Request) -> httpx.Response:
         assert req.method == "POST"
