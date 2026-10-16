@@ -3,6 +3,14 @@
 All notable changes to `blueticks` will be documented in this file. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and [Keep a Changelog](https://keepachangelog.com/).
 
+## 4.0.1 — 2026-10-16
+
+### Fixed
+- `messages.batch_acks()` and `messages.list_pinned()` no longer raise
+  `ValidationError` on the server's bare-array response (`{success, data: [...]}`
+  with no `limit`/`skip`/`total`). Paging fields are defaulted from the array
+  length (`skip=0`); paged envelopes pass through unchanged. (#3)
+
 ## 4.0.0 — 2026-05-27
 
 **Breaking — wire rename.** The backend renamed the queued-send domain on
