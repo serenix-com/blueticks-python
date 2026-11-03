@@ -56,6 +56,8 @@ class ScheduledMessagesResource(BaseResource):
         poll_options: builtins.list[str] | None = None,
         poll_allow_multiple: bool | None = None,
         reply_to: str | None = None,
+        mentions: builtins.list[str] | None = None,
+        recipient_name: str | None = None,
         secret: str | None = None,
         send_at: str | None = None,
         idempotency_key: str | None = None,
@@ -72,6 +74,13 @@ class ScheduledMessagesResource(BaseResource):
           Optional ``media_kind``, ``media_filename``.
         - ``type="poll"`` — required ``poll_question`` and ``poll_options``
           (2–12 items). Optional ``poll_allow_multiple``.
+
+        Optional ``mentions`` (participant JIDs to @mention in a group; put the
+        visible @name in ``text`` yourself) and ``recipient_name`` (display name
+        shown in the scheduled-message list; resolved automatically when
+        omitted). Pass ``idempotency_key`` for safe retries: replaying the same
+        body returns the same status (201) and the same message id; a different
+        body under the same key returns 409.
         """
         body: dict[str, Any] = {"type": type}
         if text is not None:
@@ -92,6 +101,10 @@ class ScheduledMessagesResource(BaseResource):
             body["pollAllowMultiple"] = poll_allow_multiple
         if reply_to is not None:
             body["replyTo"] = reply_to
+        if mentions is not None:
+            body["mentions"] = mentions
+        if recipient_name is not None:
+            body["recipientName"] = recipient_name
         if secret is not None:
             body["secret"] = secret
         if send_at is not None:
@@ -126,6 +139,7 @@ class ScheduledMessagesResource(BaseResource):
         poll_options: builtins.list[str] | None = None,
         poll_allow_multiple: bool | None = None,
         reply_to: str | None = None,
+        mentions: builtins.list[str] | None = None,
         secret: str | None = None,
         send_at: str | None = None,
     ) -> ScheduledMessage:
@@ -156,6 +170,8 @@ class ScheduledMessagesResource(BaseResource):
             body["pollAllowMultiple"] = poll_allow_multiple
         if reply_to is not None:
             body["replyTo"] = reply_to
+        if mentions is not None:
+            body["mentions"] = mentions
         if secret is not None:
             body["secret"] = secret
         if send_at is not None:

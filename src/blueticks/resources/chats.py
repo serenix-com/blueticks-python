@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import builtins
 from typing import Any
 
 from blueticks._base_resource import BaseResource
@@ -13,6 +14,8 @@ class ChatsResource(BaseResource):
         *,
         search_token: str | None = None,
         filter: ChatType | None = None,  # noqa: A002
+        kinds: builtins.list[ChatType] | None = None,
+        since: str | None = None,
         include_last_message: bool | None = None,
         include_extended_info: bool | None = None,
         include_without_name: bool | None = None,
@@ -25,13 +28,19 @@ class ChatsResource(BaseResource):
         List the chats (conversations) the connected WhatsApp engine sees,
         most-recent first. Offset-paginated via ``limit`` + ``skip``, with an
         optional case-insensitive name search via ``search_token`` and a
-        ``filter`` to restrict to one chat kind. Requires ``chats:read``.
+        ``filter`` to restrict to one chat kind, or ``kinds`` to keep only several
+        kinds. ``since`` (ISO 8601, offset allowed) keeps only chats whose last
+        message is at/after that instant (approximate). Requires ``chats:read``.
         """
         params: dict[str, Any] = {}
         if search_token is not None:
             params["searchToken"] = search_token
         if filter is not None:
             params["filter"] = filter
+        if kinds:
+            params["kinds"] = kinds
+        if since is not None:
+            params["since"] = since
         if include_last_message is not None:
             params["includeLastMessage"] = include_last_message
         if include_extended_info is not None:

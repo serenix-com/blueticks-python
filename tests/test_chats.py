@@ -135,3 +135,16 @@ def test_chats_get_raises_authentication_error_on_401():
 def test_chat_validation_fails_when_required_field_missing():
     with pytest.raises(ValidationError):
         _client(lambda req: _ok({})).chats.get("12345@c.us")
+
+
+def test_list_chats_kinds_and_since_filters():
+    seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        seen["query"] = req.url.query.decode()
+        seen["params"] = dict(req.url.params)
+        return _page([_chat()])
+
+    _client(handler).chats.list(kinds=["contact", "group"], since="2026-04-01T00:00:00+02:00")
+    assert "kinds=contact" in seen["query"] and "kinds=group" in seen["query"]
+    assert seen["params"]["since"] == "2026-04-01T00:00:00+02:00"

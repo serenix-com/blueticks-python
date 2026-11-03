@@ -19,8 +19,8 @@ class SunoResource(BaseResource):
     def generate_song(
         self,
         *,
-        lyrics: str,
         style: str,
+        lyrics: str | None = None,
         negative_style: str | None = None,
         vocal_gender: str | None = None,
         weirdness: float | None = None,
@@ -34,11 +34,14 @@ class SunoResource(BaseResource):
     ) -> SongGeneration:
         """Generate song.
 
-        Submit a song generation to Suno from ``lyrics`` + ``style``. Returns two
+        Submit a song generation to Suno from ``style`` + ``lyrics`` (``lyrics`` is
+        required unless ``instrumental`` is true). Returns two
         clip variants — poll each with :meth:`get_song` until ``status`` is
         ``complete``. Requires ``suno:write``.
         """
-        body: dict[str, Any] = {"lyrics": lyrics, "style": style}
+        body: dict[str, Any] = {"style": style}
+        if lyrics is not None:
+            body["lyrics"] = lyrics
         if negative_style is not None:
             body["negativeStyle"] = negative_style
         if vocal_gender is not None:

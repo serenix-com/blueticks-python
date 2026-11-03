@@ -341,3 +341,105 @@ def test_messages_retrieve_raises_authentication_error_on_401():
 def test_message_validation_fails_when_required_field_missing():
     with pytest.raises(ValidationError):
         _client(lambda req: _ok({})).messages.retrieve("wamid.X")
+
+
+def test_list_messages_new_filters_and_coverage():
+    seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        seen["query"] = req.url.query.decode()
+        seen["params"] = dict(req.url.params)
+        return _page(
+            [_message(source="backup", secret="corr-9")],
+            hasMore=False,
+            coverage={
+                "oldestLoadedTimestamp": 1745366400000,
+                "oldestLoadedIso": "2025-04-23T00:00:00Z",
+            },
+        )
+
+    page = _client(handler).messages.list(
+        query_any=["invoice", "receipt"],
+        mime="application/pdf",
+        filename_contains="inv",
+        has_media=True,
+        sender="1415",
+    )
+    assert seen["params"]["mime"] == "application/pdf"
+    assert seen["params"]["filenameContains"] == "inv"
+    assert seen["params"]["hasMedia"] == "true"
+    assert seen["params"]["sender"] == "1415"
+    assert "queryAny=invoice" in seen["query"] and "queryAny=receipt" in seen["query"]
+    assert page.coverage is not None
+    assert page.coverage.oldest_loaded_timestamp == 1745366400000
+    assert page.coverage.oldest_loaded_iso == "2025-04-23T00:00:00Z"
+    assert page.data[0].source == "backup"
+    assert page.data[0].secret == "corr-9"
+
+
+def test_send_message_with_mentions():
+    body_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        body_seen.update(json.loads(req.content))
+        return _ok(
+            {
+                "id": None,
+                "to": "123@g.us",
+                "type": "text",
+                "status": "sent",
+                "createdAt": "2026-04-23T00:00:00Z",
+            }
+        )
+
+    _client(handler).messages.send(
+        "123@g.us", type="text", text="hi @Dana", mentions=["14155551234@c.us"]
+    )
+    assert body_seen == {"type": "text", "text": "hi @Dana", "mentions": ["14155551234@c.us"]}
+
+
+def test_load_older_with_pages_and_until_date_reports_coverage():
+    body_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        body_seen.update(json.loads(req.content))
+        return _ok(
+            {
+                "totalMessages": 900,
+                "added": 120,
+                "canLoadMore": True,
+                "historyUnavailable": False,
+                "error": None,
+                "pagesExecuted": 3,
+                "coverage": {
+                    "oldestLoadedTimestamp": 1700000000000,
+                    "oldestLoadedIso": "2023-11-14T22:13:20Z",
+                },
+            }
+        )
+
+    result = _client(handler).messages.load_older(
+        "12345@c.us", pages=3, until_date="2023-11-01T00:00:00Z"
+    )
+    assert result.pages_executed == 3
+    assert result.coverage is not None
+    assert result.coverage.oldest_loaded_iso == "2023-11-14T22:13:20Z"
+    assert body_seen == {"pages": 3, "until_date": "2023-11-01T00:00:00Z"}
+
+
+def test_load_older_without_options_sends_no_body():
+    def handler(req: httpx.Request) -> httpx.Response:
+        assert req.content == b""
+        return _ok(
+            {
+                "totalMessages": 1,
+                "added": 0,
+                "canLoadMore": False,
+                "historyUnavailable": False,
+                "error": None,
+            }
+        )
+
+    result = _client(handler).messages.load_older("12345@c.us")
+    assert result.pages_executed is None
+    assert result.coverage is None

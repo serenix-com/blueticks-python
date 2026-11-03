@@ -63,26 +63,34 @@ class Blueticks:
         # Lazy-imported to avoid import cycles and to keep core import cheap.
         from blueticks.resources.account import AccountResource
         from blueticks.resources.audiences import AudiencesResource
+        from blueticks.resources.boards import BoardsResource
         from blueticks.resources.campaigns import CampaignsResource
         from blueticks.resources.chats import ChatsResource
         from blueticks.resources.contacts import ContactsResource
         from blueticks.resources.engines import EnginesResource
         from blueticks.resources.groups import GroupsResource
+        from blueticks.resources.identity import IdentityResource
+        from blueticks.resources.latest_chats import LatestChatsResource
         from blueticks.resources.messages import MessagesResource
         from blueticks.resources.newsletters import NewslettersResource
+        from blueticks.resources.realtime import RealtimeResource
         from blueticks.resources.scheduled_messages import ScheduledMessagesResource
         from blueticks.resources.suno import SunoResource
         from blueticks.resources.webhooks import WebhooksResource
 
         self.account = AccountResource(self)
         self.audiences = AudiencesResource(self)
+        self.boards = BoardsResource(self)
         self.campaigns = CampaignsResource(self)
         self.chats = ChatsResource(self)
         self.contacts = ContactsResource(self)
         self.engines = EnginesResource(self)
         self.groups = GroupsResource(self)
+        self.identity = IdentityResource(self)
+        self.latest_chats = LatestChatsResource(self)
         self.messages = MessagesResource(self)
         self.newsletters = NewslettersResource(self)
+        self.realtime = RealtimeResource(self)
         self.scheduled_messages = ScheduledMessagesResource(self)
         self.suno = SunoResource(self)
         self.webhooks = WebhooksResource(self)

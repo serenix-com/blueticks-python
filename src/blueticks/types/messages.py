@@ -37,6 +37,23 @@ MediaUnavailableReason = Literal[
 ]
 
 
+# Where an engine-sourced message was read from.
+MessageSource = Literal["vault", "backup"]
+
+
+class LoadCoverage(BaseModel):
+    """How far back a chat (or a returned page) reaches.
+
+    ``oldest_loaded_timestamp`` is epoch milliseconds; ``oldest_loaded_iso`` is the
+    ISO 8601 form. Both are omitted when unknown.
+    """
+
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, extra="ignore")
+
+    oldest_loaded_timestamp: Optional[float] = None  # noqa: UP045
+    oldest_loaded_iso: Optional[str] = None  # noqa: UP045
+
+
 class QuotedMessage(BaseModel):
     """The message a reply quotes, embedded on :class:`Message.quoted_message`."""
 
@@ -68,6 +85,9 @@ class Message(BaseModel):
     filename: Optional[str] = None  # noqa: UP045
     link_preview: Optional[LinkPreview] = None  # noqa: UP045
     quoted_message: Optional[QuotedMessage] = None  # noqa: UP045
+    source: Optional[MessageSource] = None  # noqa: UP045
+    # Correlation token attached at send time; only on messages sent through this API.
+    secret: Optional[str] = None  # noqa: UP045
 
 
 class MessageAck(BaseModel):
@@ -102,6 +122,12 @@ class LoadOlderResult(BaseModel):
     can_load_more: bool
     history_unavailable: bool
     error: Optional[str] = None  # noqa: UP045
+    # The spec marks these two always-present; they are optional here so a
+    # response from a backend that predates them still parses.
+    # How many older pages this call actually pulled (1..pages).
+    pages_executed: Optional[int] = None  # noqa: UP045
+    # How far back the chat is now loaded.
+    coverage: Optional[LoadCoverage] = None  # noqa: UP045
 
 
 class MessageMedia(BaseModel):
