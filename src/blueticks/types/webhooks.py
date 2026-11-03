@@ -24,6 +24,7 @@ WebhookEventType = Literal[
     "campaign.completed",
     "campaign.aborted",
     "new_message_received_webhook",
+    "new_message_received_from_me_webhook",
     "message_reaction_webhook",
     "ack_changed_webhook",
     "participant_joined_via_link_webhook",
@@ -52,6 +53,8 @@ class Webhook(BaseModel):
     description: Optional[str] = None  # noqa: UP045
     status: WebhookStatus
     created_at: datetime.datetime
+    # HMAC signing secret for verifying deliveries; present when the API returns it.
+    signing_secret: Optional[str] = None  # noqa: UP045
 
 
 class WebhookEvent(BaseModel):

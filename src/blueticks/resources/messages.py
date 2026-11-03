@@ -41,6 +41,11 @@ class MessagesResource(BaseResource):
         since: str | None = None,
         until: str | None = None,
         message_types: builtins.list[MessageType] | None = None,
+        query_any: builtins.list[str] | None = None,
+        mime: str | None = None,
+        filename_contains: str | None = None,
+        has_media: bool | None = None,
+        sender: str | None = None,
         load_from_phone_if_needed: bool | None = None,
         include_media_content: bool | None = None,
         skip: int | None = None,
@@ -51,8 +56,12 @@ class MessagesResource(BaseResource):
         Offset-paginated list of messages across the whole account. Pass
         ``chat_id`` to scope to a single chat, or omit it to search across all
         chats. Supports free-text search (``search_token``), a date range
-        (``since``/``until``), and message-kind filtering (``message_types``).
-        Requires ``chats:read``.
+        (``since``/``until``, ISO 8601, offset allowed), and message-kind filtering
+        (``message_types``). Additional filters: ``query_any`` (keyword-set OR
+        search over body/caption/filename), ``mime`` (MIME prefix, e.g.
+        ``"application/pdf"``), ``filename_contains``, ``has_media`` and
+        ``sender`` (substring of the sender JID/phone). The response page carries
+        ``coverage`` (how far back the page reaches). Requires ``chats:read``.
         """
         params: dict[str, Any] = {}
         if chat_id is not None:
@@ -68,6 +77,16 @@ class MessagesResource(BaseResource):
         if message_types:
             # `style: form, explode: false` — the server expects a CSV list.
             params["messageTypes"] = ",".join(message_types)
+        if query_any:
+            params["queryAny"] = query_any
+        if mime is not None:
+            params["mime"] = mime
+        if filename_contains is not None:
+            params["filenameContains"] = filename_contains
+        if has_media is not None:
+            params["hasMedia"] = has_media
+        if sender is not None:
+            params["sender"] = sender
         if load_from_phone_if_needed is not None:
             params["loadFromPhoneIfNeeded"] = load_from_phone_if_needed
         if include_media_content is not None:
@@ -103,6 +122,7 @@ class MessagesResource(BaseResource):
         poll_options: builtins.list[str] | None = None,
         poll_allow_multiple: bool | None = None,
         reply_to: str | None = None,
+        mentions: builtins.list[str] | None = None,
         secret: str | None = None,
         with_typing: bool | None = None,
         typing_seconds: float | None = None,
@@ -134,6 +154,8 @@ class MessagesResource(BaseResource):
             body["pollAllowMultiple"] = poll_allow_multiple
         if reply_to is not None:
             body["replyTo"] = reply_to
+        if mentions is not None:
+            body["mentions"] = mentions
         if secret is not None:
             body["secret"] = secret
         if with_typing is not None:
@@ -170,13 +192,31 @@ class MessagesResource(BaseResource):
         envelope = self._client._request("POST", "/v1/messages/acks", body=body)
         return Page[BatchMessageAck].model_validate(_with_page_defaults(envelope))
 
-    def load_older(self, chat_id: str) -> LoadOlderResult:
+    def load_older(
+        self,
+        chat_id: str,
+        *,
+        pages: int | None = None,
+        until_date: str | float | None = None,
+    ) -> LoadOlderResult:
         """Load older messages.
 
         Asks the engine to pull older history from the connected phone for chats
-        that haven't been fully synced yet. Requires ``chats:read``.
+        that haven't been fully synced yet. Use this before paginating with
+        ``since`` if you need messages older than what's already cached.
+        Optionally pull several pages in one call via ``pages`` (1-10, WA-paced
+        ~2.5s apart) and/or stop at a target depth via ``until_date`` (ISO 8601
+        string or epoch seconds/ms); the result reports how far back the chat is
+        now loaded under ``coverage``. Requires ``chats:read``.
         """
-        envelope = self._client._request("POST", f"/v1/messages/load_older/{chat_id}")
+        body: dict[str, Any] = {}
+        if pages is not None:
+            body["pages"] = pages
+        if until_date is not None:
+            body["until_date"] = until_date
+        envelope = self._client._request(
+            "POST", f"/v1/messages/load_older/{chat_id}", body=body or None
+        )
         return LoadOlderResult.model_validate(envelope["data"])
 
     def get_media(

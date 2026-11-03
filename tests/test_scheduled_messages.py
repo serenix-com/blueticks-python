@@ -197,3 +197,36 @@ def test_scheduled_messages_raises_authentication_error_on_401():
 def test_scheduled_message_validation_fails_when_required_field_missing():
     with pytest.raises(ValidationError):
         _client(lambda req: _ok({})).scheduled_messages.retrieve("msg_1")
+
+
+def test_create_scheduled_message_with_mentions_and_recipient_name():
+    body_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        body_seen.update(json.loads(req.content))
+        return httpx.Response(201, json={"success": True, "data": _scheduled()})
+
+    _client(handler).scheduled_messages.create(
+        "123@g.us",
+        type="text",
+        text="hi @Dana",
+        mentions=["14155551234@c.us"],
+        recipient_name="Team chat",
+    )
+    assert body_seen == {
+        "type": "text",
+        "text": "hi @Dana",
+        "mentions": ["14155551234@c.us"],
+        "recipientName": "Team chat",
+    }
+
+
+def test_update_scheduled_message_with_mentions():
+    body_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        body_seen.update(json.loads(req.content))
+        return httpx.Response(200, json={"success": True, "data": _scheduled()})
+
+    _client(handler).scheduled_messages.update("sm_1", mentions=["14155551234@c.us"])
+    assert body_seen == {"mentions": ["14155551234@c.us"]}

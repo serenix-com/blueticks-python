@@ -129,3 +129,15 @@ def test_suno_account_raises_authentication_error_on_401():
 def test_suno_validation_fails_when_required_field_missing():
     with pytest.raises(ValidationError):
         _client(lambda req: _ok({})).suno.account()
+
+
+def test_generate_song_instrumental_without_lyrics():
+    body_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        body_seen.update(json.loads(req.content))
+        return _ok({"jobId": "job_2", "clips": [_clip("clip_1")]})
+
+    result = _client(handler).suno.generate_song(style="ambient", instrumental=True)
+    assert result.job_id == "job_2"
+    assert body_seen == {"style": "ambient", "instrumental": True}

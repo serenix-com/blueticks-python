@@ -130,3 +130,25 @@ def test_webhooks_get_raises_authentication_error_on_401():
 def test_webhook_validation_fails_when_required_field_missing():
     with pytest.raises(ValidationError):
         _client(lambda req: _ok({})).webhooks.get("wh_1")
+
+
+def test_webhook_signing_secret_and_from_me_event():
+    body_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        body_seen.update(json.loads(req.content))
+        return _ok(
+            _webhook(events=["new_message_received_from_me_webhook"], signingSecret="whsec_abc"),
+            status=201,
+        )
+
+    wh = _client(handler).webhooks.create(
+        url="https://a.com/hook", events=["new_message_received_from_me_webhook"]
+    )
+    assert wh.signing_secret == "whsec_abc"
+    assert body_seen["events"] == ["new_message_received_from_me_webhook"]
+
+
+def test_webhook_without_signing_secret_parses_as_none():
+    wh = _client(lambda req: _ok(_webhook())).webhooks.get("wh_1")
+    assert wh.signing_secret is None
