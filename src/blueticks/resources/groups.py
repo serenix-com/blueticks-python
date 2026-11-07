@@ -4,7 +4,7 @@ import builtins
 from typing import Any
 
 from blueticks._base_resource import BaseResource
-from blueticks.types.groups import Group, GroupListItem
+from blueticks.types.groups import Group, GroupListItem, GroupPicture, GroupPictureRemoved
 from blueticks.types.page import Page
 
 
@@ -125,6 +125,25 @@ class GroupsResource(BaseResource):
             body["fileMimeType"] = file_mime_type
         envelope = self._client._request("PUT", f"/v1/groups/{group_id}/picture", body=body)
         return Group.model_validate(envelope["data"])
+
+    def get_picture(self, group_id: str) -> GroupPicture:
+        """Get group picture.
+
+        The current group picture as a short-lived WhatsApp CDN ``url``, or
+        ``url=None`` when the group has none. Requires ``groups:read``.
+        """
+        envelope = self._client._request("GET", f"/v1/groups/{group_id}/picture")
+        return GroupPicture.model_validate(envelope["data"])
+
+    def remove_picture(self, group_id: str) -> GroupPictureRemoved:
+        """Remove group picture.
+
+        Gateway (Baileys) engine only: a Chrome-extension-only account gets
+        ``501 unsupported_command``. Only group admins can when the group is
+        admins-only-edit (``403 not_authorized``). Requires ``groups:write``.
+        """
+        envelope = self._client._request("DELETE", f"/v1/groups/{group_id}/picture")
+        return GroupPictureRemoved.model_validate(envelope["data"])
 
     def leave(self, group_id: str) -> None:
         """Leave the group as the authenticated identity. Idempotent (204 No Content)."""
