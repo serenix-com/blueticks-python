@@ -3,6 +3,12 @@
 All notable changes to `blueticks` will be documented in this file. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and [Keep a Changelog](https://keepachangelog.com/).
 
+## 4.1.0 — 2026-11-07
+
+### Added
+- `groups.get_picture()` and `groups.remove_picture()` (remove is Gateway/Baileys engine only; Chrome-extension-only accounts get `501 unsupported_command`). `groups.set_picture()` already existed. (#6)
+- Spec regeneration against eccfb31 (boards, identity, latest-chats, realtime token, ...). (#5)
+
 ## 4.0.1 — 2026-10-16
 
 ### Fixed
