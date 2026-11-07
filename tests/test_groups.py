@@ -8,7 +8,7 @@ from pydantic import ValidationError
 
 from blueticks import Blueticks
 from blueticks._errors import AuthenticationError
-from blueticks.types.groups import Group, GroupListItem
+from blueticks.types.groups import Group, GroupListItem, GroupPicture, GroupPictureRemoved
 from blueticks.types.page import Page
 
 
@@ -182,6 +182,38 @@ def test_set_picture_serializes_camel_case():
         "fileName": "logo.png",
         "fileMimeType": "image/png",
     }
+
+
+def test_get_picture_returns_url():
+    def handler(req: httpx.Request) -> httpx.Response:
+        assert req.method == "GET"
+        assert req.url.path == "/v1/groups/111@g.us/picture"
+        return _ok({"url": "https://pps.whatsapp.net/pic.jpg"})
+
+    result = _client(handler).groups.get_picture("111@g.us")
+    assert isinstance(result, GroupPicture)
+    assert result.url == "https://pps.whatsapp.net/pic.jpg"
+
+
+def test_get_picture_null_url_when_no_picture():
+    result = _client(lambda req: _ok({"url": None})).groups.get_picture("111@g.us")
+    assert result.url is None
+
+
+def test_remove_picture_returns_ok():
+    def handler(req: httpx.Request) -> httpx.Response:
+        assert req.method == "DELETE"
+        assert req.url.path == "/v1/groups/111@g.us/picture"
+        return _ok({"ok": True})
+
+    result = _client(handler).groups.remove_picture("111@g.us")
+    assert isinstance(result, GroupPictureRemoved)
+    assert result.ok is True
+
+
+def test_remove_picture_missing_ok_raises_validation_error():
+    with pytest.raises(ValidationError):
+        _client(lambda req: _ok({})).groups.remove_picture("111@g.us")
 
 
 def test_leave_group_returns_none_on_204():

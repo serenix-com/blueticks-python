@@ -53,3 +53,20 @@ class Group(BaseModel):
     announce: Optional[bool] = None  # noqa: UP045
     restrict: Optional[bool] = None  # noqa: UP045
     participants: Optional[list[GroupParticipant]] = None  # noqa: UP045
+
+
+class GroupPicture(BaseModel):
+    """The current group picture (GET /v1/groups/{id}/picture)."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    url: Optional[str] = None  # noqa: UP045
+    """Short-lived WhatsApp CDN URL, or ``None`` when the group has no picture."""
+
+
+class GroupPictureRemoved(BaseModel):
+    """Result of removing a group picture (DELETE /v1/groups/{id}/picture)."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    ok: bool

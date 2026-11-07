@@ -24,7 +24,13 @@ from blueticks.types.campaigns import Campaign, CampaignStatus
 from blueticks.types.chats import Chat, ChatType, OkResponse, Participant
 from blueticks.types.contacts import Contact
 from blueticks.types.engines import Engine, EngineType
-from blueticks.types.groups import Group, GroupListItem, GroupParticipant
+from blueticks.types.groups import (
+    Group,
+    GroupListItem,
+    GroupParticipant,
+    GroupPicture,
+    GroupPictureRemoved,
+)
 from blueticks.types.identity import Identity, IdentityBatchResponse, IdentitySource, IdentityType
 from blueticks.types.latest_chats import LatestChatsResponse, LatestChatWithMessages
 from blueticks.types.messages import (
@@ -82,6 +88,8 @@ __all__ = [
     "Group",
     "GroupListItem",
     "GroupParticipant",
+    "GroupPicture",
+    "GroupPictureRemoved",
     "Identity",
     "IdentityBatchResponse",
     "IdentitySource",
