@@ -114,3 +114,22 @@ def test_webhook_event_parses_snake_case_payload():
     )
     assert ev.type == "message.delivered"
     assert ev.data["id"] == "msg_1"
+
+
+def test_page_parses_answered_by_next_cursor_and_sources():
+    page = Page[ScheduledMessage].model_validate(
+        {
+            "data": [],
+            "limit": 50,
+            "skip": 0,
+            "total": 0,
+            "answeredBy": {"engineId": "clientX"},
+            "nextCursor": None,
+            "sources": {"backup": 0},
+        }
+    )
+    assert page.answered_by is not None
+    assert page.answered_by.engine_id == "clientX"
+    assert page.next_cursor is None
+    assert page.sources is not None
+    assert page.sources.backup == 0

@@ -95,3 +95,14 @@ def test_contact_validation_fails_when_required_field_missing():
 
     with pytest.raises(ValidationError):
         _client(handler).contacts.list()
+
+
+def test_common_groups_forwards_skip_and_limit():
+    params_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        params_seen.update(dict(req.url.params))
+        return _page([])
+
+    _client(handler).contacts.common_groups("12345@c.us", skip=10, limit=25)
+    assert params_seen == {"skip": "10", "limit": "25"}

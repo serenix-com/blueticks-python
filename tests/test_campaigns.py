@@ -147,3 +147,16 @@ def test_campaigns_get_raises_authentication_error_on_401():
 def test_campaign_validation_fails_when_required_field_missing():
     with pytest.raises(ValidationError):
         _client(lambda req: _ok({})).campaigns.get("cmp_1")
+
+
+def test_create_campaign_forwards_send_at():
+    body_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        body_seen.update(json.loads(req.content))
+        return _ok(_campaign())
+
+    _client(handler).campaigns.create(
+        name="Launch", audience_id="aud_1", send_at="2026-12-01T09:00:00+02:00"
+    )
+    assert body_seen["sendAt"] == "2026-12-01T09:00:00+02:00"

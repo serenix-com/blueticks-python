@@ -5,6 +5,7 @@ from typing import Any
 
 from blueticks._base_resource import BaseResource
 from blueticks.types.chats import OkResponse
+from blueticks.types.engines import EngineTarget
 from blueticks.types.messages import (
     BatchMessageAck,
     LoadOlderResult,
@@ -48,6 +49,9 @@ class MessagesResource(BaseResource):
         sender: str | None = None,
         load_from_phone_if_needed: bool | None = None,
         include_media_content: bool | None = None,
+        engine: EngineTarget | None = None,
+        engine_id: str | None = None,
+        number_id: str | None = None,
         skip: int | None = None,
         limit: int | None = None,
     ) -> Page[Message]:
@@ -66,6 +70,12 @@ class MessagesResource(BaseResource):
         params: dict[str, Any] = {}
         if chat_id is not None:
             params["chatId"] = chat_id
+        if engine is not None:
+            params["engine"] = engine
+        if engine_id is not None:
+            params["engineId"] = engine_id
+        if number_id is not None:
+            params["numberId"] = number_id
         if search_token is not None:
             params["searchToken"] = search_token
         if order is not None:
@@ -112,18 +122,26 @@ class MessagesResource(BaseResource):
         self,
         chat_id: str,
         *,
-        type: str,  # noqa: A002
+        type: str | None = None,  # noqa: A002
         text: str | None = None,
         media_url: str | None = None,
         media_base64: str | None = None,
+        media_file_id: str | None = None,
         media_kind: str | None = None,
         media_filename: str | None = None,
+        media_mime_type: str | None = None,
         poll_question: str | None = None,
         poll_options: builtins.list[str] | None = None,
         poll_allow_multiple: bool | None = None,
+        button_reply: dict[str, Any] | None = None,
         reply_to: str | None = None,
         mentions: builtins.list[str] | None = None,
         secret: str | None = None,
+        from_: str | None = None,
+        wa_label_ids: builtins.list[str] | None = None,
+        engine: EngineTarget | None = None,
+        engine_id: str | None = None,
+        number_id: str | None = None,
         with_typing: bool | None = None,
         typing_seconds: float | None = None,
     ) -> ScheduledMessage:
@@ -135,29 +153,47 @@ class MessagesResource(BaseResource):
         scheduled or queue-managed sends use
         :meth:`ScheduledMessagesResource.create` instead.
         """
-        body: dict[str, Any] = {"type": type}
+        body: dict[str, Any] = {}
+        if type is not None:
+            body["type"] = type
         if text is not None:
             body["text"] = text
         if media_url is not None:
             body["mediaUrl"] = media_url
         if media_base64 is not None:
             body["mediaBase64"] = media_base64
+        if media_file_id is not None:
+            body["mediaFileId"] = media_file_id
         if media_kind is not None:
             body["mediaKind"] = media_kind
         if media_filename is not None:
             body["mediaFilename"] = media_filename
+        if media_mime_type is not None:
+            body["mediaMimeType"] = media_mime_type
         if poll_question is not None:
             body["pollQuestion"] = poll_question
         if poll_options is not None:
             body["pollOptions"] = poll_options
         if poll_allow_multiple is not None:
             body["pollAllowMultiple"] = poll_allow_multiple
+        if button_reply is not None:
+            body["buttonReply"] = button_reply
         if reply_to is not None:
             body["replyTo"] = reply_to
         if mentions is not None:
             body["mentions"] = mentions
         if secret is not None:
             body["secret"] = secret
+        if from_ is not None:
+            body["from"] = from_
+        if wa_label_ids is not None:
+            body["waLabelIds"] = wa_label_ids
+        if engine is not None:
+            body["engine"] = engine
+        if engine_id is not None:
+            body["engineId"] = engine_id
+        if number_id is not None:
+            body["numberId"] = number_id
         if with_typing is not None:
             body["withTyping"] = with_typing
         if typing_seconds is not None:

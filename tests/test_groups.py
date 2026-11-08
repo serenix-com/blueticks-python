@@ -247,3 +247,14 @@ def test_groups_get_raises_authentication_error_on_401():
 def test_group_validation_fails_when_required_field_missing():
     with pytest.raises(ValidationError):
         _client(lambda req: _ok({})).groups.get("111@g.us")
+
+
+def test_list_groups_forwards_engine_targeting_params():
+    params_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        params_seen.update(dict(req.url.params))
+        return _page([_group_list_item()])
+
+    _client(handler).groups.list(engine="gateway", engine_id="clientX", fanout_limit=4)
+    assert params_seen == {"engine": "gateway", "engineId": "clientX", "fanoutLimit": "4"}

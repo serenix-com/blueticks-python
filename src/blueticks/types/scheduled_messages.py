@@ -7,6 +7,8 @@ from typing import Literal, Optional
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
+from blueticks.types.wa_labels import WaLabelsResult
+
 # Lifecycle status of a queued message, in send order.
 MessageStatus = Literal[
     "pending",
@@ -55,6 +57,32 @@ class LinkPreview(BaseModel):
     thumbnail: Optional[str] = None  # noqa: UP045
 
 
+RecurrenceFrequency = Literal["daily", "weekly", "monthly", "yearly"]
+RecurrenceWeekday = Literal["MO", "TU", "WE", "TH", "FR", "SA", "SU"]
+
+
+class RecurrenceResponse(BaseModel):
+    """The repeat rule of a recurring scheduled message. Absent for one-time messages."""
+
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, extra="ignore")
+
+    frequency: RecurrenceFrequency
+    interval: int
+    by_weekday: Optional[list[RecurrenceWeekday]] = None  # noqa: UP045
+    ends_after: Optional[int] = None  # noqa: UP045
+    ends_on: Optional[datetime.datetime] = None  # noqa: UP045
+    timezone: Optional[str] = None  # noqa: UP045
+
+
+class MessageWarning(BaseModel):
+    """A non-fatal warning attached to a scheduled message."""
+
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, extra="ignore")
+
+    code: Literal["no_engine_connected"]
+    message: str
+
+
 class ScheduledMessage(BaseModel):
     """A message record from the user-messages queue.
 
@@ -86,3 +114,7 @@ class ScheduledMessage(BaseModel):
     failure_reason: Optional[str] = None  # noqa: UP045
     secret: Optional[str] = None  # noqa: UP045
     link_preview: Optional[LinkPreview] = None  # noqa: UP045
+    recipient_name: Optional[str] = None  # noqa: UP045
+    recurrence: Optional[RecurrenceResponse] = None  # noqa: UP045
+    wa_labels: Optional[WaLabelsResult] = None  # noqa: UP045
+    warning: Optional[MessageWarning] = None  # noqa: UP045

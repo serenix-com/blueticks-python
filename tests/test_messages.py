@@ -443,3 +443,132 @@ def test_load_older_without_options_sends_no_body():
     result = _client(handler).messages.load_older("12345@c.us")
     assert result.pages_executed is None
     assert result.coverage is None
+
+
+def test_list_messages_forwards_engine_targeting_and_new_message_types():
+    params_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        params_seen.update(dict(req.url.params))
+        return _page([_message()])
+
+    _client(handler).messages.list(
+        engine="gateway",
+        engine_id="clientX",
+        number_id="num_1",
+        message_types=["call_log", "buttons_response"],
+    )
+    assert params_seen == {
+        "engine": "gateway",
+        "engineId": "clientX",
+        "numberId": "num_1",
+        "messageTypes": "call_log,buttons_response",
+    }
+
+
+def test_message_parses_new_wa_fields():
+    msg = _message(
+        type="call_log",
+        waType="call_log",
+        subtype="missed",
+        call={"direction": "in", "media": "voice", "outcome": "missed", "isGroup": False},
+        groupEvent={"action": "add", "actor": "1@c.us", "targets": ["2@c.us"]},
+        interactive={"kind": "buttons_response", "selectedId": "b1", "quotedId": "q1"},
+        reactions=[{"emoji": "👍", "senderId": "3@c.us", "fromMe": False}],
+    )
+    result = _client(lambda req: _ok(msg)).messages.retrieve("false_12345@c.us_ABCD")
+    assert isinstance(result, Message)
+    assert result.wa_type == "call_log"
+    assert result.subtype == "missed"
+    assert result.call is not None
+    assert result.call.outcome == "missed"
+    assert result.call.is_group is False
+    assert result.group_event is not None
+    assert result.group_event.action == "add"
+    assert result.group_event.targets == ["2@c.us"]
+    assert result.interactive is not None
+    assert result.interactive.selected_id == "b1"
+    assert result.reactions[0].emoji == "👍"
+
+
+def test_list_messages_parses_coverage_extras_and_sources():
+    body = {
+        "success": True,
+        "data": [_message()],
+        "limit": 50,
+        "skip": 0,
+        "total": 1,
+        "nextCursor": "50",
+        "answeredBy": {"engineId": "clientX", "numberId": "num_1", "phoneNumber": "14155551234"},
+        "coverage": {"messagesScanned": 12, "truncated": False, "indexOnly": True},
+        "sources": {"backup": 2},
+        "sinceReached": True,
+        "autoLoadedPages": 1,
+    }
+    page = _client(lambda req: httpx.Response(200, json=body)).messages.list()
+    assert page.next_cursor == "50"
+    assert page.answered_by is not None
+    assert page.answered_by.engine_id == "clientX"
+    assert page.coverage is not None
+    assert page.coverage.messages_scanned == 12
+    assert page.coverage.index_only is True
+    assert page.sources is not None
+    assert page.sources.backup == 2
+    assert page.since_reached is True
+    assert page.auto_loaded_pages == 1
+
+
+def test_send_message_with_button_reply_media_file_and_engine_selector():
+    body_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        body_seen.update(json.loads(req.content))
+        assert req.url.path == "/v1/messages/12345@c.us"
+        return httpx.Response(201, json={"success": True, "data": _scheduled_stub()})
+
+    _client(handler).messages.send(
+        "12345@c.us",
+        type="media",
+        media_file_id="Ab12Cd34Ef56",
+        media_mime_type="image/png",
+        button_reply={"replyTo": "false_12345@c.us_X", "buttonId": "b1"},
+        from_="+14155550000",
+        wa_label_ids=["7"],
+        engine="regular",
+        engine_id="clientX",
+        number_id="num_1",
+    )
+    assert body_seen == {
+        "type": "media",
+        "mediaFileId": "Ab12Cd34Ef56",
+        "mediaMimeType": "image/png",
+        "buttonReply": {"replyTo": "false_12345@c.us_X", "buttonId": "b1"},
+        "from": "+14155550000",
+        "waLabelIds": ["7"],
+        "engine": "regular",
+        "engineId": "clientX",
+        "numberId": "num_1",
+    }
+
+
+def test_send_message_omits_type_when_not_given():
+    body_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        body_seen.update(json.loads(req.content))
+        return httpx.Response(201, json={"success": True, "data": _scheduled_stub()})
+
+    _client(handler).messages.send("12345@c.us", text="hi")
+    assert "type" not in body_seen
+    assert body_seen == {"text": "hi"}
+
+
+def _scheduled_stub() -> dict:
+    return {
+        "id": None,
+        "waMessageKey": None,
+        "to": "12345@c.us",
+        "type": "text",
+        "status": "sent",
+        "createdAt": "2026-04-23T00:00:00Z",
+    }

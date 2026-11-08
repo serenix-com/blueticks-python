@@ -25,3 +25,7 @@ class Engine(BaseModel):
     state: Optional[str] = None  # noqa: UP045
     stream: Optional[str] = None  # noqa: UP045
     has_synced: Optional[bool] = None  # noqa: UP045
+
+
+# Engine TYPE filter accepted by read endpoints (`engine` query/body field).
+EngineTarget = Literal["gateway", "regular"]

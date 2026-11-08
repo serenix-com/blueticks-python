@@ -4,6 +4,7 @@ import builtins
 from typing import Any
 
 from blueticks._base_resource import BaseResource
+from blueticks.types.engines import EngineTarget
 from blueticks.types.groups import Group, GroupListItem, GroupPicture, GroupPictureRemoved
 from blueticks.types.page import Page
 
@@ -14,6 +15,11 @@ class GroupsResource(BaseResource):
         *,
         search_token: str | None = None,
         include_archive: bool | None = None,
+        engine: EngineTarget | None = None,
+        engine_id: str | None = None,
+        number_id: str | None = None,
+        phone: str | None = None,
+        fanout_limit: int | None = None,
         skip: int | None = None,
         limit: int | None = None,
     ) -> Page[GroupListItem]:
@@ -28,6 +34,16 @@ class GroupsResource(BaseResource):
             params["searchToken"] = search_token
         if include_archive is not None:
             params["includeArchive"] = include_archive
+        if engine is not None:
+            params["engine"] = engine
+        if engine_id is not None:
+            params["engineId"] = engine_id
+        if number_id is not None:
+            params["numberId"] = number_id
+        if phone is not None:
+            params["phone"] = phone
+        if fanout_limit is not None:
+            params["fanoutLimit"] = fanout_limit
         if skip is not None:
             params["skip"] = skip
         if limit is not None:

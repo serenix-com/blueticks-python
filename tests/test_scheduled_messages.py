@@ -230,3 +230,119 @@ def test_update_scheduled_message_with_mentions():
 
     _client(handler).scheduled_messages.update("sm_1", mentions=["14155551234@c.us"])
     assert body_seen == {"mentions": ["14155551234@c.us"]}
+
+
+def test_list_scheduled_messages_forwards_include_flags():
+    params_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        params_seen.update(dict(req.url.params))
+        return _page([_scheduled()])
+
+    _client(handler).scheduled_messages.list(
+        chat_id="12345@c.us", include_sent=True, include_preview=False
+    )
+    assert params_seen == {
+        "chatId": "12345@c.us",
+        "includeSent": "true",
+        "includePreview": "false",
+    }
+
+
+def test_create_scheduled_message_with_recurrence_labels_and_from():
+    body_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        body_seen.update(json.loads(req.content))
+        return httpx.Response(201, json={"success": True, "data": _scheduled()})
+
+    recurrence = {
+        "frequency": "weekly",
+        "interval": 1,
+        "byWeekday": ["MO", "FR"],
+        "endsAfter": 10,
+    }
+    _client(handler).scheduled_messages.create(
+        "12345@c.us",
+        type="text",
+        text="standup",
+        send_at="2026-12-01T09:00:00+02:00",
+        recurrence=recurrence,
+        wa_label_ids=["7"],
+        from_="+14155550000",
+        media_file_id="Ab12Cd34Ef56",
+        media_mime_type="image/png",
+        button_reply={"replyTo": "false_12345@c.us_X", "rowId": "r1"},
+    )
+    assert body_seen == {
+        "type": "text",
+        "text": "standup",
+        "sendAt": "2026-12-01T09:00:00+02:00",
+        "recurrence": recurrence,
+        "waLabelIds": ["7"],
+        "from": "+14155550000",
+        "mediaFileId": "Ab12Cd34Ef56",
+        "mediaMimeType": "image/png",
+        "buttonReply": {"replyTo": "false_12345@c.us_X", "rowId": "r1"},
+    }
+
+
+def test_create_scheduled_message_omits_type_when_not_given():
+    body_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        body_seen.update(json.loads(req.content))
+        return httpx.Response(201, json={"success": True, "data": _scheduled()})
+
+    _client(handler).scheduled_messages.create("12345@c.us", text="hi")
+    assert "type" not in body_seen
+
+
+def test_update_scheduled_message_media_file_id_and_mime():
+    body_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        body_seen.update(json.loads(req.content))
+        return _ok(_scheduled())
+
+    _client(handler).scheduled_messages.update(
+        "msg_1", media_file_id="Ab12Cd34Ef56", media_mime_type="application/pdf"
+    )
+    assert body_seen == {"mediaFileId": "Ab12Cd34Ef56", "mediaMimeType": "application/pdf"}
+
+
+def test_cancel_scheduled_message_posts_to_cancel_path():
+    def handler(req: httpx.Request) -> httpx.Response:
+        assert req.method == "POST"
+        assert req.url.path == "/v1/scheduled-messages/msg_1/cancel"
+        return _ok(_scheduled(status="cancelled"))
+
+    result = _client(handler).scheduled_messages.cancel("msg_1")
+    assert isinstance(result, ScheduledMessage)
+    assert result.status == "cancelled"
+
+
+def test_scheduled_message_parses_recurrence_warning_and_wa_labels():
+    data = _scheduled(
+        recipientName="Acme Ops",
+        recurrence={
+            "frequency": "monthly",
+            "interval": 2,
+            "byWeekday": None,
+            "endsAfter": 5,
+            "endsOn": None,
+            "timezone": "Europe/Berlin",
+        },
+        waLabels={"requested": 1, "applied": False, "error": "wa_business_required"},
+        warning={"code": "no_engine_connected", "message": "No engine was online."},
+    )
+    result = _client(lambda req: _ok(data)).scheduled_messages.retrieve("msg_1")
+    assert result.recipient_name == "Acme Ops"
+    assert result.recurrence is not None
+    assert result.recurrence.frequency == "monthly"
+    assert result.recurrence.interval == 2
+    assert result.recurrence.timezone == "Europe/Berlin"
+    assert result.wa_labels is not None
+    assert result.wa_labels.error == "wa_business_required"
+    assert result.warning is not None
+    assert result.warning.code == "no_engine_connected"
