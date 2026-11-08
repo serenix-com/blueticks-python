@@ -3,6 +3,12 @@
 All notable changes to `blueticks` will be documented in this file. This project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and [Keep a Changelog](https://keepachangelog.com/).
 
+## Unreleased
+
+### Fixed
+
+- `WebhookEvent.idempotency_key`: the verified event now keeps the payload's `idempotency_key` (it was dropped).
+
 ## 4.1.0 — 2026-11-07
 
 ### Added

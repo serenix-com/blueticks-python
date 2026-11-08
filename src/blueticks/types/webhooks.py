@@ -69,3 +69,5 @@ class WebhookEvent(BaseModel):
     type: str
     created_at: str
     data: dict[str, Any]
+    # Key of the request that produced the event, when there was one.
+    idempotency_key: Optional[str] = None  # noqa: UP045

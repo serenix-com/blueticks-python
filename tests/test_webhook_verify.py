@@ -91,3 +91,17 @@ def test_verify_accepts_str_payload():
     )
     event = verify(payload, _headers(payload.encode()), secret=SECRET)
     assert event.id == "evt"
+
+
+def test_verify_preserves_idempotency_key():
+    payload = (
+        b'{"id":"evt","type":"message.delivered","created_at":"2026-04-23T00:00:00Z",'
+        b'"data":{},"idempotency_key":"idem_1"}'
+    )
+    event = verify(payload, _headers(payload), secret=SECRET)
+    assert event.idempotency_key == "idem_1"
+
+
+def test_verify_idempotency_key_defaults_to_none():
+    event = verify(_EVT_PAYLOAD, _headers(_EVT_PAYLOAD), secret=SECRET)
+    assert event.idempotency_key is None
