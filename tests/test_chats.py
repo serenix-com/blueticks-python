@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 import httpx
 import pytest
 from pydantic import ValidationError
@@ -148,3 +150,72 @@ def test_list_chats_kinds_and_since_filters():
     _client(handler).chats.list(kinds=["contact", "group"], since="2026-04-01T00:00:00+02:00")
     assert "kinds=contact" in seen["query"] and "kinds=group" in seen["query"]
     assert seen["params"]["since"] == "2026-04-01T00:00:00+02:00"
+
+
+def test_list_chats_forwards_engine_targeting_params():
+    params_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        params_seen.update(dict(req.url.params))
+        return _page([_chat()])
+
+    _client(handler).chats.list(engine="gateway", fanout_limit=3, number_id="num_1")
+    assert params_seen == {"engine": "gateway", "fanoutLimit": "3", "numberId": "num_1"}
+
+    params_seen.clear()
+    _client(handler).chats.list(engine_id="clientX", phone="+14155551234")
+    assert params_seen == {"engineId": "clientX", "phone": "+14155551234"}
+
+
+def test_list_participants_forwards_engine_targeting_params():
+    params_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        params_seen.update(dict(req.url.params))
+        return _page([{"chatId": "1@c.us", "name": "A", "isAdmin": False}])
+
+    _client(handler).chats.list_participants(
+        "111@g.us", engine="regular", number_id="num_2", fanout_limit=2
+    )
+    assert params_seen == {"engine": "regular", "numberId": "num_2", "fanoutLimit": "2"}
+
+
+def test_list_wa_labels_returns_typed_list():
+    def handler(req: httpx.Request) -> httpx.Response:
+        assert req.method == "GET"
+        assert req.url.path == "/v1/chats/12345@c.us/wa-labels"
+        return _ok([{"id": "7", "name": "Lead", "color": "#00ff00"}])
+
+    labels = _client(handler).chats.list_wa_labels("12345@c.us")
+    assert [label.id for label in labels] == ["7"]
+    assert labels[0].name == "Lead"
+
+
+def test_update_wa_labels_sends_full_replacement_set():
+    body_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        body_seen.update(json.loads(req.content))
+        assert req.method == "PATCH"
+        assert req.url.path == "/v1/chats/12345@c.us/wa-labels"
+        return _ok({"ok": True})
+
+    result = _client(handler).chats.update_wa_labels("12345@c.us", label_ids=["7", "8"])
+    assert isinstance(result, OkResponse)
+    assert body_seen == {"labelIds": ["7", "8"]}
+
+
+def test_update_wa_labels_empty_list_clears_labels():
+    body_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        body_seen.update(json.loads(req.content))
+        return _ok({"ok": True})
+
+    _client(handler).chats.update_wa_labels("12345@c.us", label_ids=[])
+    assert body_seen == {"labelIds": []}
+
+
+def test_wa_labels_list_validation_fails_when_required_field_missing():
+    with pytest.raises(ValidationError):
+        _client(lambda req: _ok({})).chats.list_wa_labels("12345@c.us")

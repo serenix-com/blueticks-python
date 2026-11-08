@@ -76,6 +76,8 @@ class Blueticks:
         from blueticks.resources.realtime import RealtimeResource
         from blueticks.resources.scheduled_messages import ScheduledMessagesResource
         from blueticks.resources.suno import SunoResource
+        from blueticks.resources.uploads import UploadsResource
+        from blueticks.resources.wa_labels import WaLabelsResource
         from blueticks.resources.webhooks import WebhooksResource
 
         self.account = AccountResource(self)
@@ -93,6 +95,8 @@ class Blueticks:
         self.realtime = RealtimeResource(self)
         self.scheduled_messages = ScheduledMessagesResource(self)
         self.suno = SunoResource(self)
+        self.uploads = UploadsResource(self)
+        self.wa_labels = WaLabelsResource(self)
         self.webhooks = WebhooksResource(self)
 
     # -- Public API ----------------------------------------------------------

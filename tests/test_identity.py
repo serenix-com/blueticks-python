@@ -91,7 +91,7 @@ def test_resolve_batch_identities():
         body_seen.update(json.loads(req.content))
         assert req.method == "POST"
         assert req.url.path == "/v1/identity/resolve"
-        return _ok({"data": [_identity(), _identity(input="x@g.us", type="group", source="cache")]})
+        return _ok([_identity(), _identity(input="x@g.us", type="group", source="cache")])
 
     result = _client(handler).identity.resolve_batch(["120813554507870@lid", "x@g.us"])
     assert isinstance(result, IdentityBatchResponse)
@@ -110,3 +110,12 @@ def test_identity_retrieve_raises_authentication_error_on_401():
 def test_identity_validation_fails_when_required_field_missing():
     with pytest.raises(ValidationError):
         _client(lambda req: _ok({})).identity.retrieve("1@lid")
+
+
+def test_resolve_batch_accepts_bare_array_wire_shape():
+    def handler(req: httpx.Request) -> httpx.Response:
+        return _ok([_identity(input="1@lid", resolved=False, canonical=None, phone=None)])
+
+    result = _client(handler).identity.resolve_batch(["1@lid"])
+    assert result.data[0].resolved is False
+    assert result.data[0].canonical is None

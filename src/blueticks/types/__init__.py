@@ -35,15 +35,21 @@ from blueticks.types.identity import Identity, IdentityBatchResponse, IdentitySo
 from blueticks.types.latest_chats import LatestChatsResponse, LatestChatWithMessages
 from blueticks.types.messages import (
     BatchMessageAck,
+    CallInfo,
+    GroupEvent,
+    Interactive,
+    InteractiveOption,
     LoadCoverage,
     LoadOlderResult,
     MediaUnavailableReason,
     Message,
     MessageAck,
+    MessageListCoverage,
     MessageMedia,
     MessageSource,
     MessageType,
     PinnedMessage,
+    PublicReaction,
     QuotedMessage,
 )
 from blueticks.types.newsletters import Newsletter, NewsletterListItem, Verification
@@ -54,14 +60,29 @@ from blueticks.types.scheduled_messages import (
     LinkPreview,
     MediaKind,
     MessageStatus,
+    MessageWarning,
+    RecurrenceResponse,
     ScheduledMessage,
     ScheduledMessageType,
     WaMessageKey,
 )
 from blueticks.types.suno import SongClip, SongGeneration, SongStatus, SunoAccount, SunoUpload
+from blueticks.types.uploads import Upload
+from blueticks.types.wa_labels import WaLabel, WaLabelsResult
 from blueticks.types.webhooks import Webhook, WebhookEvent, WebhookEventType, WebhookStatus
 
 __all__ = [
+    "CallInfo",
+    "GroupEvent",
+    "Interactive",
+    "InteractiveOption",
+    "MessageListCoverage",
+    "MessageWarning",
+    "PublicReaction",
+    "RecurrenceResponse",
+    "Upload",
+    "WaLabel",
+    "WaLabelsResult",
     "Account",
     "AppendContactsResult",
     "Audience",

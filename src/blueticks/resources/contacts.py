@@ -35,12 +35,25 @@ class ContactsResource(BaseResource):
         envelope = self._client._request("GET", "/v1/contacts", params=params or None)
         return Page[Contact].model_validate(envelope)
 
-    def common_groups(self, contact_id: str) -> Page[GroupListItem]:
+    def common_groups(
+        self,
+        contact_id: str,
+        *,
+        skip: int | None = None,
+        limit: int | None = None,
+    ) -> Page[GroupListItem]:
         """Get common groups.
 
         List the groups the connected WhatsApp account shares with this contact
         (WhatsApp's "groups in common"). ``contact_id`` is the contact's JID
         (e.g. ``12345@c.us``). Requires ``groups:read``.
         """
-        envelope = self._client._request("GET", f"/v1/contacts/{contact_id}/common_groups")
+        params: dict[str, Any] = {}
+        if skip is not None:
+            params["skip"] = skip
+        if limit is not None:
+            params["limit"] = limit
+        envelope = self._client._request(
+            "GET", f"/v1/contacts/{contact_id}/common_groups", params=params or None
+        )
         return Page[GroupListItem].model_validate(envelope)

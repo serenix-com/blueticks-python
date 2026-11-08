@@ -100,3 +100,21 @@ def test_latest_chats_raises_authentication_error_on_401():
 def test_latest_chats_validation_fails_when_required_field_missing():
     with pytest.raises(ValidationError):
         _client(lambda req: _ok({})).latest_chats.retrieve()
+
+
+def test_latest_chats_forwards_engine_targeting_params():
+    params_seen: dict = {}
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        params_seen.update(dict(req.url.params))
+        return _ok(
+            {
+                "chats": [],
+                "totalChats": 0,
+                "numberOfChats": 1,
+                "numberOfMessages": 0,
+            }
+        )
+
+    _client(handler).latest_chats.retrieve(number_of_chats=1, phone="+14155551234", fanout_limit=2)
+    assert params_seen == {"numberOfChats": "1", "phone": "+14155551234", "fanoutLimit": "2"}

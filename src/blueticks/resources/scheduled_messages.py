@@ -13,6 +13,8 @@ class ScheduledMessagesResource(BaseResource):
     def list(
         self,
         *,
+        include_sent: bool | None = None,
+        include_preview: bool | None = None,
         chat_id: str | None = None,
         search_token: str | None = None,
         status: str | None = None,
@@ -35,6 +37,10 @@ class ScheduledMessagesResource(BaseResource):
             params["status"] = status
         if order is not None:
             params["order"] = order
+        if include_sent is not None:
+            params["includeSent"] = include_sent
+        if include_preview is not None:
+            params["includePreview"] = include_preview
         if skip is not None:
             params["skip"] = skip
         if limit is not None:
@@ -46,12 +52,14 @@ class ScheduledMessagesResource(BaseResource):
         self,
         chat_id: str,
         *,
-        type: str,  # noqa: A002
+        type: str | None = None,  # noqa: A002
         text: str | None = None,
         media_url: str | None = None,
         media_base64: str | None = None,
+        media_file_id: str | None = None,
         media_kind: str | None = None,
         media_filename: str | None = None,
+        media_mime_type: str | None = None,
         poll_question: str | None = None,
         poll_options: builtins.list[str] | None = None,
         poll_allow_multiple: bool | None = None,
@@ -60,6 +68,10 @@ class ScheduledMessagesResource(BaseResource):
         recipient_name: str | None = None,
         secret: str | None = None,
         send_at: str | None = None,
+        recurrence: dict[str, Any] | None = None,
+        wa_label_ids: builtins.list[str] | None = None,
+        button_reply: dict[str, Any] | None = None,
+        from_: str | None = None,
         idempotency_key: str | None = None,
     ) -> ScheduledMessage:
         """Schedule message.
@@ -82,17 +94,23 @@ class ScheduledMessagesResource(BaseResource):
         body returns the same status (201) and the same message id; a different
         body under the same key returns 409.
         """
-        body: dict[str, Any] = {"type": type}
+        body: dict[str, Any] = {}
+        if type is not None:
+            body["type"] = type
         if text is not None:
             body["text"] = text
         if media_url is not None:
             body["mediaUrl"] = media_url
         if media_base64 is not None:
             body["mediaBase64"] = media_base64
+        if media_file_id is not None:
+            body["mediaFileId"] = media_file_id
         if media_kind is not None:
             body["mediaKind"] = media_kind
         if media_filename is not None:
             body["mediaFilename"] = media_filename
+        if media_mime_type is not None:
+            body["mediaMimeType"] = media_mime_type
         if poll_question is not None:
             body["pollQuestion"] = poll_question
         if poll_options is not None:
@@ -109,11 +127,30 @@ class ScheduledMessagesResource(BaseResource):
             body["secret"] = secret
         if send_at is not None:
             body["sendAt"] = send_at
+        if recurrence is not None:
+            body["recurrence"] = recurrence
+        if wa_label_ids is not None:
+            body["waLabelIds"] = wa_label_ids
+        if button_reply is not None:
+            body["buttonReply"] = button_reply
+        if from_ is not None:
+            body["from"] = from_
         envelope = self._client._request(
             "POST",
             f"/v1/scheduled-messages/{chat_id}",
             body=body,
             idempotency_key=idempotency_key,
+        )
+        return ScheduledMessage.model_validate(envelope["data"])
+
+    def cancel(self, scheduled_message_id: str) -> ScheduledMessage:
+        """Cancel scheduled message.
+
+        Cancel a queued message that has not dispatched yet. Returns the message
+        with ``status`` set to ``cancelled``.
+        """
+        envelope = self._client._request(
+            "POST", f"/v1/scheduled-messages/{scheduled_message_id}/cancel"
         )
         return ScheduledMessage.model_validate(envelope["data"])
 
@@ -133,8 +170,10 @@ class ScheduledMessagesResource(BaseResource):
         text: str | None = None,
         media_url: str | None = None,
         media_base64: str | None = None,
+        media_file_id: str | None = None,
         media_kind: str | None = None,
         media_filename: str | None = None,
+        media_mime_type: str | None = None,
         poll_question: str | None = None,
         poll_options: builtins.list[str] | None = None,
         poll_allow_multiple: bool | None = None,
@@ -158,10 +197,14 @@ class ScheduledMessagesResource(BaseResource):
             body["mediaUrl"] = media_url
         if media_base64 is not None:
             body["mediaBase64"] = media_base64
+        if media_file_id is not None:
+            body["mediaFileId"] = media_file_id
         if media_kind is not None:
             body["mediaKind"] = media_kind
         if media_filename is not None:
             body["mediaFilename"] = media_filename
+        if media_mime_type is not None:
+            body["mediaMimeType"] = media_mime_type
         if poll_question is not None:
             body["pollQuestion"] = poll_question
         if poll_options is not None:

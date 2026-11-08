@@ -40,6 +40,7 @@ class CampaignsResource(BaseResource):
         media_url: str | None = None,
         media_caption: str | None = None,
         on_missing_variable: str | None = None,
+        send_at: str | None = None,
     ) -> Campaign:
         """Create campaign.
 
@@ -55,6 +56,8 @@ class CampaignsResource(BaseResource):
             body["mediaCaption"] = media_caption
         if on_missing_variable is not None:
             body["onMissingVariable"] = on_missing_variable
+        if send_at is not None:
+            body["sendAt"] = send_at
         envelope = self._client._request("POST", "/v1/campaigns", body=body)
         return Campaign.model_validate(envelope["data"])
 

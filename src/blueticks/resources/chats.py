@@ -3,9 +3,15 @@ from __future__ import annotations
 import builtins
 from typing import Any
 
+from pydantic import TypeAdapter
+
 from blueticks._base_resource import BaseResource
 from blueticks.types.chats import Chat, ChatType, OkResponse, Participant
+from blueticks.types.engines import EngineTarget
 from blueticks.types.page import Page
+from blueticks.types.wa_labels import WaLabel
+
+_WA_LABELS = TypeAdapter(builtins.list[WaLabel])
 
 
 class ChatsResource(BaseResource):
@@ -20,6 +26,11 @@ class ChatsResource(BaseResource):
         include_extended_info: bool | None = None,
         include_without_name: bool | None = None,
         include_archive: bool | None = None,
+        engine: EngineTarget | None = None,
+        engine_id: str | None = None,
+        number_id: str | None = None,
+        phone: str | None = None,
+        fanout_limit: int | None = None,
         skip: int | None = None,
         limit: int | None = None,
     ) -> Page[Chat]:
@@ -30,11 +41,21 @@ class ChatsResource(BaseResource):
         optional case-insensitive name search via ``search_token`` and a
         ``filter`` to restrict to one chat kind, or ``kinds`` to keep only several
         kinds. ``since`` (ISO 8601, offset allowed) keeps only chats whose last
-        message is at/after that instant (approximate). Requires ``chats:read``.
+        message is at/after that instant (approximate).
         """
         params: dict[str, Any] = {}
         if search_token is not None:
             params["searchToken"] = search_token
+        if engine is not None:
+            params["engine"] = engine
+        if engine_id is not None:
+            params["engineId"] = engine_id
+        if number_id is not None:
+            params["numberId"] = number_id
+        if phone is not None:
+            params["phone"] = phone
+        if fanout_limit is not None:
+            params["fanoutLimit"] = fanout_limit
         if filter is not None:
             params["filter"] = filter
         if kinds:
@@ -61,7 +82,7 @@ class ChatsResource(BaseResource):
 
         Retrieve a single chat by its id — a phone number in international format
         (e.g. +14155551234) or a WhatsApp JID (``@c.us``, ``@g.us``, or
-        ``@newsletter``). Requires ``chats:read``.
+        ``@newsletter``).
         """
         envelope = self._client._request("GET", f"/v1/chats/{chat_id}")
         return Chat.model_validate(envelope["data"])
@@ -71,17 +92,32 @@ class ChatsResource(BaseResource):
         chat_id: str,
         *,
         search_token: str | None = None,
+        engine: EngineTarget | None = None,
+        engine_id: str | None = None,
+        number_id: str | None = None,
+        phone: str | None = None,
+        fanout_limit: int | None = None,
         skip: int | None = None,
         limit: int | None = None,
     ) -> Page[Participant]:
         """List chat participants.
 
         For group chats, returns the participant list (paginated). For DMs,
-        returns the single counterparty. Requires ``chats:read``.
+        returns the single counterparty.
         """
         params: dict[str, Any] = {}
         if search_token is not None:
             params["searchToken"] = search_token
+        if engine is not None:
+            params["engine"] = engine
+        if engine_id is not None:
+            params["engineId"] = engine_id
+        if number_id is not None:
+            params["numberId"] = number_id
+        if phone is not None:
+            params["phone"] = phone
+        if fanout_limit is not None:
+            params["fanoutLimit"] = fanout_limit
         if skip is not None:
             params["skip"] = skip
         if limit is not None:
@@ -90,6 +126,26 @@ class ChatsResource(BaseResource):
             "GET", f"/v1/chats/{chat_id}/participants", params=params or None
         )
         return Page[Participant].model_validate(envelope)
+
+    def list_wa_labels(self, chat_id: str) -> builtins.list[WaLabel]:
+        """List native WhatsApp Business labels on a chat.
+
+        Returns the native labels currently applied to ``chat_id``. Ids come from
+        :meth:`blueticks.resources.wa_labels.WaLabelsResource.list`.
+        """
+        envelope = self._client._request("GET", f"/v1/chats/{chat_id}/wa-labels")
+        return _WA_LABELS.validate_python(envelope["data"])
+
+    def update_wa_labels(self, chat_id: str, *, label_ids: builtins.list[str]) -> OkResponse:
+        """Replace native WhatsApp Business labels on a chat.
+
+        ``label_ids`` is the full replacement set (at most 20). An empty list
+        clears all native labels from the chat.
+        """
+        envelope = self._client._request(
+            "PATCH", f"/v1/chats/{chat_id}/wa-labels", body={"labelIds": label_ids}
+        )
+        return OkResponse.model_validate(envelope["data"])
 
     def archive(self, chat_id: str) -> OkResponse:
         """Archive a chat on the connected engine, hiding it from the main list."""
